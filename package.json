@@ -1,0 +1,32 @@
+{
+  "name": "personal-life-os",
+  "private": true,
+  "type": "module",
+  "description": "面向中文用户的 Personal Life OS",
+  "author": "秋水 <qiushui>",
+  "packageManager": "bun@1.3.14",
+  "scripts": {
+    "acp": "bun run src/acp/main.ts",
+    "test": "bun test tests/acp",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@agentclientprotocol/sdk": "1.7.0",
+    "@earendil-works/pi-ai": "1.0.0",
+    "@earendil-works/pi-coding-agent": "1.0.0",
+    "proper-lockfile": "4.1.2"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.14",
+    "typescript": "7.0.2"
+  },
+  "overrides": {
+    "@earendil-works/chord": "1.0.0",
+    "@earendil-works/pi-agent-core": "1.0.0",
+    "@earendil-works/pi-ai": "1.0.0",
+    "@earendil-works/pi-codemode": "1.0.0",
+    "@earendil-works/pi-mcp": "1.0.0",
+    "@earendil-works/pi-telemetry": "1.0.0",
+    "@earendil-works/pi-tui": "1.0.0"
+  }
+}

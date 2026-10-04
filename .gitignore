@@ -19,3 +19,10 @@ Meta/Agent Chats/
 # Local Claude Code settings and build output.
 .claude/settings.local.json
 build/
+
+# 开发依赖、构建产物与本机环境变量。
+/node_modules/
+/dist/
+/.env
+/.env.*
+!/.env.example
