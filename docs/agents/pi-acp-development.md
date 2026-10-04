@@ -125,7 +125,7 @@ Agent Client 候选默认配置如下，参数均为独立数组项，不使用�
 
 `tests/acp/built-runtime.test.ts` 把产物复制到系统临时目录，使用没有项目依赖的独立合成库验证握手、中文请求、选区和附件。构建文件也通过了 `bun scripts/verify_codex_acp.ts --live --runtime dist/ai-runtime/pi-acp.js` 的真实中文流、提示词读取、选区验收。工具真实验收可通过同样的 `--runtime` 参数指定发行文件。
 
-注意：未适配的第三方 Agent Client 会把消息副本写入 `.obsidian/plugins/agent-client/sessions`，把标题、cwd 等索引保存到 data.json。关闭自动导出不能关闭此缓存。上述库外保证仅适用于 Pi 自己的会话存储；完整客户端库外缓存仍需候选专用补丁与独立验收，当前配置不能单独满足。
+候选构建现在对锁定的 Agent Client 0.12.1 生成库外缓存补丁：聊天正文和标题、cwd、embedId 索引均存入用户主目录下的私有缓存，普通 data.json 不保存 savedSessions。补丁不修改当前 `.obsidian`，不迁移旧历史。原始上游插件仍有库内缓存行为，不能直接升级覆盖补丁。设计见 [缓存方案](agent-client-cache-proposal.md)，实际验证结果见 [最终开发验收](chinese-life-os-final-acceptance.md)；原生界面仍需用户手测。
 
 ## 完整提示词工作流的剩余接口
 

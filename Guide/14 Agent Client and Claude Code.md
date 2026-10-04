@@ -33,7 +33,19 @@ bun run acp
 | `LIFE_OS_AUTH` | 默认 `api-key`；明确设为 `codex` 才读取本机 Codex 登录 |
 | `LIFE_OS_MCP_CONFIG` | 可选，显式指定库外 MCP 配置文件；不从库内自动发现连接 |
 
-Pi 会话文件包含对话和工具结果，保存在库外，不随模板分发。但未适配的上游 Agent Client 还会在库内 `.obsidian/plugins/agent-client/sessions` 缓存消息副本，并把标题等索引写进 data.json；关闭自动导出不能关闭此缓存。完整客户端库外缓存方案仍需确认并验收，当前不能宣称所有会话已留在库外。密钥通过启动环境提供，真实密钥不写入文档。候选默认支持 `LIFE_OS_AUTH=codex`、`LIFE_OS_PROVIDER=openai-codex` 与 `LIFE_OS_MODEL=gpt-6.1-sol`，只读本人已有 Codex 登录；令牌过期需在 Codex 重新登录，不复制刷新令牌。其他服务商通过本机环境变量提供密钥。首次验证先使用合成消息和测试库；最终 Agent Client 原生操作由用户按 [[23 Native Acceptance|人工验收清单]] 测试。
+Pi 会话文件包含对话和工具结果，保存在库外，不随模板分发。候选中的 Agent Client 另带库外缓存兼容补丁，客户端聊天正文、标题、目录及嵌入会话索引也保存在库外。密钥通过启动环境提供，真实密钥不写入文档。候选默认支持 `LIFE_OS_AUTH=codex`、`LIFE_OS_PROVIDER=openai-codex` 与 `LIFE_OS_MODEL=gpt-6.1-sol`，只读本人已有 Codex 登录；令牌过期需在 Codex 重新登录，不复制刷新令牌。其他服务商通过本机环境变量提供密钥。首次验证先使用合成消息和测试库；最终 Agent Client 原生操作由用户按 [[23 Native Acceptance|人工验收清单]] 测试。
+
+## 聊天记录存在哪里
+
+客户端聊天缓存放在电脑用户目录的 `.local/share/personal-life-os/agent-client/<笔记库路径摘要>/`。不同笔记库分开存放，标题和会话列表在该目录的 `index.json` 中，正文存为独立文件。Pi 自己的会话仍使用上方 `LIFE_OS_SESSION_DIR`。笔记库内的 Agent Client 设置不保存 `savedSessions`，也不建立 `sessions` 缓存目录。
+
+聊天和历史记录入口保持原样。复制、移动笔记库或换电脑不会自动迁移聊天；客户端删除历史记录只删除该客户端缓存，Pi 的独立会话保留策略不变。主动“导出聊天”仍是你明确选择的操作，会把选中的内容写到所选导出位置，默认自动导出保持关闭。
+
+缓存目录不可写、索引损坏或路径不安全时会停止保存并报错，不改回库内存储。发现非空旧版库内索引时，不自动读取、搬运或删除旧聊天，需要另行安排迁移。当前项目没有旧数据，不需要迁移步骤。移动端不启用此桌面 AI 插件，原有非 AI 功能照常使用。
+
+macOS / Linux 使用私有目录和文件权限；Windows 使用系统自带 PowerShell 检查用户访问权限，系统组件被禁用或检查失败时会明确停止，不降低权限要求。Windows 原生表现仍需在实际设备上手测。若电脑异常退出后提示存在遗留锁，应先确认所有使用该笔记库的 Obsidian 进程已关闭，再检查报错；不要在另一个窗口仍保存聊天时移除锁。
+
+**不要直接用 Obsidian 的上游 Agent Client 更新覆盖兼容版本。** 上游原版会恢复库内缓存行为。请使用 Personal Life OS 重新核验后生成的新候选。插件目录保留 `upstream-main.js`、原许可证及 `LIFE_OS_CACHE_PATCH.json` / `LIFE_OS_CACHE_PATCH_NOTICE.txt`，便于核对来源；不要把备用原文件重命名为入口文件。
 
 ## 供应商、模型与凭据
 

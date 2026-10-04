@@ -15,6 +15,15 @@ test("模板构建命令打包生成的插件并通过恢复验证", async () =>
     expect({ code, failure: code ? output : "" }).toEqual({ code: 0, failure: "" });
     const manifest = JSON.parse(await readFile(join(out, "Candidate/.obsidian/plugins/life-os-app/manifest.json"), "utf8"));
     expect(manifest.name).toBe("Personal Life OS");
+    const client = join(out, "Candidate/.obsidian/plugins/agent-client");
+    const clientSettings = JSON.parse(await readFile(join(client, "data.json"), "utf8"));
+    expect("savedSessions" in clientSettings).toBe(false);
+    const patch = JSON.parse(await readFile(join(client, "LIFE_OS_CACHE_PATCH.json"), "utf8"));
+    const { createHash } = await import("node:crypto");
+    const hash = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+    expect(patch.upstreamSha256).toBe(hash(await readFile(join(client, "upstream-main.js"))));
+    expect(patch.patchedSha256).toBe(hash(await readFile(join(client, "main.js"))));
+    expect(await readFile(join(client, "LIFE_OS_CACHE_PATCH_NOTICE.txt"), "utf8")).toContain("Personal Life OS");
     const restore = Bun.spawn([process.execPath, resolve("scripts/verify_archive_restore.ts"),
       join(out, "Candidate-template-v1.1.0.zip")], { stdout: "pipe", stderr: "pipe" });
     const restored = new Response(restore.stdout).text();
@@ -30,6 +39,11 @@ test("模板构建命令打包生成的插件并通过恢复验证", async () =>
     const { writeFile } = await import("node:fs/promises");
     await writeFile(qaPath, JSON.stringify(qa));
     const { verifyTemplate } = await import("../../src/tooling/verify-template");
+    const clientMain = await readFile(join(client, "main.js"), "utf8");
+    await appendFile(join(client, "main.js"), "\n// unexpected compatibility patch modification\n");
+    const changedClient = await verifyTemplate(join(out, "Candidate"));
+    expect(changedClient.find(result => result.check === "Agent Client 库外缓存补丁及上游来源完整")?.ok).toBe(false);
+    await writeFile(join(client, "main.js"), clientMain);
     const altered = await verifyTemplate(join(out, "Candidate"));
     expect(altered.find(result => result.check === "配置结构完整有效")?.ok).toBe(false);
     const retargeted = JSON.parse(qaOriginal);

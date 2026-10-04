@@ -5,6 +5,7 @@ import { verifyManifest } from "./archive";
 import { compilePiRuntime } from "./build-pi-runtime";
 import { runtimeLicenses } from "./runtime-licenses";
 import { quickAddCaptureTarget } from "./build-vault-assets";
+import { patchAgentClient } from "./patch-agent-client";
 
 export interface Check { check: string; ok: boolean; detail: string }
 const SOURCE = resolve(import.meta.dir, "../..");
@@ -44,6 +45,20 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
       await readFile(join(root, "scripts/ai-runtime/THIRD_PARTY_LICENSES.txt"), "utf8") === await runtimeLicenses(expected);
   } catch { /* Missing or altered runtime must fail provenance validation. */ }
   check("Pi 运行文件及许可证与当前源码构建一致", verifiedRuntime);
+  let verifiedClient = false;
+  try {
+    const folder = join(root, ".obsidian/plugins/agent-client");
+    const patched = await patchAgentClient(await readFile(join(folder, "upstream-main.js"), "utf8"));
+    const clientManifest = await readJson(join(folder, "manifest.json"));
+    verifiedClient = clientManifest.id === "agent-client" && clientManifest.version === "0.12.1" && clientManifest.isDesktopOnly === true &&
+      await readFile(join(folder, "main.js"), "utf8") === patched.code &&
+      await readFile(join(folder, "LIFE_OS_CACHE_PATCH_NOTICE.txt"), "utf8") === patched.notice &&
+      await readFile(join(folder, "LIFE_OS_CACHE_PATCH.json"), "utf8") === JSON.stringify({
+        patchVersion: 1, upstreamVersion: "0.12.1",
+        upstreamSha256: patched.upstreamSha256, patchedSha256: patched.patchedSha256,
+      }, null, 2) + "\n";
+  } catch { /* Unknown upstream builds and changed compatibility patches fail closed. */ }
+  check("Agent Client 库外缓存补丁及上游来源完整", verifiedClient);
   const texts: Record<string, string> = {};
   for (const rel of files) {
     if (rel.startsWith(".obsidian/plugins/") && !rel.endsWith("data.json")) continue;
@@ -68,7 +83,7 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
     const ra = await load(".obsidian/plugins/obsidian-local-rest-api/data.json");
     check("REST API 仅启用本地非加密服务", ra && Object.keys(ra).length === 1 && ra.enableInsecureServer === true);
     const ac = await load(".obsidian/plugins/agent-client/data.json");
-    check("Agent Client 无会话且自动批准关闭", ac && Array.isArray(ac.savedSessions) && !ac.savedSessions.length && ac.autoAllowPermissions === false &&
+    check("Agent Client 无会话且自动批准关闭", ac && !("savedSessions" in ac) && ac.autoAllowPermissions === false &&
       Object.values(ac.presetAgents || {}).every((pa: any) => !String(pa?.command || "").startsWith("/")));
     const seo = await load(".obsidian/plugins/seo/data.json"); check("SEO 无缓存且扫描写作目录", seo && !("cachedGlobalResults" in seo) && seo.scanDirectories?.includes("06 Writing"));
     const om = await load(".obsidian/plugins/omnisearch/data.json"); check("Omnisearch HTTP 关闭", !om || (om.httpApiEnabled === false && !om.DANGER_httpHost));

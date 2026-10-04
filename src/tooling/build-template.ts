@@ -17,6 +17,7 @@ import { compilePlugin } from "./build-obsidian";
 import { compileVaultArtifacts, compileQuickAddCapture, quickAddCaptureDefaults } from "./build-vault-assets";
 import { compilePiRuntime } from "./build-pi-runtime";
 import { runtimeLicenses } from "./runtime-licenses";
+import { patchAgentClient } from "./patch-agent-client";
 const defaults = resolve(import.meta.dir, "../../scripts/template/defaults");
 const userFolders = [
   "01 Journal/",
@@ -138,7 +139,6 @@ export async function safePluginSettings(plugin: string, source: string) {
   const fixed: Record<string, unknown> = {
     "obsidian-local-rest-api": { enableInsecureServer: true },
     "agent-client": {
-      savedSessions: [],
       autoAllowPermissions: false,
       customAgents: [{ id: "personal-life-os-pi", displayName: "Personal Life OS · Pi", command: "bun", args: ["run", "./scripts/ai-runtime/pi-acp.js"], enabled: true,
         env: [{ key: "LIFE_OS_AUTH", value: "codex" }, { key: "LIFE_OS_PROVIDER", value: "openai-codex" }, { key: "LIFE_OS_MODEL", value: "gpt-6.1-sol" }] }],
@@ -519,6 +519,16 @@ export async function buildTemplate(options: BuildOptions) {
     for (const artifact of await compileVaultArtifacts()) {
       await put(join(candidate, artifact.path), artifact.content);
     }
+    const clientFolder = join(candidate, ".obsidian/plugins/agent-client");
+    const originalClient = await readFile(join(clientFolder, "main.js"), "utf8");
+    const patchedClient = await patchAgentClient(originalClient);
+    await put(join(clientFolder, "upstream-main.js"), originalClient);
+    await put(join(clientFolder, "main.js"), patchedClient.code);
+    await put(join(clientFolder, "LIFE_OS_CACHE_PATCH_NOTICE.txt"), patchedClient.notice);
+    await put(join(clientFolder, "LIFE_OS_CACHE_PATCH.json"), JSON.stringify({
+      patchVersion: 1, upstreamVersion: "0.12.1",
+      upstreamSha256: patchedClient.upstreamSha256, patchedSha256: patchedClient.patchedSha256,
+    }, null, 2) + "\n");
     const runtime = await compilePiRuntime();
     await put(join(candidate, "scripts/ai-runtime/pi-acp.js"), runtime);
     await put(join(candidate, "scripts/ai-runtime/THIRD_PARTY_LICENSES.txt"), await runtimeLicenses(runtime));

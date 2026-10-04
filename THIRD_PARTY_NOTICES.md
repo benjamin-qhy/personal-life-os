@@ -27,6 +27,8 @@
 
 Life OS Brain 视图是独立编写的 Canvas 实现，视觉概念受 SEO OS 的脑形设计启发。未随附 SEO OS 的源码、素材、依赖或客户数据。
 
+发行候选的 Agent Client 0.12.1 带 Personal Life OS 库外缓存兼容修改，修改会话正文和索引的保存位置，保留其界面与 Apache-2.0 许可证。插件目录同时保留上游原始 `upstream-main.js`、原 `LICENSE`、修改说明 `LIFE_OS_CACHE_PATCH_NOTICE.txt` 和输入/输出摘要 `LIFE_OS_CACHE_PATCH.json`。此修改不表示上游作者发布或背书了兼容版本；维护源码中的原插件文件不变。
+
 本笔记库不包含 Obsidian 本体；用户需从 https://obsidian.md 安装。
 
 本笔记库的工作流参考 Mike Schmitz 的公开视频《How I Run My Whole Life Out of Obsidian》（Practical PKM，2026）；详见 `CREDITS.md`。
