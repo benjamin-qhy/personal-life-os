@@ -1,54 +1,40 @@
-# Issue tracker: GitHub
+# 工单跟踪：GitHub
 
-Engineering issues and specs live in GitHub Issues for
-benjamin-qhy/personal-life-os. Use the gh CLI with an explicit
---repo benjamin-qhy/personal-life-os argument to avoid targeting upstream.
+工程工单与规格文档存放在 benjamin-qhy/personal-life-os 的 GitHub Issues 中。
+使用 gh CLI 时明确传入 --repo benjamin-qhy/personal-life-os，避免误操作上游仓库。
 
-This tracker is for engineering work on the vault system.
-Personal tasks retain the existing Obsidian workflow.
-Never copy journal text to GitHub. Follow AGENTS.md privacy and
-authorization rules before network operations or publishing.
+这里跟踪笔记库系统的工程工作。个人任务继续使用现有 Obsidian 工作流。
+不要把日记原文复制到 GitHub。网络操作或发布之前，遵循 AGENTS.md 的隐私与授权规则。
 
-## Conventions
+## 使用约定
 
-- Create: gh issue create --repo benjamin-qhy/personal-life-os --title "<title>" --body-file <file>
-- Read: gh issue view <number> --repo benjamin-qhy/personal-life-os --comments
-- List: gh issue list --repo benjamin-qhy/personal-life-os --state open --json number,title,body,labels
-- Comment: gh issue comment <number> --repo benjamin-qhy/personal-life-os --body-file <file>
-- Add labels: gh issue edit <number> --repo benjamin-qhy/personal-life-os --add-label "<label>"
-- Remove labels: gh issue edit <number> --repo benjamin-qhy/personal-life-os --remove-label "<label>"
-- Close: gh issue close <number> --repo benjamin-qhy/personal-life-os
+- 创建： gh issue create --repo benjamin-qhy/personal-life-os --title "<title>" --body-file <file>
+- 读取： gh issue view <number> --repo benjamin-qhy/personal-life-os --comments
+- 列出： gh issue list --repo benjamin-qhy/personal-life-os --state open --json number,title,body,labels
+- 评论： gh issue comment <number> --repo benjamin-qhy/personal-life-os --body-file <file>
+- 添加标签： gh issue edit <number> --repo benjamin-qhy/personal-life-os --add-label "<label>"
+- 移除标签： gh issue edit <number> --repo benjamin-qhy/personal-life-os --remove-label "<label>"
+- 关闭： gh issue close <number> --repo benjamin-qhy/personal-life-os
 
-For multiline content, use a body file containing the exact approved text.
-Creating that file also follows the vault's file approval rules.
-Resolve ambiguous issue or PR numbers before acting.
+多行内容使用正文文件，文件中必须是已经批准的准确文本。
+创建该文件也须遵循笔记库的文件审批规则。操作前先澄清有歧义的工单或 PR 编号。
 
-## Pull requests as a triage surface
+## 拉取请求是否作为分诊入口
 
-PRs as a request surface: no.
+不使用 PR 作为需求提交入口。
 
-## Skill terminology
+## 技能术语
 
-"Publish to the issue tracker" means create a GitHub issue after
-the required authorization.
+“发布到工单跟踪系统”指在获得所需授权后创建 GitHub issue。
 
-"Fetch the relevant ticket" means read the referenced GitHub issue
-and its comments.
+“获取相关工单”指读取指定的 GitHub issue 及其评论。
 
-## Wayfinding operations
+## Wayfinding 操作
 
-- Map: one issue labelled wayfinder:map containing Notes,
-  Decisions-so-far, and Fog.
-- Child tickets: link issues to the map using GitHub sub-issues
-  when available. Otherwise use a task list in the map and a
-  Part of #<map> line in each child.
-- Types: wayfinder:research, wayfinder:prototype,
-  wayfinder:grilling, and wayfinder:task.
-- Blocking: use native issue dependencies when available.
-  Otherwise record Blocked by: #<number> in each child.
-- Frontier: select the first open, unassigned child in map order
-  with no open blockers.
-- Claim: assign the ticket to the driving developer before work,
-  subject to authorization.
-- Resolve: post the approved result, close the ticket, and append
-  a concise result pointer to the map's Decisions-so-far.
+- 地图：用一个带 wayfinder:map 标签的工单作为地图，包含 Notes、Decisions-so-far 和 Fog。
+- 子工单：如果支持 GitHub sub-issues，就用它将子工单关联到地图；否则在地图中使用任务列表，并在每个子工单中添加 Part of #<map>。
+- 类型：wayfinder:research、wayfinder:prototype、wayfinder:grilling 和 wayfinder:task。
+- 阻塞关系：优先使用原生工单依赖；不可用时，在每个子工单中记录 Blocked by: #<number>。
+- 下一项：按地图顺序选择第一个尚未关闭、未分配且没有未解决阻塞项的子工单。
+- 认领：在授权范围内，开始工作前将工单分配给负责的开发者。
+- 完成：发布已批准的结果，关闭工单，并在地图的 Decisions-so-far 中追加简短的结果链接。

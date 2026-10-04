@@ -1,40 +1,34 @@
-# Domain Docs
+# 领域文档
 
-Engineering skills use a single-context layout.
+工程技能采用单上下文布局。
 
-## Layout
+## 布局
 
-- CONTEXT.md at the repository root holds the domain glossary.
-- docs/adr/ holds architecture decision records.
+- 仓库根目录的 CONTEXT.md 保存领域术语表。
+- docs/adr/ 保存架构决策记录。
 
-These paths describe the intended layout. Setup does not create
-domain content or invent decisions.
+这些路径描述预期布局。初始化设置不会创建领域内容，也不会编造决策。
 
-## Before exploring
+## 开始探索之前
 
-Read AGENTS.md first. Read only material needed for the current task.
+先读 AGENTS.md。只读取当前任务所需的材料。
 
-When present, read the relevant parts of CONTEXT.md and ADRs that
-touch the area being investigated.
+如果存在 CONTEXT.md 和 ADR，只读取与当前调查范围相关的部分。
 
-When domain documents are absent, do not infer their contents.
-Follow AGENTS.md requirements for missing files.
-Creating domain documents requires a separate proposal and approval.
+如果领域文档不存在，不要推测其内容。遵循 AGENTS.md 对缺失文件的要求。
+创建领域文档需要另行提出方案并获得批准。
 
-## Vocabulary
+## 术语
 
-Use terms defined in CONTEXT.md when naming domain concepts.
-If a needed term is absent, flag the gap for domain-modeling
-without inventing a definition.
+为领域概念命名时，使用 CONTEXT.md 定义的术语。
+如果缺少所需术语，指出缺口，交由 domain-modeling 处理，不要自行编造定义。
 
-## ADR conflicts
+## ADR 冲突
 
-Explicitly identify any proposal that contradicts an existing ADR.
-Explain the conflict and why reconsideration may be warranted.
-Do not silently override recorded decisions.
+明确指出与既有 ADR 冲突的提案，解释冲突以及为什么可能需要重新考虑。
+不要默默覆盖已经记录的决策。
 
-## Privacy
+## 隐私
 
-Keep domain documentation focused on the vault system.
-Never copy journal text into these documents or treat example
-notes as facts about the person's life.
+领域文档只讨论笔记库系统。
+不要把日记原文复制到这些文档中，也不要把示例笔记当作用户真实生活的事实。

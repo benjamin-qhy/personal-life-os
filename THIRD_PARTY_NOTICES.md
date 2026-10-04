@@ -1,8 +1,8 @@
-# Third-party notices
+# 第三方声明
 
-This vault bundles the following Obsidian community plugins with their recorded versions and licenses. Each plugin folder includes its main script, manifest, and license; a stylesheet is included where supplied. The upstream links below are provenance references. File presence and matching version labels alone do not prove byte-for-byte identity with an upstream release. A public release requires a separate upstream provenance and redistribution review, including applicable source-distribution requirements.
+本笔记库随附以下 Obsidian 社区插件，并记录其版本和许可证。每个插件目录包含主脚本、清单和许可证；上游提供样式表时也一并包含。下列上游链接用于追溯来源。仅凭文件存在和版本标签一致，不能证明文件与上游发行版逐字节相同。公开发布前须另行核查上游来源与再分发要求，包括适用的源码分发要求。
 
-| Plugin id | Version shipped | License | Upstream | Release |
+| 插件 ID | 随附版本 | 许可证 | 上游 | 发行版本 |
 | --- | --- | --- | --- | --- |
 | dataview | 0.5.68 | MIT | https://github.com/blacksmithgu/obsidian-dataview | https://github.com/blacksmithgu/obsidian-dataview/releases/tag/0.5.68 |
 | templater-obsidian | 2.25.0 | AGPL-3.0 | https://github.com/SilentVoid13/Templater | https://github.com/SilentVoid13/Templater/releases/tag/2.25.0 |
@@ -15,18 +15,18 @@ This vault bundles the following Obsidian community plugins with their recorded 
 | agent-client | 0.12.1 | Apache-2.0 | https://github.com/RAIT-09/obsidian-agent-client | https://github.com/RAIT-09/obsidian-agent-client/releases/tag/0.12.1 |
 | seo | 0.5.6 | MIT | https://github.com/davidvkimball/obsidian-seo | https://github.com/davidvkimball/obsidian-seo/releases/tag/0.5.6 |
 
-Plugin ids are the ones Obsidian uses; the display names appear in Settings → Community plugins.
+插件 ID 沿用 Obsidian 的标识；显示名称可在“设置 → 社区插件”中查看。
 
-## First-party component
+## 第一方组件
 
-The original Life OS application shell is included with this vault.
+本笔记库包含原有的 Life OS 应用界面组件。
 
-| Plugin id | Version shipped | License | Source |
+| 插件 ID | 随附版本 | 许可证 | 来源 |
 | --- | --- | --- | --- |
 | life-os-app | 0.20.0 | MIT | `.obsidian/plugins/life-os-app/` |
 
-The Life OS Brain view is an original Canvas implementation inspired by the brain-shaped visual concept in SEO OS. No SEO OS source code, assets, dependencies, or client data are bundled.
+Life OS Brain 视图是独立编写的 Canvas 实现，视觉概念受 SEO OS 的脑形设计启发。未随附 SEO OS 的源码、素材、依赖或客户数据。
 
-Obsidian itself is not included; members install it from https://obsidian.md.
+本笔记库不包含 Obsidian 本体；用户需从 https://obsidian.md 安装。
 
-Workflows in this vault follow Mike Schmitz's public video "How I Run My Whole Life Out of Obsidian" (Practical PKM, 2026): see `CREDITS.md`.
+本笔记库的工作流参考 Mike Schmitz 的公开视频《How I Run My Whole Life Out of Obsidian》（Practical PKM，2026）；详见 `CREDITS.md`。
