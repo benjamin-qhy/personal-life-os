@@ -14,8 +14,8 @@
 bun install --frozen-lockfile --ignore-scripts
 bun run typecheck
 bun test
-bun scripts/verify_life_os_app.ts .
-bun scripts/verify_assistant_contracts.ts .
+bun run verify:app
+bun run verify:browser
 bun scripts/verify_release_safety.ts
 bun scripts/build_template.ts --out ../life-os-releases --name Personal-Life-OS-1.1.0-candidate --version 1.1.0 --zip
 bun scripts/verify_template.ts ../life-os-releases/Personal-Life-OS-1.1.0-candidate
@@ -23,6 +23,8 @@ bun scripts/verify_archive_restore.ts ../life-os-releases/Personal-Life-OS-1.1.0
 ```
 
 版本必须明确指定，输出目录必须位于源码库及其祖先目录之外。已有候选目录、ZIP 或摘要文件会被拒绝覆盖。构建失败会删除私有临时目录和本次创建的失败产物。
+
+`bun run build:obsidian` 将第一方插件 TypeScript 源码生成到 `dist/obsidian/life-os-app`，不安装到现用 `.obsidian`。应用与浏览器检查使用该产物；模板构建也从源码生成插件，不复制现用插件代码。原生操作需在独立测试库验证。浏览器检查需要 Playwright Chromium，或用 `CHROMIUM_PATH` 指定本机 Chrome。
 
 CI 使用同样的 Bun 工具链，运行合成测试和应用契约，构建独立副本，并验证临时解压后的每个文件。CI 不调用真实模型，不代表完成 Obsidian 原生验收，也不发布发行版。
 

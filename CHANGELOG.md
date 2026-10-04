@@ -4,6 +4,12 @@ Format: Added, Changed, Templates (manual merge notes), Plugins, Breaking. Semve
 
 ## Unreleased
 
+### 第一方插件 TypeScript 构建
+- 第一方插件采用严格 TypeScript 源码维护，通过 Bun 生成 Obsidian 可加载的 JavaScript；保留原命令标识、布局和版权。
+- 修复捕获窗口调用宿主不存在的事件注册方法而无法打开的问题；验证选择日记捕获后执行对应命令并关闭窗口。
+- 应用、浏览器及模板归档验证使用生成插件；现用 `.obsidian` 保持不变。插件元信息展示 Personal Life OS，开发者秋水 / qiushui。
+- 本阶段不代表完整中文化或原生 Obsidian 验收完成。
+
 ### Release preparation hardening
 - Skip live personal defaults before staging; rebuild canonical boards empty instead of copying live cards; remove the arbitrary Board.md exemption; reset core machine state and omit local agent directories.
 - Add disposable archive restore verification with checksum, traversal, duplicate-path, file-type, inventory, and per-file integrity checks. Eleven release-safety tests cover core rejection paths.
