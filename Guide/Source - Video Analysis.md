@@ -7,40 +7,46 @@ duration: "23:32"
 analyzed: 2026-08-26
 transcript_source: youtube auto captions
 ---
-# Source: How I Run My Whole Life Out of Obsidian
+# 视频来源分析
 
-Analysis note for the video this vault is built from. The video file itself could not be downloaded when this note was made (YouTube returned 403 for media streams), so there are no extracted frames or visual descriptions; the chapter list is from the description and the transcript is the YouTube caption track, lightly cleaned.
+本笔记记录工作流的原始公开视频。分析时 YouTube 媒体流返回 403，未能下载视频，因此没有提取画面，也没有基于画面的描述。章节来自视频说明，内容分析依据经过轻度整理的自动字幕。这里不是本项目原生验收记录。
 
-## Chapters
-| Time | Chapter |
+## 章节
+
+| 时间 | 内容 |
 | --- | --- |
-| 0:00 | Intro |
-| 0:56 | Picking the Right Apps |
-| 2:40 | Journaling |
-| 5:52 | Personal Retreats |
-| 7:53 | Multi-Scale Planning |
-| 9:45 | Habit Tracking |
-| 11:51 | Daily Bible Reading |
-| 14:11 | Task Management |
-| 16:42 | Writing |
-| 18:36 | Compass Dashboard |
-| 20:46 | Pulling It All Together |
-| 22:11 | Conclusion |
+| 0:00 | 开场 |
+| 0:56 | 选择合适的应用 |
+| 2:40 | 日记 |
+| 5:52 | 个人静修 |
+| 7:53 | 多尺度规划 |
+| 9:45 | 习惯追踪 |
+| 11:51 | 每日圣经阅读 |
+| 14:11 | 任务管理 |
+| 16:42 | 写作 |
+| 18:36 | 罗盘仪表盘 |
+| 20:46 | 把工作流连接起来 |
+| 22:11 | 结语 |
 
-## One-paragraph summary
-Mike argues that the value of PKM is in connections, not storage, and that the workflows that benefit from being connected belong in one vault: daily journaling with Goldsmith's "Did I do my best to" questions scored 1 to 10 as note properties; a quarterly personal retreat in a single note (theme and values, journal review, wheel of life, retrospective, intentions, ideal week); Cal Newport multi-scale planning across quarterly, weekly, and daily periodic notes; habit tracking as checkbox properties with a DataviewJS dashboard; Bible reading with note-per-chapter and note-per-verse files that become a personal cross-reference library; task management with the Tasks plugin, a never-read master list, tag-based project and people roll-ups, and a dashboard used as a recommendation engine before time blocking; and writing on Kanban boards with sources embedded from the same vault. A DataviewJS "Compass dashboard" (wheel of life, daily questions, habits, life theme, memento mori, quick links) is generated entirely from those notes. Closing advice: reduce seams, but do not cram everything into one app; pick one workflow (journaling), run it 30 days, then layer the next.
+## 内容概要
 
-## Key quotes
-- "PKM isn't just about storing information, it's about connecting it." (0:17)
-- "That's not Obsidian being an everything app. That's the connections doing the heavy lifting." (1:45)
-- "Don't journal to record the past, journal to craft the future." (5:23)
-- "You can't lie to yourself when your own writing from 2 years ago is staring you in the face." (7:27)
-- "There's no app, no notifications, and no streak shame." (10:36)
-- "Tracking honestly is more important than tracking perfectly." (11:22)
-- "Tasks without context are just a list of guilt." (16:30)
-- "The computer is the brain, but the notebook is the list." (16:25)
-- "The fewer seams you have, the more compound interest your system earns." (22:20)
-- "Please do not try to copy the whole thing in a weekend." (22:46)
+Mike 强调个人知识管理的价值在于连接。日记用 Goldsmith 的“是否尽力”问题记录 1 至 10 分，季度静修把主题、价值观、日记、人生之轮、回顾、意图与理想一周放在同一篇笔记中；多尺度规划把季度、周和日连接；习惯通过每日复选框记录并由 DataviewJS 汇总。圣经的章节与经节笔记形成交叉参考库，任务靠标签关联项目和人物，仪表盘提供建议后由本人安排时间块。写作看板推进创作，正文直接引用同库素材。罗盘从这些记录生成图表和快捷入口。结论是减少不必要的切换，从一个工作流开始，坚持约 30 天再逐步增加。
 
-## Transcript
-Not included in the distributed template. Watch the video at the source URL above.
+## 关键观点的中文转述
+
+以下为字幕观点转述，不作为经核对的逐字引文：
+
+- 0:17：知识管理不只是存储，而是连接。
+- 1:45：价值来自连接发挥作用，不是让 Obsidian 成为包办一切的应用。
+- 5:23：日记应帮助未来行动，而不只是复述过去。
+- 7:27：面对两年前自己的记录，很难忽略真实变化或重复。
+- 10:36：习惯记录不需要额外应用、通知或连续中断的羞耻感。
+- 11:22：诚实追踪比完美追踪重要。
+- 16:30：没有上下文的任务容易变成负罪感清单。
+- 16:25：计算机提供整体线索，执行清单和时间安排仍由本人选择。
+- 22:20：减少频繁切换的摩擦，可以长期积累收益。
+- 22:46：不要试图在一个周末照搬完整系统。
+
+## 完整字幕
+
+发行模板不包含完整字幕。请通过顶部来源链接观看原视频，并结合 [[12 Resources and Links|资源列表]] 查看相关资料。

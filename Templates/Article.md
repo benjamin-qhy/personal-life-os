@@ -9,26 +9,26 @@ sources: []
 tags:
   - writing/article
 ---
-Board: [[Article Board]] · Publish: export markdown to your publishing platform.
+看板：[[Article Board|文章看板]] · 发布：将 Markdown 导出到你的发布平台。
 
 ```agent
 type: button
-text: "Work on this piece"
-prompt: "Read Prompts/10 Writing Pipeline.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "协助创作这篇内容"
+prompt: "使用当前可用的 read_note 或已配置 Obsidian MCP 的 vault_read 读取 Prompts/10 Writing Pipeline.md，按照其中的 Prompt 章节处理我当前打开的笔记；若不适用，则使用当前周期。"
 viewType: right-pane
 ```
 ```agent
 type: button
-text: "SEO pre-publish audit"
-prompt: "Read Prompts/11 SEO Pre-publish Audit.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "发布前 SEO 检查"
+prompt: "使用当前可用的 read_note 或已配置 Obsidian MCP 的 vault_read 读取 Prompts/11 SEO Pre-publish Audit.md，按照其中的 Prompt 章节处理我当前打开的笔记；若不适用，则使用当前周期。"
 viewType: right-pane
 ```
 
-## Outline
+## 大纲
 - 
 
-## Draft
+## 草稿
 
 
-## Sources
+## 来源
 - 

@@ -1,7 +1,7 @@
 import { ClientSideConnection, ndJsonStream, PROTOCOL_VERSION } from "@agentclientprotocol/sdk";
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 // 显式运行，不属于默认测试。只发送合成消息，不输出认证信息或底层错误。
 if (!process.argv.includes("--live")) {
@@ -19,7 +19,7 @@ for (const name of ["PATH", "HOME", "CODEX_HOME", "https_proxy", "http_proxy", "
   "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "NO_PROXY", "no_proxy"]) {
   if (process.env[name]) env[name] = process.env[name]!;
 }
-const child = Bun.spawn([process.execPath, fileURLToPath(new URL("../src/acp/main.ts", import.meta.url))], {
+const child = Bun.spawn([process.execPath, process.argv.includes("--runtime") ? resolve(process.argv[process.argv.indexOf("--runtime") + 1]!) : fileURLToPath(new URL("../src/acp/main.ts", import.meta.url))], {
   env, stdin: "pipe", stdout: "pipe", stderr: "ignore",
 });
 let text = "";
@@ -45,7 +45,22 @@ try {
   }] });
   const passed = result.stopReason === "end_turn" && text.trim().replace(/[。.!！]$/, "") === "订阅验收通过";
   console.log(JSON.stringify({ passed, model: env.LIFE_OS_MODEL, stopReason: result.stopReason, chunks }));
-  if (!passed) process.exitCode = 1;
+  if (!passed) throw new Error("chat-check");
+  text = "";
+  await mkdir(`${cwd}/Prompts`);
+  await writeFile(`${cwd}/Prompts/合成验收.md`, "## Prompt\n请只回复：提示词按钮验收通过。\n");
+  await client.prompt({ sessionId, prompt: [{ type: "text", text: "这是用户明确请求的提示词按钮验收。请调用 read_note 读取 Prompts/合成验收.md，执行其中 ## Prompt 的要求。" }] });
+  const promptPassed = text.includes("提示词按钮验收通过");
+  console.log(JSON.stringify({ stage: "prompt-button-read", passed: promptPassed }));
+  if (!promptPassed) throw new Error("prompt-check");
+  text = "";
+  await client.prompt({ sessionId, prompt: [
+    { type: "text", text: "请只输出下列主动提供选区中的验收口令，不读取其他文件。" },
+    { type: "resource", resource: { uri: pathToFileURL(`${cwd}/未保存选区.md`).href, mimeType: "text/markdown", text: "验收口令：中文选区上下文通过" } },
+  ] });
+  const contextPassed = text.includes("中文选区上下文通过");
+  console.log(JSON.stringify({ stage: "embedded-note-context", passed: contextPassed }));
+  if (!contextPassed) throw new Error("context-check");
 } catch (error) {
   const code = error !== null && typeof error === "object" && "code" in error && typeof error.code === "number"
     ? error.code : undefined;

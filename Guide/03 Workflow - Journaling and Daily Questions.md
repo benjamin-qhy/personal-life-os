@@ -1,25 +1,43 @@
-# Workflow 1: Journaling with Daily Questions
+# 工作流 1：日记与每日问题
 
-Video: 2:40 to 5:52. "If I had to pick just one workflow to use in Obsidian for the rest of my life, this is the one."
+视频对应 2:40 至 5:52。这是作者最希望长期保留的工作流。
 
-## The idea
-Marshall Goldsmith, *Triggers* ([[Triggers (Marshall Goldsmith)]]). Ask "Did I do my best to ___?" and answer on a 1 to 10 scale. Grade the **effort**, never the outcome.
+## 核心想法
 
-The template ships Goldsmith's six universal questions (set clear goals, make progress, find meaning, be happy, build positive relationships, be fully engaged). Mike's seven from the video (3:30: grow spiritually, love my wife, love my kids, be a good friend, learn something, create something, exercise) are a paste-in preset in [[Compass Config]].
+Marshall Goldsmith 在《Triggers》中提出每日自问“我今天是否尽力去……？”，以 1 至 10 分记录。评价的是投入的努力，不是结果。参见 [[Triggers (Marshall Goldsmith)]]。
 
-## How it is built here
-- **Properties**: one `dq_*` number property per question, generated into every new daily note from the `questions` list in [[Compass Config]]. Numbers 1 to 10.
-- **End-of-day shortcut** (Mike uses a custom shortcut, 4:29): `Templates/Daily Questions Prompt.md`. Open the daily note, run the template. It asks each question, then yes/no for each `habit_*` checkbox, and writes everything to the properties. Nothing is inserted into the body.
-- **Capture** (Mike uses a QuickAdd macro, 4:40): three QuickAdd commands append to `## Journal` (timestamped), `## Wins`, `## Gratitude` in today's note, creating it from the template if needed.
-- **On this day** (5:01): DataviewJS block at the bottom of the daily note embeds the `## Journal` section from the same date in every previous year.
-- **Dashboard**: `00 Dashboards/Daily Questions.md` and the widget on the Compass dashboard (lines, averages, toggles, time frame).
-- **With an agent**: [[02 End of Day Coaching]] asks the same questions as a coach and writes the scores; [[01 Morning Start]] surfaces yesterday and "on this day".
+模板默认采用六个通用问题：明确目标、取得进展、找到意义、保持快乐、建立积极关系、全心投入。视频 3:30 中 Mike 的七个问题关注信仰、伴侣、孩子、朋友、学习、创作和锻炼；可按下方预设自行调整配置，但不改写历史键。
 
-## Change the questions
-1. Open [[Compass Config]] and edit the `questions` list (key with the `dq_` prefix, plus the wording).
-2. Done. New daily notes carry the new properties, the end-of-day prompt asks them in that order, and the dashboards discover whatever `dq_*` exists. Existing notes keep their old keys.
+## 在这里如何使用
 
-## Practices
-- Answer every night, in the note you already opened this morning. The consistency is the mechanism.
-- Write the marker. One honest line under `## Journal` is enough; future-you finds it under "On this day".
-- Keep the scale honest. A 10 is "I did my best", not "it went great".
+- 每个问题对应一个 `dq_*` 数值属性，来自配置的 `questions` 列表，新建每日笔记时自动生成，范围为 1 至 10。
+- 晚间打开当天笔记，运行 `Templates/Daily Questions Prompt.md`。它逐项询问问题和 `habit_*` 习惯，将回答写入属性，不往正文插入评分。
+- QuickAdd 的日记、记录收获和感恩捕获会追加到当天笔记的对应章节；没有笔记时先用模板创建。日记条目带时间。新中文标题与旧 `Journal`、`Wins`、`Gratitude` 形式需要兼容。
+- “往年今日”显示历年同一天的日记章节，让过去的记录重新进入视野。
+- `00 Dashboards/Daily Questions.md` 和罗盘组件提供折线、均值、开关及时间范围选择。
+- [[02 End of Day Coaching|晚间回顾]] 提供助手引导；[[01 Morning Start|晨间开始]] 帮助回看昨日及往年今日。写入前仍需确认具体变更。
+
+## 修改问题
+
+在 [[Compass Config|配置]] 的 `questions` 中修改题目和带 `dq_` 前缀的键。新笔记与晚间问答使用新的列表；历史笔记保留原有键，仪表盘继续按前缀发现数据。不要为统一外观而重写历史记录。
+
+## 使用建议
+
+- 每晚在当天已经打开的笔记里回答，重在持续。
+- 留下一句真实日记就足够，未来可在“往年今日”中重逢。
+- 10 分意味着“我尽力了”，并不意味着“一切顺利”。
+
+## 视频问题预设
+
+如果更适合你的情况，可由本人把以下列表复制到配置的 `questions`。这是视频作者的示范，不是对你角色或信仰的假设；不适用的项可以不采用。
+
+```yaml
+questions:
+  - {key: dq_spiritual, text: 今天我是否尽力在精神或信仰上成长？}
+  - {key: dq_spouse, text: 今天我是否尽力关爱伴侣？}
+  - {key: dq_kids, text: 今天我是否尽力关爱孩子？}
+  - {key: dq_friend, text: 今天我是否尽力做一个好朋友？}
+  - {key: dq_learn, text: 今天我是否尽力学习新事物？}
+  - {key: dq_create, text: 今天我是否尽力有所创造？}
+  - {key: dq_exercise, text: 今天我是否尽力锻炼？}
+```

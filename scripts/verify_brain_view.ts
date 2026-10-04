@@ -12,7 +12,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright") as t
 const browser = await chromium.launch({ headless: true,
   ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}) });
 try {
-  // Existing fixture assertions use English month and control labels.
+  // Chinese UI must remain Chinese even when the host browser locale is English.
   const page = await browser.newPage({ locale: "en-US", viewport: { width: 1440, height: 960 } });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -52,7 +52,7 @@ try {
     // Dynamic plugin evaluation is the untyped VM boundary; observed instances use FixtureBrain.
     const BrainView = new Function("require", "module", `${source}; return LifeOSBrainRenderer;`)(require, module);
     const folders = ["03 Planning", "04 Projects", "01 Journal/Daily", "02 Retreats", "05 People", "07 Library", "06 Writing", "08 Tasks"];
-    const files = Array.from({ length: 160 }, (_, i) => new TFile(`${folders[i % folders.length]}/Note ${String(i + 1).padStart(3, "0")}.md`));
+    const files = Array.from({ length: 160 }, (_, i) => new TFile(`${folders[i % folders.length]}/${i === 0 ? "中文笔记" : `Note ${String(i + 1).padStart(3, "0")}`}.md`));
     const links: Record<string, Record<string, number>> = {};
     for (let i = 0; i < files.length; i++) links[files[i]!.path] = { [files[(i + 1) % files.length]!.path]: 1, [files[(i + 8) % files.length]!.path]: 1 };
     window.openedNotes = [];
@@ -71,29 +71,29 @@ try {
   assert.equal(await page.evaluate(() => window.brain.projected.length), 160);
   assert.ok(await page.evaluate(() => window.brain.visibleLabels.length > 0));
   const autoLabels = await page.evaluate(() => window.brain.visibleLabels.length);
-  await page.getByRole("combobox", { name: "Note labels" }).selectOption("all");
+  await page.getByRole("combobox", { name: "笔记标签" }).selectOption("all");
   assert.ok(await page.evaluate((n) => window.brain.visibleLabels.length >= n, autoLabels));
-  await page.getByRole("combobox", { name: "Note labels" }).selectOption("off");
+  await page.getByRole("combobox", { name: "笔记标签" }).selectOption("off");
   assert.equal(await page.evaluate(() => window.brain.visibleLabels.length), 0);
-  await page.getByRole("combobox", { name: "Note labels" }).selectOption("auto");
+  await page.getByRole("combobox", { name: "笔记标签" }).selectOption("auto");
   assert.ok(await page.evaluate(() => new Set(window.brain.projected.map((p) => p.depth.toFixed(3))).size > 10), "Nodes must have genuine projected depth");
-  await page.getByRole("button", { name: "People", exact: true }).click();
-  assert.match(await page.locator(".life-os-brain-header p").innerText(), /^20 notes/);
-  await page.getByRole("button", { name: "All regions", exact: true }).click();
-  await page.getByRole("searchbox").fill("Note 001");
-  assert.match(await page.locator(".life-os-brain-header p").innerText(), /^1 notes/);
+  await page.getByRole("button", { name: "人物", exact: true }).click();
+  assert.match(await page.locator(".life-os-brain-header p").innerText(), /^20 篇笔记/);
+  await page.getByRole("button", { name: "全部分区", exact: true }).click();
+  await page.getByRole("searchbox").fill("中文笔记");
+  assert.match(await page.locator(".life-os-brain-header p").innerText(), /^1 篇笔记/);
   await page.locator(".life-os-brain-note").first().click();
-  await page.getByRole("button", { name: "Open note", exact: true }).click();
-  assert.deepEqual(await page.evaluate(() => window.openedNotes), ["03 Planning/Note 001.md"]);
+  await page.getByRole("button", { name: "打开笔记", exact: true }).click();
+  assert.deepEqual(await page.evaluate(() => window.openedNotes), ["03 Planning/中文笔记.md"]);
   await page.getByRole("searchbox").fill("");
-  await page.getByRole("button", { name: "Clear selection", exact: true }).click();
+  await page.getByRole("button", { name: "清除选择", exact: true }).click();
   await page.locator("canvas").focus();
   const yaw = await page.evaluate(() => window.brain.yaw);
   await page.keyboard.press("ArrowRight");
   assert.ok(await page.evaluate((before) => window.brain.yaw > before, yaw));
   await page.keyboard.press("+");
   assert.ok(await page.evaluate(() => window.brain.zoom > 1));
-  await page.getByRole("button", { name: "Reset view", exact: true }).click();
+  await page.getByRole("button", { name: "重置视图", exact: true }).click();
   assert.equal(await page.evaluate(() => window.brain.zoom), 1);
   const rotationTimings = await page.evaluate(() => {
     const times = [], initial = window.brain.yaw;
@@ -108,11 +108,11 @@ try {
   await page.keyboard.down("Shift"); await page.mouse.down();
   await page.mouse.move(canvasBox.x+80,canvasBox.y+70); await page.mouse.up(); await page.keyboard.up("Shift");
   assert.equal(await page.evaluate(() => window.brain.panX),30);
-  await page.getByRole("button", { name: "Reset view", exact: true }).click();
+  await page.getByRole("button", { name: "重置视图", exact: true }).click();
   const position = await page.evaluate(() => { const p = window.brain.projected.at(-1)!; const r = window.brain.canvas.getBoundingClientRect(); return { x: p.x + r.left, y: p.y + r.top }; });
   await page.mouse.move(position.x, position.y);
   assert.equal(await page.locator(".life-os-brain-tooltip").isVisible(), true);
-  assert.match(await page.locator(".life-os-brain-tooltip").innerText(), /4 connections.*Sample note/);
+  assert.match(await page.locator(".life-os-brain-tooltip").innerText(), /4 个关联.*示例笔记/);
   assert.equal(await page.evaluate(() => window.brain.selected), null);
   assert.ok(await page.evaluate(() => Boolean(window.brain.hovered)));
   await page.evaluate(() => {
@@ -136,8 +136,8 @@ try {
   assert.equal(await page.evaluate(() => window.brain.hovered), null);
   await page.mouse.click(position.x, position.y);
   assert.ok(await page.evaluate(() => Boolean(window.brain.selected)));
-  await page.getByRole("button", { name: "Clear selection", exact: true }).click();
-  await page.getByRole("button", { name: "Standard graph", exact: true }).click();
+  await page.getByRole("button", { name: "清除选择", exact: true }).click();
+  await page.getByRole("button", { name: "标准关系图", exact: true }).click();
   assert.deepEqual(await page.evaluate(() => window.graphCommands), ["graph:open"]);
   await page.screenshot({ path: "/tmp/life-os-brain-preview.png" });
   await page.setViewportSize({ width: 390, height: 844 });

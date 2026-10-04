@@ -7,8 +7,8 @@ tags:
   - bible/verse
   - example
 ---
-# Genesis 1:2
+# 创世记 1:2
 
-And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.
+大地尚未成形，一片空旷，深渊笼罩在黑暗中；上帝的灵运行在水面之上。
 
-Chapter: [[Genesis 1]] · Previous: [[Genesis 1.1]] · Next: [[Genesis 1.3]]
+章节：[[Genesis 1]] · 上一节：[[Genesis 1.1]] · 下一节：[[Genesis 1.3]]

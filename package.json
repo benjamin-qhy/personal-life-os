@@ -21,6 +21,7 @@
     "@agentclientprotocol/sdk": "1.7.0",
     "@earendil-works/pi-ai": "1.0.0",
     "@earendil-works/pi-coding-agent": "1.0.0",
+    "@earendil-works/pi-mcp": "1.0.0",
     "proper-lockfile": "4.1.2",
     "yauzl": "3.2.0",
     "yazl": "3.3.1"

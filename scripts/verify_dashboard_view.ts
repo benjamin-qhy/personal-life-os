@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright") as typeof Playwright;
 const browser = await chromium.launch({ headless: true, ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}) });
 try {
-  // Existing fixture assertions use English month and control labels.
+  // Chinese UI must remain Chinese even when the host browser locale is English.
   const page = await browser.newPage({ locale: "en-US", viewport: { width: 1440, height: 1000 } });
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -36,16 +36,17 @@ try {
     for(const name of ['Assistant','Task Dashboard','Projects Dashboard','Compass Dashboard','Boards'])add(`00 Dashboards/${name}.md`);
     for(let i=0;i<20;i++){const d=new Date('2026-09-09T12:00:00Z');d.setUTCDate(d.getUTCDate()-i);add(`01 Journal/Daily/${d.toISOString().slice(0,10)}.md`,{dq_focus:4+i%7,habit_walk:i%3!==0,habit_read:i%2===0});}
     add('02 Retreats/2026-Q3 Personal Retreat.md',{wheel_health:7,wheel_work:6,wheel_relationships:8});
-    add('04 Projects/Synthetic project.md',{type:'project',status:'active'},'- [ ] Review synthetic plan #project/synthetic-project 📅 2026-09-09\n- [ ] Draft outline #project/synthetic-project ⏳ 2026-09-10');
+    add('04 Projects/秋水项目.md',{type:'project',status:'active'},'- [ ] Review synthetic plan #project/秋水项目 📅 2026-09-09\n- [ ] Draft outline #project/秋水项目 ⏳ 2026-09-10');
+    add('04 Projects/English Project.md',{type:'project',status:'active'},'- [ ] English routing #project/english-project');
     add('08 Tasks/Tasks.md',{},'- [ ] Resolve fixture overdue task 📅 2026-09-08\n- [ ] Pick a focus ⏫');
-    add('05 People/Synthetic person.md',{type:'person'},'- [ ] Discuss fixture #p/synthetic-person #discuss');
+    add('05 People/秋水.md',{type:'person'},'- [ ] Discuss fixture #p/秋水 #discuss');
     add('07 Library/Book Notes/Synthetic book.md',{type:'book'});
     add('07 Library/Book Notes/Finished book.md',{type:'book',status:'completed'});
     add('07 Library/Book Notes/Sample book.md',{type:'book',status:'reading',tags:['example']});
     add('07 Library/Source.md',{type:'source',cover:'https://example.invalid/cover.png'});
     const boardPath='06 Writing/Articles/Article Board.md';
-    add(boardPath,{'kanban-plugin':'board'},'## Ideas\n- [ ] Fixture idea\n## Drafting\n- [ ] Fixture draft\n- [x] Fixture checked item');
-    metadata.get(boardPath)!.headings=[{level:2,heading:'Ideas',position:{start:{line:0}}},{level:2,heading:'Drafting',position:{start:{line:2}}}];
+    add(boardPath,{'kanban-plugin':'board'},'## 想法\n- [ ] Fixture idea\n## Drafting\n- [ ] Fixture draft\n- [x] Fixture checked item');
+    metadata.get(boardPath)!.headings=[{level:2,heading:'想法',position:{start:{line:0}}},{level:2,heading:'Drafting',position:{start:{line:2}}}];
     window.opened=[];window.commands=[];
     const plugins={'agent-client':{settings:{autoAllowPermissions:false}},'obsidian-local-rest-api':{settings:{}}};
     const app={vault:{getMarkdownFiles:()=>[...files.values()],getAbstractFileByPath:(p: string)=>files.get(p),cachedRead:async (f: TFile)=>contents.get(f.path)||'',on(){}},metadataCache:{getFileCache:(f: TFile)=>metadata.get(f.path),on(){}},plugins:{getPlugin:(id: keyof typeof plugins)=>plugins[id]},workspace:{getLeaf:()=>({openFile:async(f: TFile,o: { eState?: { line: number } })=>window.opened.push({path:f.path,options:o})}),revealLeaf:async()=>{}},commands:{commands:{}}};
@@ -56,6 +57,7 @@ try {
     window.view=new View({app},plugin);await window.view.onOpen();
   }, fs.readFileSync(path.join(pluginDir, "main.js"), "utf8"));
   assert.equal(await page.getByRole('note').count(),1);
+  assert.equal(await page.getByRole('button',{name:'首页',exact:true}).count(),1);
   assert.equal(await page.locator('.life-os-analytics').count(),0);
   assert.equal(await page.locator('.life-os-brain-preview canvas').count(),1);
   assert.equal(await page.locator('.life-os-brain-preview canvas').getAttribute('tabindex'),'-1');
@@ -77,75 +79,83 @@ try {
       await page.screenshot({path:'/tmp/life-os-home-lower-candidate.png'});
       await page.evaluate(()=>document.querySelector<HTMLElement>('#root')!.scrollTop=0);
     }
-    if(screen==='today')assert.equal(await page.locator('.life-os-checkin-meter').getAttribute('max'),'3');
-    if(screen==='projects')assert.ok((await page.locator('.life-os-record-metrics').textContent())!.includes('2 tagged open'),(await page.locator('.life-os-record-metrics').textContent()) ?? "");
+    if(screen==='today'){
+      assert.equal(await page.locator('.life-os-checkin-meter').getAttribute('max'),'3');
+      assert.equal(await page.getByText('散步',{exact:true}).count(),1);
+    }
+    if(screen==='projects'){
+      assert.ok((await page.locator('.life-os-record-card').filter({hasText:'秋水项目'}).innerText()).includes('2 项标签关联待办'));
+      assert.ok((await page.locator('.life-os-record-card').filter({hasText:'English Project'}).innerText()).includes('1 项标签关联待办'));
+    }
     if(screen==='people'){
       await page.locator('.life-os-discussion-queue button').click();
-      assert.equal(await page.evaluate(()=>window.opened.at(-1)!.path),'05 People/Synthetic person.md');
+      assert.equal(await page.evaluate(()=>window.opened.at(-1)!.path),'05 People/秋水.md');
     }
     if(screen==='focus'){
       assert.ok(await page.locator('.life-os-workload-segment').count()>0);
-      await page.getByRole('button',{name:'Overdue · 1',exact:true}).click();
+      await page.getByRole('button',{name:'已逾期 · 1',exact:true}).click();
       assert.equal(await page.locator('.life-os-task-row').count(),1);
       assert.ok((await page.locator('.life-os-task-row').innerText()).includes('overdue'));
-      await page.getByRole('button',{name:/^All ·/}).click();
+      await page.getByRole('button',{name:/^全部 ·/}).click();
     }
     if(screen==='create'){
-      await page.locator('.life-os-pipeline-card').filter({hasText:'Articles'}).click();
+      await page.locator('.life-os-pipeline-card').filter({hasText:'文章'}).click();
       assert.equal(await page.locator('.life-os-workflow-lanes').count(),1);
       assert.equal(await page.locator('.life-os-lane-item').count(),2);
-      assert.equal(await page.getByRole('button',{name:'Ideas · 1',exact:true}).count(),1);
+      assert.equal(await page.getByRole('button',{name:'想法 · 1',exact:true}).count(),1);
       await page.getByRole('button',{name:'Drafting · 2',exact:true}).click();
       assert.equal(await page.evaluate(()=>window.opened.at(-1)!.options!.eState!.line),2);
       await page.screenshot({path:'/tmp/life-os-create-candidate.png',fullPage:true});
     }
     if(screen==='library'){
+      assert.equal(await page.getByLabel('书库类型',{exact:true}).getByRole('option',{name:'书籍',exact:true}).count(),1);
+      assert.equal(await page.getByLabel('书库状态',{exact:true}).getByRole('option',{name:'已完成',exact:true}).count(),1);
       assert.equal(await page.locator('.life-os-record-card').count(),3);
       assert.equal(await page.locator('.life-os-book-fallback').count(),3);
       assert.equal(await page.locator('img[src^="https:"]').count(),0);
-      await page.getByLabel('Library type',{exact:true}).selectOption('source');
+      await page.getByLabel('书库类型',{exact:true}).selectOption('source');
       assert.equal(await page.locator('.life-os-record-card').count(),1);
-      await page.getByLabel('Library type',{exact:true}).selectOption('all');
-      await page.getByLabel('Library status',{exact:true}).selectOption('completed');
+      await page.getByLabel('书库类型',{exact:true}).selectOption('all');
+      await page.getByLabel('书库状态',{exact:true}).selectOption('completed');
       assert.equal(await page.locator('.life-os-record-card').count(),1);
       assert.ok((await page.locator('.life-os-record-card').innerText()).includes('Finished book'));
     }
     if(screen==='ai'){
-      assert.ok((await page.locator('.life-os-connection-map').innerText()).includes('not tested here'));
+      assert.ok((await page.locator('.life-os-connection-map').innerText()).includes('此处未验证'));
     }
     if(screen==='plan'){
       assert.equal(await page.locator('.life-os-calendar-day').count(),42);
-      await page.getByRole('button',{name:'2026-09-09: Open daily note',exact:true}).click();
+      await page.getByRole('button',{name:'2026-09-09: 打开日记',exact:true}).click();
       assert.equal(await page.evaluate(()=>window.opened.at(-1)?.path),'01 Journal/Daily/2026-09-09.md');
-      await page.getByRole('button',{name:'Next month',exact:true}).click();
-      assert.ok((await page.locator('.life-os-calendar h2').innerText()).includes('October'), await page.locator('.life-os-calendar h2').innerText());
-      await page.getByRole('button',{name:'This month',exact:true}).click();
+      await page.getByRole('button',{name:'下个月',exact:true}).click();
+      assert.ok((await page.locator('.life-os-calendar h2').innerText()).includes('2026年10月'), await page.locator('.life-os-calendar h2').innerText());
+      await page.getByRole('button',{name:'本月',exact:true}).click();
     }
     if(screen==='review'){
-      await page.getByRole('button',{name:'7 days',exact:true}).click();
+      await page.getByRole('button',{name:'7 天',exact:true}).click();
       assert.equal(await page.locator('.life-os-effort-column').count(),7);
       await page.locator('.life-os-effort-column[role="button"]').first().press('Enter');
       assert.ok(await page.evaluate(()=>window.opened.at(-1)?.path.startsWith('01 Journal/Daily/')));
-      await page.getByText('Read daily values',{exact:true}).click();
+      await page.getByText('查看每日数值',{exact:true}).click();
       assert.equal(await page.locator('.life-os-chart-table tbody tr').count(),7);
-      await page.getByRole('button',{name:/Open scored retreat/}).click();
+      await page.getByRole('button',{name:/打开已有评分的静修/}).click();
       assert.ok(await page.evaluate(()=>window.opened.at(-1)?.path.startsWith('02 Retreats/')));
     }
   }
   await page.evaluate(()=>{window.view.activeScreen='home';window.view.render();window.previousPreview=window.view.previewBrain;});
   await page.locator('.life-os-display-options summary').click();
-  await page.getByRole('button',{name:'Hide optional visuals',exact:true}).click();
+  await page.getByRole('button',{name:'隐藏可选图表',exact:true}).click();
   assert.equal(await page.locator('.life-os-brain-preview').count(),0);
   assert.ok(await page.evaluate(()=>window.previousPreview.ctx===null));
   await page.locator('.life-os-display-options summary').click();
-  await page.getByLabel('Items per list',{exact:true}).selectOption('3');
+  await page.getByLabel('每页条目数',{exact:true}).selectOption('3');
   assert.equal(await page.evaluate(()=>window.view.itemLimit),3);
   await page.locator('.life-os-display-options summary').click();
-  await page.getByRole('button',{name:'Restore view defaults',exact:true}).click();
+  await page.getByRole('button',{name:'恢复默认视图',exact:true}).click();
   assert.equal(await page.locator('.life-os-brain-preview canvas').count(),1);
-  await page.getByRole('button',{name:/Explore Brain/}).click();
+  await page.getByRole('button',{name:/探索知识图谱/}).click();
   assert.equal(await page.locator('.life-os-brain-embedded canvas').count(),1);
-  await page.getByRole('button',{name:'Home',exact:true}).click();
+  await page.getByRole('button',{name:'首页',exact:true}).click();
   for(const width of [900,620,390]){
     await page.setViewportSize({width,height:900});
     for (const screen of ['home','today','plan','review','focus','projects','people','create','library','ai']) {
@@ -155,27 +165,27 @@ try {
   }
   await page.setViewportSize({width:1440,height:1000});
   await page.locator('.life-os-display-options summary').click();
-  await page.getByRole('button',{name:'Use compact spacing',exact:true}).click();
+  await page.getByRole('button',{name:'使用紧凑间距',exact:true}).click();
   assert.equal(await page.locator('.life-os-app-frame.is-compact').count(),1);
   for(let pass=0;pass<3;pass++){
-    await page.getByRole('button',{name:'Brain',exact:true}).click();
+    await page.getByRole('button',{name:'知识图谱',exact:true}).click();
     assert.equal(await page.locator('.life-os-rail').count(),1);
     assert.equal(await page.locator('.life-os-brain-embedded canvas').count(),1);
-    assert.equal(await page.locator('.life-os-nav-button[aria-current="page"]').innerText(),'Brain');
+    assert.equal(await page.locator('.life-os-nav-button[aria-current="page"]').innerText(),'知识图谱');
     await page.evaluate(()=>{window.previousBrain=window.view.embeddedBrain;window.view.render();});
     assert.ok(await page.evaluate(()=>window.previousBrain===window.view.embeddedBrain));
     const canvas=page.locator('.life-os-brain-embedded canvas');
     await canvas.press('ArrowRight');
     assert.ok(await page.evaluate(()=>window.view.embeddedBrain.yaw>0.28));
     if(pass===0)await page.screenshot({path:'/tmp/life-os-brain-sidebar.png',fullPage:true});
-    await page.getByRole('button',{name:'Home',exact:true}).click();
+    await page.getByRole('button',{name:'首页',exact:true}).click();
     assert.equal(await page.locator('.life-os-brain-embedded').count(),0);
     assert.ok(await page.evaluate(()=>window.previousBrain.ctx===null && window.view.embeddedBrain===null));
   }
   assert.deepEqual(errors,[]);
   await page.evaluate(()=>{window.view.activeScreen='home';window.view.render();});
   await page.locator('.life-os-display-options summary').click();
-  await page.getByRole('button',{name:"Hide this module's visual",exact:true}).click();
+  await page.getByRole('button',{name:"隐藏本模块图表",exact:true}).click();
   assert.equal(await page.locator('.life-os-brain-preview').count(),0);
   await page.evaluate(()=>{window.view.activeScreen='ai';window.view.render();});
   assert.equal(await page.locator('.life-os-ai-diagram').count(),1);

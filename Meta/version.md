@@ -16,6 +16,6 @@ plugins:
   seo: "0.5.6"
   templater-obsidian: "2.25.0"
 ---
-# Version
+# 版本
 
-This is a local candidate, not evidence of native acceptance or publication. There is no in-place updater. Back up the old vault and migrate content and custom configuration into a separate fresh copy with conflict review. See `scripts/RELEASE.md`.
+这是本地候选版本，尚不代表原生验收通过或公开发行。不提供原地升级。请备份旧库，在独立副本中迁移内容与自定义配置，并逐项检查冲突。参见 `scripts/RELEASE.md`。

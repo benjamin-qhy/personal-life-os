@@ -13,18 +13,18 @@ wheel_growth: 8
 wheel_fun: 5
 wheel_meaning: 7
 ---
-> Example retreat so the Compass dashboard has a wheel to draw. Replace the numbers and the text with your own; keep the file name pattern `YYYY-QN Personal Retreat`.
+> 这是用于展示人生之轮的示例静修。实际使用时填写自己的评分与文字，文件名保持 YYYY-QN Personal Retreat。
 
-Previous retreat: [[2026-Q2 Personal Retreat]] · Quarter note: [[2026-Q3]] · Same quarter last year: [[2025-Q3 Personal Retreat]]
+上次静修：[[2026-Q2 Personal Retreat]] · 季度笔记：[[2026-Q3]] · 去年同季度：[[2025-Q3 Personal Retreat]]
 
-## 1. Review life theme and core values
-![[Life Theme#Theme]]
-![[Core Values#Values]]
+## 1. 回顾人生主题与核心价值观
+![[Life Theme#人生主题]]
+![[Core Values#价值观]]
 
-Notes:
-- Still resonates. No change.
+记录：
+- 仍有共鸣，暂不调整。
 
-## 2. Review the journal
+## 2. 回顾日记
 ```dataviewjs
 const q = moment(dv.current().quarter, "YYYY-[Q]Q");
 await dv.view("Meta/views/dailyquestions", { from: q.clone().startOf("quarter").format("YYYY-MM-DD"), to: q.clone().endOf("quarter").format("YYYY-MM-DD") });
@@ -32,48 +32,48 @@ await dv.view("Meta/views/dailyquestions", { from: q.clone().startOf("quarter").
 ```dataviewjs
 await dv.view("Meta/views/habits", { days: 28 });
 ```
-What stood out:
-- Relationships score consistently the lowest of the daily questions.
+值得注意的地方：
+- 每日问题中，关系方面的评分持续最低。
 
-## 3. Wheel of life
+## 3. 人生之轮
 ```dataviewjs
 await dv.view("Meta/views/wheel", { page: dv.current().file.path });
 ```
-Focus area for the next 90 days:
-- Relationships
+未来 90 天的重点领域：
+- 关系
 
-Why this one:
-- Lowest on the wheel and lowest daily question. Everything else is holding.
+为什么选择它：
+- 人生之轮与每日问题中这一项最低，其他方面较稳定。
 
-## 4. Retrospective
-### Part 1: Look back at last quarter
-What went well:
-- Journaling stuck for 60+ days.
+## 4. 回顾
+### 第一部分：回顾上季度
+做得好的地方：
+- 坚持日记超过 60 天。
 
-What did not go well:
-- Habit tracking lived in a separate app and died in week 3.
+未如预期的地方：
+- 习惯记录放在另一个应用中，第三周就中断了。
 
-What I learned:
-- Tracking only sticks next to the reflection that explains the misses.
+我的收获：
+- 把记录与解释中断原因的反思放在一起，更容易坚持。
 
-### Part 2: Start / Stop / Keep
-| Start | Stop | Keep |
+### 第二部分：开始、停止、保持
+| 开始 | 停止 | 保持 |
 | --- | --- | --- |
-| One friend call per week | Separate habit app | Daily questions at 21:00 |
+| 每周与一位朋友通话 | 独立习惯记录应用 | 21:00 回答每日问题 |
 
-## 5. Intentions for next quarter
-1. Call or see one friend every week.
-2. Habits tracked in the daily note, reviewed every Friday.
-3. Ship one piece of writing every week from the vault.
+## 5. 下一季度意图
+1. 每周与一位朋友通话或见面。
+2. 在每日笔记记录习惯，每周五复盘。
+3. 每周从笔记库完成一篇作品。
 
-## 6. Review the ideal week
-![[Ideal Week#Grid]]
+## 6. 检查理想一周
+![[Ideal Week#时间安排]]
 
-Changes to make:
-- Add "friend call" to Thursday 20:00.
+需要调整的地方：
+- 在周四 20:00 安排与朋友通话。
 
-## 7. Projects to commit to
+## 7. 确定投入的项目
 - [[Example Project - Compass Vault]]
 
-## Closing
-- A quarter of showing up for people, tracked honestly.
+## 结束
+- 这个季度认真陪伴他人，如实记录。

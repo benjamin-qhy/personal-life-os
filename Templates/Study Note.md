@@ -1,22 +1,22 @@
 ---
 type: sermon
-date: <% tp.date.now("YYYY-MM-DD") %>
+date: {{lifeos-script:study-note-1}}
 speaker: 
 series: 
 passages: []
 tags:
   - sermon
 ---
-Link every verse mentioned as `[[Genesis 1.1]]` (note-as-verse) and the chapter as `[[Genesis 1]]` (note-as-chapter). Over time the local graph becomes your own cross-reference library.
+将提到的经节链接为 `[[Genesis 1.1]]`（经节笔记），将章节链接为 `[[Genesis 1]]`（章节笔记）。持续积累后，本地图谱就会成为你的交叉参考库。
 
-## Passages
+## 研读篇章
 - 
 
-## Sketch note
+## 手绘笔记
 ![[]]
 
-## Main points
+## 主要观点
 1. 
 
-## Application
+## 实践应用
 - 

@@ -1,48 +1,48 @@
-# Life OS data definitions
+# 数据定义
 
-These definitions describe the intended application contract. The implementation and its synthetic tests must agree before a release is accepted.
+这些定义描述应用契约，实现、测试和实际显示必须保持一致。
 
-## Canonical sources
+## 原始数据
 
-Markdown notes and their properties are canonical. Life OS does not maintain a second task or journal database. Existing Compass Config folder and property settings must be resolved consistently across Today, Plan, Review, and Home. A missing configuration is unavailable data, not a zero score or a new set of invented questions.
+Markdown 笔记及属性是原始数据，应用没有第二套任务或日记数据库。今天、规划、回顾和首页使用一致的目录与前缀配置。缺失配置或缺失记录应明确呈现，不能变成零分或虚构问题。
 
-## Effort and check-in coverage
+## 投入评分与记录覆盖
 
-- An effort score is a finite numeric property from 1 through 10. Booleans, numeric strings, out-of-range numbers, and missing properties are not scores.
-- Daily effort is the arithmetic mean of valid recorded question scores for that day. A date-window average is the mean of the scored daily means; it is not a pooled average of every answer.
-- Unscored days are absent from the average. Show the scored-day count alongside it.
-- Question changes can change what an average means. Do not present comparisons across different question sets as equivalent measurements.
-- Check-in coverage counts valid recorded answers. It is not a grade of a person's life.
+- 有效投入评分是 1 至 10 的有限数值。布尔值、数字字符串、越界数值和空缺不算评分。
+- 每日投入是当天有效问题分数的算术平均。时间窗口均值再对有分数的每日均值取平均，不把窗口内每个回答混在一起求平均。
+- 无评分的日期不进入均值，旁边应显示有评分的天数。
+- 问题集合变化会改变均值含义，不能把不同集合的结果声称为等价测量。
+- 记录覆盖统计有效回答，不评价一个人的生活质量。
 
-## Habits
+## 习惯
 
-| Stored value | Meaning | Recorded | Done |
+| 存储值 | 含义 | 算作已记录 | 算作完成 |
 | --- | --- | --- | --- |
-| `true` | Done | Yes | Yes |
-| `false` | Unchecked | Yes | No |
-| Missing or blank | Not recorded | No | No |
-| Other value | Invalid | No | No |
+| `true` | 已完成 | 是 | 是 |
+| `false` | 未勾选 | 是 | 否 |
+| 空缺或空白 | 未记录 | 否 | 否 |
+| 其他值 | 无效 | 否 | 否 |
 
-Habit completion is done divided by recorded entries, with both counts visible. A recorded unchecked answer contributes to check-in coverage, not completion. Never silently count missing days as failed habits.
+完成率是完成次数除以记录次数，两项计数都应可见。未勾选的明确回答计入记录覆盖，不计入完成。缺失日期不能被悄悄当成失败。
 
-## Tasks
+## 任务
 
-The commitment feed is a read-only index of task list items in its disclosed source folders. Markdown examples inside fenced code blocks are not commitments. Operational feeds exclude example-tagged files. Unknown status symbols and unavailable metadata must be disclosed rather than guessed.
+任务流是已说明来源目录中的只读索引。围栏代码块里的示例不是承诺，日常任务流排除 example 文件。未知状态符号和不可用元数据必须披露，不能猜测。
 
-Due dates, scheduled dates, and priority are separate fields. Sorting must be deterministic. Opening a task should navigate to its source line; it must not mutate the task or its recurrence. Tasks remains the editor for task-specific behavior.
+截止、计划和优先级是不同字段；排序必须确定。点击任务应打开源行，不修改状态或重复规则，具体任务编辑仍由 Tasks 和原笔记承担。
 
-## Samples and partial data
+## 示例与部分数据
 
-Sample inclusion in analytics is explicit. It does not make demonstration tasks real commitments. Brain may display clearly identified sample nodes as an exploration aid; its counts are not personal achievement metrics.
+分析中是否纳入示例由使用者显式选择；这不会把演示任务变成真实承诺。Brain 可显示有标记的示例节点，但其数量不是个人成果指标。
 
-Every source error must preserve the distinction between ready, partial, and unavailable. A partial result with no indexed tasks must not be labeled as proof that no tasks exist.
+数据源错误应保留就绪、部分和不可用的区别。部分索引没有结果，不代表库里没有任务。
 
-## Life areas and graph
+## 人生领域与图谱
 
-Life-area bars use valid numeric scores from the latest scored retreat in the configured retreat folder. They are self-reported reflection, not clinical or objective measurements.
+领域条形图使用配置静修目录中最近一篇有有效数值的静修。它是本人反思，不是临床评估或客观测量。
 
-Brain positions and anatomical lines are decorative. Only resolved vault links form graph edges. Graph counts reflect the view's exclusions and caps, not the entire native Obsidian graph. The graph is not a productivity score.
+Brain 的位置与轮廓线是装饰，只有已解析 wikilink 形成边。计数受排除规则和数量上限影响，不等于 Obsidian 原生全库图谱，也不是效率分数。
 
-## Evidence
+## 证据
 
-Synthetic tests validate logic with invented fixtures outside personal notes. Browser screenshots from those tests are labeled synthetic. They do not prove native Obsidian compatibility, successful AI authentication, backup recovery, or publication readiness.
+合成测试使用虚构测试数据，不读取个人笔记。合成浏览器截图应有明显标记。它们不能单独证明原生兼容、模型认证、备份恢复或发布准备完成；各项需要自己的实际证据。

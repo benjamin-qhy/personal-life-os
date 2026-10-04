@@ -4,33 +4,33 @@ author:
 year: 
 rating: 
 status: reading
-started: <% tp.date.now("YYYY-MM-DD") %>
+started: {{lifeos-script:book-note-1}}
 finished: 
 tags:
   - book
 ---
-## Summary in three sentences
+## 三句话总结
 
 
-## Key ideas
+## 核心观点
 - 
 
-## Quotes
-Give each quote a block id so you can embed it in your writing without leaving the vault.
+## 引文
+为每段引文添加块标识，写作时就能直接在笔记库中引用。
 
 > "" ^quote-1
 
-## How this changes what I do
+## 对我行动的影响
 - 
 
 ```agent
 type: button
-text: "File this page in the wiki"
-prompt: "Read Prompts/12 Research Capture.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "将本页整理到知识库"
+prompt: "使用当前可用的 read_note 或已配置 Obsidian MCP 的 vault_read 读取 Prompts/12 Research Capture.md，按照其中的 Prompt 章节处理我当前打开的笔记；若不适用，则使用当前周期。"
 viewType: right-pane
 ```
 
-## Linked writing
+## 引用本书的作品
 ```dataview
 LIST
 FROM "06 Writing"

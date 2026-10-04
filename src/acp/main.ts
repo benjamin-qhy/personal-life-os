@@ -12,11 +12,12 @@ const connection = agent({ name: "personal-life-os" })
   .onRequest("initialize", () => ({
     protocolVersion: PROTOCOL_VERSION,
     agentInfo: { name: "personal-life-os", title: "Personal Life OS", version: "0.1.0" },
-    agentCapabilities: { loadSession: true },
+    agentCapabilities: { loadSession: true, mcpCapabilities: { http: true }, promptCapabilities: { embeddedContext: true } },
     authMethods: [],
   }))
   .onRequest("session/new", ({ params }) => sessions.create(params))
   .onRequest("session/load", ({ params, client }) => sessions.load(params, client))
+  .onRequest("session/set_config_option", ({ params }) => sessions.setConfig(params))
   .onRequest("session/prompt", ({ params, client }) => sessions.prompt(params, client))
   .onNotification("session/cancel", ({ params }) => sessions.cancel(params.sessionId))
   .connect(stream);

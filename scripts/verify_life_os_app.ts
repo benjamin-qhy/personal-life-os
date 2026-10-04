@@ -12,7 +12,7 @@ const manifestPath = path.join(pluginDir, "manifest.json");
 const communityPath = path.join(root, ".obsidian/community-plugins.json");
 const quickAddPath = path.join(root, ".obsidian/plugins/quickadd/data.json");
 const noticesPath = path.join(root, "THIRD_PARTY_NOTICES.md");
-const setupViewPath = path.join(root, "Meta/views/setup.js");
+const setupViewPath = process.argv[3] ? path.resolve(pluginDir, "../../vault/Meta/views/setup.js") : path.join(root, "Meta/views/setup.js");
 const hotkeysPath = path.join(root, ".obsidian/hotkeys.json");
 
 // The VM loads an untyped Obsidian plugin. Dynamic values are confined to this
@@ -65,7 +65,7 @@ check(
 );
 check(
   "Setup verifies the Life OS application",
-  setupView.includes('["life-os-app", "Life OS"]') &&
+  setupView.includes('["life-os-app", "Personal Life OS"]') &&
     setupView.includes('findCommand("life-os-app:open-home")')
 );
 check(
@@ -92,8 +92,9 @@ const configuredCommands = new Set(
 const referencedCommands = new Set(
   [...source.matchAll(/quickadd:choice:[a-z0-9-]+/g)].map((match) => match[0])
 );
+const readingEnabled = fs.existsSync(path.join(root, "09 Reading/Reading Plan.md"));
 const missingCommands = [...referencedCommands].filter(
-  (command) => !configuredCommands.has(command)
+  (command) => !configuredCommands.has(command) && (readingEnabled || command !== "quickadd:choice:lifeos-new-study-note")
 );
 const quickAddById = new Map<string, QuickAddChoice>(
   (quickAdd.choices || []).map((choice) => [choice.id, choice])
@@ -108,8 +109,10 @@ const recordChoiceContracts: [string, string, string][] = [
   ["lifeos-new-book", "Templates/Book Note.md", "07 Library/Book Notes"],
   ["lifeos-new-study-note", "Templates/Study Note.md", "09 Reading/Study Notes"],
 ];
+check("reading-disabled distribution omits study-note capture", readingEnabled || !quickAddById.has("lifeos-new-study-note"));
 const invalidRecordChoices = recordChoiceContracts.filter(
   ([id, templatePath, folder]) => {
+    if (!readingEnabled && id === "lifeos-new-study-note") return false;
     const choice = quickAddById.get(id);
     return !(
       choice?.type === "Template" &&
@@ -138,7 +141,7 @@ const referencedPaths = new Set(
   )
 );
 const missingPaths = [...referencedPaths].filter(
-  (file) => !fs.existsSync(path.join(root, file))
+  (file) => !fs.existsSync(path.join(root, file)) && (readingEnabled || file !== "09 Reading/Reading Plan.md")
 );
 check("dashboard paths resolve", missingPaths.length === 0, missingPaths.join(", "));
 
@@ -505,6 +508,7 @@ try {
     missingAppCommands.length === 0,
     missingAppCommands.join(", ")
   );
+  check("commands expose Chinese names with stable IDs", plugin.commands.find((command: HostValue) => command.id === "open-home")?.name === "打开 Personal Life OS 首页" && plugin.commands.find((command: HostValue) => command.id === "open-capture")?.name === "打开 Personal Life OS 快速记录");
   check("ribbon registered", plugin.ribbon?.icon === "compass", plugin.ribbon?.icon);
 
   const view = plugin.viewFactory(fakeLeaf);
@@ -564,7 +568,7 @@ try {
     }
     if (screen === "today") {
       todayHasPropertyValues =
-        treeHasText(view.contentEl, "8/10") && treeHasText(view.contentEl, "Done");
+        treeHasText(view.contentEl, "8/10") && treeHasText(view.contentEl, "已完成");
     }
   }
   check("all application screens render", emptyScreens.length === 0, emptyScreens.join(", "));
@@ -640,7 +644,7 @@ try {
     "task feed exposes partial index coverage",
     treeHasText(
       view.contentEl,
-      "4 open, 1 unreadable, 1 metadata pending, 1 unresolved status, 1 sample excluded"
+      "4 项待办, 1 项无法读取, 1 项元数据待加载, 1 项状态待解析, 已排除 1 项示例"
     )
   );
   check(
@@ -654,23 +658,23 @@ try {
   view.render();
   check(
     "permission status reports observable policy without enforcement claim",
-    treeHasText(view.contentEl, "Manual prompts") &&
-      treeHasText(view.contentEl, "Client setting is off. This reports policy, not enforcement.") &&
-      !treeHasText(view.contentEl, "Required for every write")
+    treeHasText(view.contentEl, "逐次确认") &&
+      treeHasText(view.contentEl, "客户端已关闭自动批准。此处仅报告设置，不能证明审批已强制执行。") &&
+      !treeHasText(view.contentEl, "每次写入必须批准")
   );
   pluginInstances.get("agent-client").settings.autoAllowPermissions = true;
   view.render();
   check(
     "permission status warns when auto-allow is enabled",
-    treeHasText(view.contentEl, "Auto-allow on") &&
-      treeHasText(view.contentEl, "Client may auto-approve requests. This reports policy, not enforcement.")
+    treeHasText(view.contentEl, "已开启自动批准") &&
+      treeHasText(view.contentEl, "客户端可能自动批准请求。此处仅报告设置，不能证明审批已强制执行。")
   );
   delete pluginInstances.get("agent-client").settings.autoAllowPermissions;
   view.render();
   check(
     "permission status remains unknown when setting is unobservable",
-    treeHasText(view.contentEl, "Unknown") &&
-      treeHasText(view.contentEl, "Permission setting was not observable. No enforcement claim.")
+    treeHasText(view.contentEl, "未知") &&
+      treeHasText(view.contentEl, "无法读取权限设置，因此无法确认审批执行情况。")
   );
   pluginInstances.get("agent-client").settings.autoAllowPermissions = false;
 
@@ -688,7 +692,7 @@ try {
     "Today rejects boolean effort scores",
     strictToday.questionRecorded === 0 &&
       strictToday.questions[0]?.state === "invalid" &&
-      strictToday.questions[0]?.display === "Invalid value"
+      strictToday.questions[0]?.display === "数值无效"
   );
   check(
     "Today distinguishes unchecked, missing, and invalid habits",
@@ -697,7 +701,7 @@ try {
       strictToday.habits.map((habit: HostValue) => habit.state).join(",") ===
         "unchecked,missing,invalid" &&
       strictToday.habits.map((habit: HostValue) => habit.display).join(",") ===
-        "Unchecked,Not recorded,Invalid value"
+        "未勾选,未记录,数值无效"
   );
   const coverage = view.summarizeDailyProperties(
     {
@@ -798,6 +802,18 @@ try {
       treeHasClass(child, "life-os-capture-section")
     ).length === 3
   );
+  check("reading-enabled capture exposes study notes", treeHasText(Modal.lastOpened!.contentEl, "新建研读笔记"));
+  const originalFindFile = fakeApp.vault.getAbstractFileByPath;
+  fakeApp.vault.getAbstractFileByPath = (filePath: string) => filePath.startsWith("09 Reading/") ? null : originalFindFile(filePath);
+  plugin.commands.find((command: HostValue) => command.id === "open-capture").callback();
+  check("reading-disabled capture retains book notes and omits study notes", treeHasText(Modal.lastOpened!.contentEl, "新建读书笔记") && !treeHasText(Modal.lastOpened!.contentEl, "新建研读笔记"));
+  await plugin.commands.find((command: HostValue) => command.id === "open-library").callback();
+  view.activeScreen = "library";
+  view.render();
+  check("reading-disabled library keeps books without broken reading actions", treeHasText(view.contentEl, "新建读书笔记") && !treeHasText(view.contentEl, "新建研读笔记") && !treeHasText(view.contentEl, "阅读计划"));
+  fakeApp.vault.getAbstractFileByPath = originalFindFile;
+  view.render();
+  check("reading-enabled library exposes study and plan actions", treeHasText(view.contentEl, "新建研读笔记") && treeHasText(view.contentEl, "阅读计划"));
   const captureCommands: string[] = [];
   const originalExecute = fakeApp.commands.executeCommandById;
   fakeApp.commands.executeCommandById = (id: string) => { captureCommands.push(id); return true; };
@@ -832,12 +848,12 @@ try {
   view.render();
   const findText = (element: FakeElement, text: string): FakeElement | undefined => element.options?.text === text ? element :
     element.children.map((child) => findText(child, text)).find(Boolean);
-  check("Home keeps full analytics in Review", !findText(view.contentEl, "7 days") && !!findText(view.contentEl, "Explore Review"));
+  check("Home keeps full analytics in Review", !findText(view.contentEl, "7 天") && !!findText(view.contentEl, "查看回顾"));
   view.activeScreen = "review";
   view.render();
-  findText(view.contentEl, "7 days")!.handlers.click!();
+  findText(view.contentEl, "7 天")!.handlers.click!();
   check("chart range control changes aggregation window", view.getAnalytics().days.length === 7);
-  findText(view.contentEl, "Include samples")!.handlers.click!();
+  findText(view.contentEl, "包含示例")!.handlers.click!();
   check("sample control changes state", view.includeExamples === true);
   view.analyticsDays = 30;
   view.includeExamples = false;

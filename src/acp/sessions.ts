@@ -1,4 +1,4 @@
-import { RequestError, type AgentContext, type NewSessionRequest, type LoadSessionRequest, type PromptRequest } from "@agentclientprotocol/sdk";
+import { RequestError, type AgentContext, type NewSessionRequest, type LoadSessionRequest, type PromptRequest, type SetSessionConfigOptionRequest, type SessionConfigOption } from "@agentclientprotocol/sdk";
 import { SessionManager, type AgentSession } from "@earendil-works/pi-coding-agent";
 import { realpath, stat } from "node:fs/promises";
 import { isAbsolute } from "node:path";
@@ -6,16 +6,18 @@ import { createPiSession } from "./pi-session";
 import { readModelConfig } from "./config";
 import { noteTools } from "./tools";
 import { approveChange } from "./approval";
+import { explicitMcpServers } from "./mcp-config";
+import { connectMcp } from "./mcp";
+import { promptText } from "./context";
 import { SessionStore } from "./session-store";
 
-interface Conversation { pi: AgentSession; active: boolean; invalid: boolean; cancelled: boolean; client?: AgentContext;
-  store: SessionStore; manager: SessionManager; release: () => Promise<void>; done?: Promise<void> }
+interface Conversation { cwd: string; contextRoot: string; pi: AgentSession; active: boolean; invalid: boolean; cancelled: boolean; client?: AgentContext;
+  closeMcp: () => Promise<void>; store: SessionStore; manager: SessionManager; release: () => Promise<void>; done?: Promise<void> }
 
 export class Sessions {
   private readonly entries = new Map<string, Conversation>();
 
   async create(params: NewSessionRequest, restoreId?: string) {
-    if (params.mcpServers.length) throw RequestError.invalidParams(undefined, "此开发版本尚未接入 MCP，请勿配置 MCP 服务器。");
     if (!isAbsolute(params.cwd)) throw RequestError.invalidParams(undefined, "工作目录必须是绝对路径。");
     let cwd: string;
     try {
@@ -41,18 +43,21 @@ export class Sessions {
       await release?.();
       throw RequestError.invalidParams(undefined, "会话存储不可用或已被占用，请检查库外存储目录和会话标识。");
     }
+    let mcp: Awaited<ReturnType<typeof connectMcp>>;
+    try { mcp = await connectMcp(cwd, await explicitMcpServers(cwd, params.mcpServers, process.env)); }
+    catch { await release(); throw RequestError.invalidParams(undefined, "MCP连接失败，请检查显式配置与服务。"); }
     let pi: AgentSession;
-    try { pi = await createPiSession(cwd, process.env, { sessionManager: manager, tools: noteTools(cwd, async (callId, change, signal) => {
+    try { pi = await createPiSession(cwd, process.env, { sessionManager: manager, tools: [...mcp.tools, ...noteTools(cwd, async (callId, change, signal) => {
       if (invalid) return false;
       const client = this.entries.get(sessionId)?.client;
       return client ? approveChange(sessionId, callId, change,
         (params) => client.request("session/request_permission", params), signal) : false;
-    }, store.noteLockDirectory) }); }
-    catch { await release(); throw RequestError.authRequired(undefined, "模型初始化失败，请检查供应商、模型名称、服务地址与密钥环境变量。"); }
+    }, store.noteLockDirectory)] }); }
+    catch { await mcp.close(); await release(); throw RequestError.authRequired(undefined, "模型初始化失败，请检查供应商、模型名称、服务地址与密钥环境变量。"); }
     try { await store.save(sessionId, manager); }
-    catch { pi.dispose(); await release(); throw RequestError.internalError(undefined, "会话保存失败，请检查本机存储目录。"); }
-    this.entries.set(sessionId, { pi, active: false, invalid, cancelled: false, store, manager, release });
-    return { sessionId };
+    catch { pi.dispose(); await mcp.close(); await release(); throw RequestError.internalError(undefined, "会话保存失败，请检查本机存储目录。"); }
+    this.entries.set(sessionId, { cwd, contextRoot: params.cwd, closeMcp: mcp.close, pi, active: false, invalid, cancelled: false, store, manager, release });
+    return { sessionId, configOptions: this.modelOptions(this.entries.get(sessionId)!) };
   }
 
   async load(params: LoadSessionRequest, client: AgentContext) {
@@ -71,10 +76,34 @@ export class Sessions {
         }
       }
     } catch {
-      entry.pi.dispose(); await entry.release(); this.entries.delete(params.sessionId);
+      entry.pi.dispose(); await entry.closeMcp(); await entry.release(); this.entries.delete(params.sessionId);
       throw RequestError.internalError(undefined, "会话历史恢复失败。");
     }
-    return {};
+    return { configOptions: this.modelOptions(entry) };
+  }
+
+  private modelOptions(entry: Conversation): SessionConfigOption[] {
+    const model = entry.pi.model!;
+    return [{ id: "model", name: "模型", category: "model", type: "select", currentValue: model.id,
+      options: entry.pi.modelRuntime.getModels(model.provider).filter(item => model.provider !== "openai-codex" || item.baseUrl === "https://chatgpt.com/backend-api")
+        .map(item => ({ value: item.id, name: item.name })) }];
+  }
+
+  async setConfig(params: SetSessionConfigOptionRequest) {
+    const entry = this.entries.get(params.sessionId);
+    if (!entry || entry.invalid) throw RequestError.invalidParams(undefined, "会话不存在或占用锁已失效。");
+    if (entry.active) throw RequestError.invalidParams(undefined, "当前会话正在回复，请先等待或取消。");
+    if (params.configId !== "model" || typeof params.value !== "string") throw RequestError.invalidParams(undefined, "不支持该配置项。");
+    const model = entry.pi.modelRuntime.getModel(entry.pi.model!.provider, params.value);
+    if (!model || (model.provider === "openai-codex" && model.baseUrl !== "https://chatgpt.com/backend-api")) throw RequestError.invalidParams(undefined, "模型不在当前供应商可选列表中。");
+    entry.active = true;
+    const done = Promise.withResolvers<void>(); entry.done = done.promise;
+    try {
+      await entry.pi.setModel(model);
+      await entry.store.save(params.sessionId, entry.manager);
+      return { configOptions: this.modelOptions(entry) };
+    } catch { throw RequestError.internalError(undefined, "模型切换或保存失败，请检查配置并重新打开会话。"); }
+    finally { entry.active = false; done.resolve(); }
   }
 
   async prompt(params: PromptRequest, client: AgentContext) {
@@ -82,11 +111,6 @@ export class Sessions {
     if (!entry) throw RequestError.invalidParams(undefined, "会话不存在。");
     if (entry.invalid) throw RequestError.invalidParams(undefined, "会话占用锁已失效，请重新打开会话。");
     if (entry.active) throw RequestError.invalidParams(undefined, "当前会话正在回复，请先等待或取消。");
-    if (params.prompt.some((part) => part.type !== "text")) {
-      throw RequestError.invalidParams(undefined, "此开发版本仅接受显式文本上下文。");
-    }
-    const text = params.prompt.map((part) => part.type === "text" ? part.text : "").join("\n");
-    if (!text.trim()) throw RequestError.invalidParams(undefined, "消息不能为空。");
     entry.active = true; entry.cancelled = false;
     const done = Promise.withResolvers<void>(); entry.done = done.promise;
     entry.client = client;
@@ -101,6 +125,8 @@ export class Sessions {
       }
     });
     try {
+      const text = await promptText(entry.cwd, params.prompt, entry.contextRoot);
+      if (entry.cancelled) return { stopReason: "cancelled" as const };
       await entry.pi.prompt(text);
       await Promise.all(sends);
       if (entry.cancelled) return { stopReason: "cancelled" as const };
@@ -112,7 +138,8 @@ export class Sessions {
         return { stopReason: "max_tokens" as const };
       }
       return { stopReason: "end_turn" as const };
-    } catch {
+    } catch (error) {
+      if (error instanceof RequestError) throw error;
       if (entry.cancelled) return { stopReason: "cancelled" as const };
       throw RequestError.internalError(undefined, "模型请求失败，请检查服务连接、模型配置与额度。");
     } finally {
@@ -131,7 +158,7 @@ export class Sessions {
   async dispose() {
     for (const entry of this.entries.values()) {
       entry.cancelled = true;
-      await entry.pi.abort(); await entry.done; entry.pi.dispose(); await entry.release();
+      await entry.pi.abort(); await entry.done; entry.pi.dispose(); await entry.closeMcp(); await entry.release();
     }
     this.entries.clear();
   }

@@ -14,6 +14,9 @@ import { dirname, join, resolve, relative, basename } from "node:path";
 import { exists, filesIn, put, pathKey } from "./files";
 import { writeManifest, createArchive, verifyArchive } from "./archive";
 import { compilePlugin } from "./build-obsidian";
+import { compileVaultArtifacts, compileQuickAddCapture, quickAddCaptureDefaults } from "./build-vault-assets";
+import { compilePiRuntime } from "./build-pi-runtime";
+import { runtimeLicenses } from "./runtime-licenses";
 const defaults = resolve(import.meta.dir, "../../scripts/template/defaults");
 const userFolders = [
   "01 Journal/",
@@ -28,11 +31,11 @@ const userFolders = [
   "09 Reading/Topics/",
 ];
 const boards: Record<string, string> = {
-  "04 Projects/Projects Board.md": "Projects Board",
-  "06 Writing/Newsletters/Newsletter Board.md": "Newsletter Board",
-  "06 Writing/YouTube Scripts/YouTube Board.md": "YouTube Board",
-  "06 Writing/Articles/Article Board.md": "Article Board",
-  "06 Writing/Course Content/Course Board.md": "Course Board",
+  "04 Projects/Projects Board.md": "项目看板",
+  "06 Writing/Newsletters/Newsletter Board.md": "通讯看板",
+  "06 Writing/YouTube Scripts/YouTube Board.md": "视频看板",
+  "06 Writing/Articles/Article Board.md": "文章看板",
+  "06 Writing/Course Content/Course Board.md": "课程看板",
 };
 const dropRoots = new Set([
   ".git",
@@ -137,8 +140,12 @@ export async function safePluginSettings(plugin: string, source: string) {
     "agent-client": {
       savedSessions: [],
       autoAllowPermissions: false,
-      customAgents: [],
+      customAgents: [{ id: "personal-life-os-pi", displayName: "Personal Life OS · Pi", command: "bun", args: ["run", "./scripts/ai-runtime/pi-acp.js"], enabled: true,
+        env: [{ key: "LIFE_OS_AUTH", value: "codex" }, { key: "LIFE_OS_PROVIDER", value: "openai-codex" }, { key: "LIFE_OS_MODEL", value: "gpt-6.1-sol" }] }],
       presetAgents: {},
+      defaultAgentId: "personal-life-os-pi",
+      debugMode: false,
+      exportSettings: { autoExportOnNewChat: false, autoExportOnCloseChat: false },
       autoMentionActiveNote: false,
       expandWikilinkContext: false,
     },
@@ -211,6 +218,27 @@ export async function safePluginSettings(plugin: string, source: string) {
       ai: { providers: [] },
       globalVariables: {},
     });
+  if (plugin === "quickadd" && result && typeof result === "object" && "choices" in result && Array.isArray(result.choices)) {
+    const labels: Record<string, string> = {
+      "lifeos-journal": "📝 记录日记", "lifeos-win": "🏆 记录收获", "lifeos-gratitude": "🙏 记录感恩", "lifeos-task": "✅ 添加任务",
+      "lifeos-newsletter-idea": "✉️ 记录通讯想法", "lifeos-video-idea": "🎬 记录视频想法", "lifeos-article-idea": "📰 记录文章想法", "lifeos-project-idea": "💡 记录项目想法",
+      "lifeos-daily": "📅 打开今天日记", "lifeos-weekly": "🗓️ 打开本周笔记", "lifeos-quarterly": "🧭 打开本季度笔记", "lifeos-retreat": "🏕️ 创建本季度静修",
+      "lifeos-new-project": "📁 新建项目", "lifeos-new-person": "👤 新建人物", "lifeos-new-newsletter": "✉️ 新建通讯", "lifeos-new-video": "🎬 新建视频脚本",
+      "lifeos-new-article": "📰 新建文章", "lifeos-new-course-lesson": "🎓 新建课程", "lifeos-new-book": "📚 新建书籍笔记", "lifeos-new-study-note": "📖 新建研读笔记",
+    };
+    for (const choice of result.choices) {
+      if (!choice || typeof choice !== "object") continue;
+      if (typeof choice.id === "string" && labels[choice.id]) choice.name = labels[choice.id];
+      const capture = quickAddCaptureDefaults[choice.id];
+      if (choice.insertAfter && capture) {
+        const compiled = await compileQuickAddCapture(choice.id, capture.target, capture.headings);
+        choice.captureTo = compiled.captureTo;
+        choice.insertAfter.after = compiled.after;
+        choice.insertAfter.createIfNotFound = false;
+      }
+      if (choice.fileNameFormat && typeof choice.fileNameFormat.format === "string") choice.fileNameFormat.format = choice.fileNameFormat.format.replace(/label:[^|}]+/, "label:笔记名称");
+    }
+  }
   return result;
 }
 export async function copyTree(live: string, out: string) {
@@ -307,7 +335,7 @@ export async function copyTree(live: string, out: string) {
       if (path in boards) {
         await put(
           target,
-          `---\nkanban-plugin: board\n---\n\n# ${boards[path]}\n\n## Ideas\n\n## In progress\n\n## Done\n`,
+          `---\nkanban-plugin: board\n---\n\n# ${boards[path]}\n\n## 想法\n\n## 进行中\n\n## 已完成\n`,
         );
         continue;
       }
@@ -410,20 +438,23 @@ async function textSurgery(out: string, withoutReading: boolean) {
     await rm(join(out, rel), { recursive: true, force: true });
   await edit("Templates/Daily Note.md", (s) =>
     s
-      .replace(/> \[!reading\]- Daily reading\n(?:> .*\n)+\n/g, "")
+      .replace(/> \[!reading\]-[^\n]*\n[\s\S]*?> ```\n\n/, "")
       .replaceAll("path does not include 09 Reading/Reading Plan\n", ""),
   );
   await edit("00 Dashboards/Setup.md", (s) =>
     s.replace(
-      " Decide the reading module: fill [[Reading Plan]] or delete `09 Reading`.",
-      "",
+      /按需选择阅读模块；[^\n]*/g,
+      "本版本不含阅读模块。书籍笔记仍可正常使用。",
     ),
   );
   await edit("Guide/00 Start Here.md", (s) =>
-    s.replace(/^\| 5 \| Daily reading.*\n/gm, ""),
+    s.replace(/^\| 每日阅读[^\n]*\n/gm, ""),
   );
   await edit("AGENTS.md", (s) => s.replace(/^\| `09 Reading\/`.*\n/gm, ""));
-  await edit("README.md", (s) => s.replace(/^09 Reading\/.*\n/gm, ""));
+  await edit("README.md", (s) => s
+    .replace(/^\| `09 Reading\/`[^\n]*\n/gm, "")
+    .replace(/^\| 可选每日阅读[^\n]*\n/gm, "")
+    .replace("## 七个工作流", "## 六个工作流（本版本不含阅读模块）"));
   await edit("00 Dashboards/Task Dashboard.md", (s) =>
     s.replaceAll("path does not include 09 Reading/Reading Plan\n", ""),
   );
@@ -433,6 +464,11 @@ async function textSurgery(out: string, withoutReading: boolean) {
       (x: any) => !String(x.folder ?? "").startsWith("09 Reading"),
     );
     return JSON.stringify(d, null, 2) + "\n";
+  });
+  await edit(".obsidian/plugins/quickadd/data.json", (s) => {
+    const data = JSON.parse(s);
+    data.choices = (data.choices ?? []).filter((choice: { id?: string }) => choice.id !== "lifeos-new-study-note");
+    return JSON.stringify(data, null, 2) + "\n";
   });
 }
 export class BuildVerificationError extends Error {
@@ -480,6 +516,12 @@ export async function buildTemplate(options: BuildOptions) {
     for (const artifact of await compilePlugin()) {
       await put(join(candidate, ".obsidian/plugins/life-os-app", artifact.name), artifact.content);
     }
+    for (const artifact of await compileVaultArtifacts()) {
+      await put(join(candidate, artifact.path), artifact.content);
+    }
+    const runtime = await compilePiRuntime();
+    await put(join(candidate, "scripts/ai-runtime/pi-acp.js"), runtime);
+    await put(join(candidate, "scripts/ai-runtime/THIRD_PARTY_LICENSES.txt"), await runtimeLicenses(runtime));
     await put(
       join(candidate, ".obsidian/plugins/obsidian-local-rest-api/data.json"),
       JSON.stringify({ enableInsecureServer: true }, null, 2) + "\n",

@@ -1,21 +1,23 @@
-This page is a **recommendation engine**, not the place the day gets executed. Read it, pick what you will actually do, time block it (paper notebook or calendar). "The computer is the brain, the notebook is the list."
+本页用于**选择任务**。查看建议，选定真正要做的事，再安排到纸笔或日历中。系统帮助记住事项，具体行动由你决定。
 
 ```agent
 type: button
-text: "Triage my inbox"
-prompt: "Read Prompts/06 Task Triage.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "整理任务收件箱"
+prompt: "读取 Prompts/06 Task Triage.md，先确认实际可用的 read_note 或 Obsidian MCP vault_read，再遵循其中的 Prompt 章节。请先核对我明确提供的目标笔记与日期范围，不要假设嵌入聊天包含其他活动笔记。"
 viewType: right-pane
+autoSend: false
 ```
 ```agent
 type: button
-text: "What matters today"
-prompt: "Read Prompts/14 What Matters Today.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "今天什么最重要"
+prompt: "读取 Prompts/14 What Matters Today.md，先确认实际可用的 read_note 或 Obsidian MCP vault_read，再遵循其中的 Prompt 章节。请先核对我明确提供的目标笔记与日期范围，不要假设嵌入聊天包含其他活动笔记。"
 viewType: right-pane
+autoSend: false
 ```
 
-Capture everything to [[Tasks]] (the master list you never read) with the QuickAdd command **Add task**. Tag `#project/<slug>` or `#p/<person>` to route a task to its context. The queries below surface the right tasks at the right time.
+使用 QuickAdd 的“添加任务”捕获到 [[Tasks|任务总表]]，日常通过查询查看，而非手工翻阅总表。用 `#project/<slug>` 或 `#p/<人物标签>` 关联项目或人物，中文标签保留中文，英文标签继续可用。下方查询按日期和上下文呈现任务。
 
-## Overdue
+## 已逾期
 ```tasks
 not done
 path does not include wiki/
@@ -24,7 +26,7 @@ sort by due
 group by filename
 ```
 
-## Today
+## 今天
 ```tasks
 not done
 path does not include wiki/
@@ -34,7 +36,7 @@ sort by priority
 group by filename
 ```
 
-## Next 7 days
+## 未来 7 天
 ```tasks
 not done
 path does not include wiki/
@@ -44,7 +46,7 @@ sort by due
 group by due
 ```
 
-## To discuss (by person)
+## 待讨论（按人物）
 ```tasks
 not done
 path does not include wiki/
@@ -53,7 +55,7 @@ group by tags
 sort by created
 ```
 
-## High priority without a date
+## 无日期的高优先级任务
 ```tasks
 not done
 path does not include wiki/
@@ -62,7 +64,7 @@ no due date
 group by filename
 ```
 
-## Inbox (untagged, undated, needs a home)
+## 收件箱（无归属、无日期）
 ```tasks
 not done
 path does not include wiki/
@@ -73,7 +75,7 @@ tags do not include #p/
 limit 25
 ```
 
-## Done this week
+## 本周已完成
 ```tasks
 done after 7 days ago
 path does not include wiki/

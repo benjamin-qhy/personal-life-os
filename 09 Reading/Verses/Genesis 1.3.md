@@ -7,8 +7,8 @@ tags:
   - bible/verse
   - example
 ---
-# Genesis 1:3
+# 创世记 1:3
 
-And God said, Let there be light: and there was light.
+上帝说：“要有光。”于是便有了光。
 
-Chapter: [[Genesis 1]] · Previous: [[Genesis 1.2]]
+章节：[[Genesis 1]] · 上一节：[[Genesis 1.2]]

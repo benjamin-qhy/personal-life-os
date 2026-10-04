@@ -1,26 +1,35 @@
-# Workflow 6: Task Management
+# 工作流 6：任务、项目与人物
 
-Video: 14:11 to 16:42. "Every task is one click away from the context that explains why it exists."
+视频对应 14:11 至 16:42。任务保留在最能说明其缘由的原始笔记中，通过标签和仪表盘汇总，点击即可返回上下文。
 
-## Pieces (14:34)
-| Piece | Here |
+## 组成
+
+| 功能 | 用法 |
 | --- | --- |
-| Tasks plugin, inline tasks | any `- [ ]` line anywhere; emoji format (📅 due, ⏳ scheduled, 🔁 recurring, ⏫ priority) |
-| Master task list you never read | `08 Tasks/Tasks.md`, fed by the QuickAdd **Add task** command |
-| Project membership by tag | `#project/<slug>`; the project note's queries collect them |
-| People notes with queries | `05 People/`, `Templates/Person.md`; `#p/<slug>` |
-| "Discuss" roll-up | task tagged `#discuss #p/<slug>` shows in that person's **To discuss** and in the dashboard's **To discuss (by person)** |
-| Task dashboard | `00 Dashboards/Task Dashboard.md`: overdue, today, next 7 days, discuss, high priority undated, inbox, done this week |
+| Tasks 插件与行内任务 | 任意笔记中的 `- [ ]` 行；📅 表示截止日期，⏳ 表示计划日期，🔁 表示重复，⏫ 表示高优先级 |
+| 任务收件箱 | 使用 QuickAdd 的添加任务命令捕获到 `08 Tasks/Tasks.md`，日常从仪表盘查看 |
+| 项目关联 | 添加 `#project/<slug>`，项目笔记的查询会汇总这些任务 |
+| 人物关联 | 人物笔记位于 `05 People/`，使用 `Templates/Person.md`；关联标签为 `#p/<slug>` |
+| 待讨论事项 | 同时添加 `#discuss #p/<slug>`，即可在对应人物笔记和任务仪表盘中查看 |
+| 任务仪表盘 | `00 Dashboards/Task Dashboard.md` 汇总逾期、今天、未来七天、待讨论、无日期高优先级、收件箱和本周完成的任务 |
 
-Slug = note title lowercased, non-alphanumerics to `-`. The Project and Person templates print the exact tag at the top of the note.
+`slug` 由笔记标题生成：英文转为小写，保留中文及其他 Unicode 字母和数字，其他连续字符替换为一个 `-`，去掉首尾的 `-`。例如“秋季 写作计划”对应 `#project/秋季-写作计划`，“李 明”对应 `#p/李-明`，“Write A Book”仍对应 `#project/write-a-book`。项目和人物模板会在笔记顶部展示准确标签，直接复制即可。
 
-## Execution model (16:07)
-The dashboard is a **recommendation engine**. Pick what you will do, then time block it on a calendar or paper. "The computer is the brain, but the notebook is the list."
+## 项目工作流
 
-## When this is the wrong system (15:50)
-Location-based reminders, dozens of client projects with SLAs, shared team task tracking. Use a dedicated tool for that job and keep the rest here.
+在项目笔记中写清预期成果，再安排下一步行动。任务既可以写在项目笔记中，也可以写在其他相关笔记中，只要添加项目标签就能汇总到“下一步行动”。已完成任务在“已完成”中保留查询入口；任务正文始终在原始位置。
 
-## Practices
-- Capture everything to the master list; sort later by adding a tag or a date.
-- Dates are for things that are actually due. Undated + tagged is the normal state.
-- Before a meeting, open the person's note. After, log one line in their meeting log.
+项目的 `people` 属性可链接相关人物。人物笔记的“共同项目”会显示 `people` 包含该人物链接且 `status` 不为 `done` 的项目。保留属性键、内部状态值和文件路径，中文标题不影响这些查询。
+
+## 人物工作流
+
+为每个人保留一篇笔记。会面前查看“待讨论”和“与此人有关的未完成任务”，会面后在“会面记录”追加真实记录。需要讨论的任务添加 `#discuss` 和人物标签；普通关联任务只需人物标签。
+
+## 执行方式
+
+仪表盘提供建议和线索，最终由你决定做什么。选定任务后，可以安排到日历或纸面时间块中。并非每件任务都需要日期；只有真实的截止或计划才填写对应日期。
+
+- 先捕获到任务收件箱，再通过标签和日期整理。
+- 无日期但带路由标签的任务是正常状态。
+- 同一任务可同时带项目与人物标签，不需要复制成多条任务。
+- 基于位置的提醒、带服务级别承诺的大量客户项目、多人协作跟踪，更适合专门的任务工具。

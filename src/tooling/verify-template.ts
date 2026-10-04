@@ -2,6 +2,9 @@ import { readFile, stat } from "node:fs/promises";
 import { basename, join, resolve, dirname } from "node:path";
 import { exists, filesIn, readJson, pathKey } from "./files";
 import { verifyManifest } from "./archive";
+import { compilePiRuntime } from "./build-pi-runtime";
+import { runtimeLicenses } from "./runtime-licenses";
+import { quickAddCaptureTarget } from "./build-vault-assets";
 
 export interface Check { check: string; ok: boolean; detail: string }
 const SOURCE = resolve(import.meta.dir, "../..");
@@ -33,9 +36,20 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
   check("无大小写路径冲突", new Set(files.map(pathKey)).size === files.length);
   try { await verifyManifest(root); check("清单精确覆盖候选文件", true); }
   catch { check("清单精确覆盖候选文件", false); }
+  const runtimeFiles = new Set(["scripts/ai-runtime/pi-acp.js", "scripts/ai-runtime/THIRD_PARTY_LICENSES.txt"]);
+  let verifiedRuntime = false;
+  try {
+    const expected = await compilePiRuntime();
+    verifiedRuntime = Buffer.from(expected).equals(await readFile(join(root, "scripts/ai-runtime/pi-acp.js"))) &&
+      await readFile(join(root, "scripts/ai-runtime/THIRD_PARTY_LICENSES.txt"), "utf8") === await runtimeLicenses(expected);
+  } catch { /* Missing or altered runtime must fail provenance validation. */ }
+  check("Pi 运行文件及许可证与当前源码构建一致", verifiedRuntime);
   const texts: Record<string, string> = {};
   for (const rel of files) {
     if (rel.startsWith(".obsidian/plugins/") && !rel.endsWith("data.json")) continue;
+    // Dependency code contains credential field names and public certificate literals.
+    // Exclude it from user-data heuristics only after exact source-build verification.
+    if (verifiedRuntime && runtimeFiles.has(rel)) continue;
     if (/\.(md|js|mjs|ts|json|css|py|txt|yaml|yml)$/.test(rel)) {
       try { texts[rel] = await readFile(join(root, rel), "utf8"); } catch { /* Binary/non-UTF-8 resources have no text assertions. */ }
     }
@@ -83,7 +97,8 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
       check(`周期笔记 ${key}`, !c.enabled || (await present(c.folder || "") && await present(c.template || "")));
     }
     for (const choice of qa?.choices || []) {
-      const target = String(choice.captureTo || "").replace(/\{\{DATE:[^}]*\}\}/g, "2000-01-01");
+      const target = (await quickAddCaptureTarget(String(choice.id || ""), String(choice.captureTo || ""), String(choice.insertAfter?.after || ""))).replace(/\{\{DATE:[^}]*\}\}/g, "2000-01-01");
+      if (target && (target.startsWith("/") || /[\\\x00-\x1f:{}]/.test(target) || target.split("/").some(part => !part || part.startsWith(".")))) throw new Error("捕获目标路径不安全。");
       check(`QuickAdd 捕获目标 ${choice.name}`, !target || await present(target) || (choice.createFileIfItDoesntExist?.enabled && await present(dirname(target))));
       if (choice.createFileIfItDoesntExist?.template) check(`QuickAdd 模板 ${choice.createFileIfItDoesntExist.template}`, await present(choice.createFileIfItDoesntExist.template));
     }
@@ -104,9 +119,9 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
     if (rel.startsWith("01 Journal/Weekly/") && rel.endsWith(".md")) check(`周记名称属性 ${rel}`, /^week:\s*(\S+)/m.exec(texts[rel] || "")?.[1] === basename(rel, ".md"));
   }
   check("出生日期为空", /^birthdate:\s*$/m.test(texts["Meta/Compass Config.md"] || ""));
-  check("人生主题使用发行默认值", /Replace this line with your life theme/.test(texts["03 Planning/Life Theme.md"] || ""));
-  check("核心价值使用发行默认值", /\*\*Value one\*\*/.test(texts["03 Planning/Core Values.md"] || ""));
-  check("知识操作日志为空", (texts["wiki/log.md"] || "").replace(/^---[\s\S]*?---\n/, "").trim().endsWith("Newest completed operations appear first."));
+  check("人生主题使用发行默认值", texts["03 Planning/Life Theme.md"] === await readFile(join(SOURCE, "scripts/template/defaults/03 Planning/Life Theme.md"), "utf8"));
+  check("核心价值使用发行默认值", texts["03 Planning/Core Values.md"] === await readFile(join(SOURCE, "scripts/template/defaults/03 Planning/Core Values.md"), "utf8"));
+  check("知识操作日志为空", texts["wiki/log.md"] === await readFile(join(SOURCE, "scripts/template/defaults/wiki/log.md"), "utf8"));
   check("阅读计划无个人任务", !/^- \[ \]/m.test((texts["09 Reading/Reading Plan.md"] || "").replace(/```[\s\S]*?```/g, "")));
   for (const bad of ["wiki/concepts", "wiki/sources", "wiki/entities", "wiki/questions", ".vault-meta", ".raw", ".mcp.json", ".claude/settings.local.json", ".obsidian/plugins/agent-client/sessions", "Untitled.canvas", "08 Tasks/Untitled.base", "Guide/18 Distribution Checklist.md"]) check(`不包含 ${bad}`, !await present(bad));
   check("收件箱为空", !files.some(f => f.startsWith("inbox/") && !f.endsWith(".gitkeep")));
@@ -114,10 +129,18 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
   for (const must of ["AGENTS.md", "CLAUDE.md", "GEMINI.md", ".mcp.example.json", "LICENSE", "THIRD_PARTY_NOTICES.md", "CREDITS.md", "CHANGELOG.md", "Meta/version.md", "00 Dashboards/Setup.md", "Prompts/16 Onboarding Assistant.md"]) check(`包含 ${must}`, await present(must));
   check("助手文件导入 AGENTS.md", texts["CLAUDE.md"]?.includes("@AGENTS.md") && texts["GEMINI.md"]?.includes("@AGENTS.md"));
   const names = new Map(files.filter(f => f.endsWith(".md")).map(f => [basename(f, ".md"), f]));
-  const unresolved = new Set<string>(), badFragments = new Set<string>();
+  const unresolved = new Set<string>(), badFragments = new Set<string>(), missingMarkdown = new Set<string>();
   for (const [rel, text] of Object.entries(texts)) {
     if (!rel.endsWith(".md") || rel.startsWith("Guide/Source") || rel.startsWith("Templates/")) continue;
     const body = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`\n]*`/g, "").replace(/<%[\s\S]*?%>/g, "");
+    for (const match of body.matchAll(/\]\(([^\s)]+)\)/g)) {
+      const target = match[1]!;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("#") || target.startsWith("//")) continue;
+      try {
+        const local = decodeURIComponent(target.split("#")[0]!);
+        if (local && !files.includes(join(dirname(rel), local))) missingMarkdown.add(`${rel}: ${local}`);
+      } catch { missingMarkdown.add(`${rel}: 无效链接编码`); }
+    }
     for (const match of body.matchAll(/\[\[([^\]\|#]*)(?:#([^\]\|]*))?(?:\|[^\]]*)?\]\]/g)) {
       const target = match[1]!.trim().replace(/\/$/, ""), fragment = (match[2] || "").trim();
       const base = target ? target.split("/").at(-1)! : basename(rel, ".md");
@@ -126,6 +149,7 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
     }
   }
   check("链接中的标题存在", !badFragments.size, [...badFragments].slice(0, 8).join(", "));
+  check("Markdown 本地链接可解析", !missingMarkdown.size, [...missingMarkdown].slice(0, 8).join(", "));
   check("双向链接可解析（周期日期除外）", !unresolved.size, [...unresolved].slice(0, 8).join(", "));
   const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
   for (const [rel, text] of Object.entries(texts)) if (rel.startsWith("Meta/views/") && rel.endsWith(".js")) {
@@ -134,18 +158,30 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
   }
   for (const rel of ["Templates/Daily Note.md", "Templates/Personal Retreat.md"]) if (await present(rel)) {
     try {
-      const block = /<%\*([\s\S]*?)%>/.exec(texts[rel] || "")?.[1];
-      if (!block || block.includes("\n")) throw new Error();
+      const template = texts[rel] || "";
+      const frontmatter = /^---\n([\s\S]*?)\n---/.exec(template)?.[1];
+      if (!frontmatter) throw new Error();
       const cfg = { questions: [{ key: "dq_a", text: "a" }, { key: "dq_b", text: "b" }], habits: ["habit_x"], wheel_areas: ["wheel_y", "wheel_z"] };
       for (const value of [cfg, null]) {
-        const app = { vault: { getAbstractFileByPath: () => value ? {} : null }, metadataCache: { getFileCache: () => value ? { frontmatter: value } : null } };
-        const output = new Function("app", "tR", `${block}; return tR;`)(app, "");
-        if (!output.split("\n").every((line: string) => /^(dq_|habit_|wheel_)\w+: (false)?$/.test(line))) throw new Error();
+        const app = { vault: { getFileByPath: () => value ? {} : null }, metadataCache: { getFileCache: () => value ? { frontmatter: value } : null } };
+        const tp = { date: { now: () => "2026-10-04" }, file: { title: rel.includes("Daily") ? "2026-10-04" : "2026-Q4 Personal Retreat" } };
+        const output = frontmatter.replace(/<%\*([\s\S]*?)%>/g, (_match, code: string) =>
+          new Function("app", "tp", "tR", `${code}; return tR;`)(app, tp, ""));
+        const lines = output.split("\n").filter(line => /^(dq_|habit_|wheel_)/.test(line));
+        const expected = rel.includes("Daily")
+          ? value ? ["dq_a: ", "dq_b: ", "habit_x: false"] : ["dq_goals: ", "dq_progress: ", "dq_meaning: ", "dq_happy: ", "dq_relationships: ", "dq_engaged: ", "habit_journal: false", "habit_exercise: false", "habit_reading: false"]
+          : value ? ["wheel_y: ", "wheel_z: "] : ["wheel_health: ", "wheel_relationships: ", "wheel_family: ", "wheel_career: ", "wheel_finances: ", "wheel_growth: ", "wheel_fun: ", "wheel_meaning: "];
+        if (JSON.stringify(lines.sort()) !== JSON.stringify(expected.sort())) throw new Error();
       }
       check(`模板属性生成器 ${rel}`, true);
     } catch { check(`模板属性生成器 ${rel}`, false); }
   }
-  let bytes = 0; for (const file of files) bytes += (await stat(join(root, file))).size;
-  check("总大小低于 20 MB", bytes < 20e6, `${(bytes / 1e6).toFixed(1)} MB`);
+  let vaultBytes = 0, runtimeBytes = 0;
+  for (const file of files) {
+    const size = (await stat(join(root, file))).size;
+    if (runtimeFiles.has(file)) runtimeBytes += size; else vaultBytes += size;
+  }
+  check("笔记库内容低于 20 MB", vaultBytes < 20e6, `${(vaultBytes / 1e6).toFixed(1)} MB`);
+  check("独立 Pi 运行包低于 32 MB", runtimeBytes < 32e6, `${(runtimeBytes / 1e6).toFixed(1)} MB`);
   return results;
 }

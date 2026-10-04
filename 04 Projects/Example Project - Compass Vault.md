@@ -11,31 +11,31 @@ tags:
   - project
   - example
 ---
-Tag tasks anywhere in the vault with `#project/example-project-compass-vault` and they roll up here.
+在任务中添加 `#project/example-project-compass-vault`，即可汇总到这里。
 
-## Outcome
-What "done" looks like:
-- 30 consecutive days of daily questions answered, dashboards rendering from real data.
+## 预期结果
+完成时应达到：
+- 连续 30 天回答每日问题，仪表盘显示真实记录。
 
-## Next actions
+## 下一步行动
 ```tasks
 not done
 tags include #project/example-project-compass-vault
 sort by due
 ```
 
-## Inline tasks
-- [ ] Fill in Life Theme and Core Values #project/example-project-compass-vault
-- [ ] Set birthdate in Compass Config #project/example-project-compass-vault
-- [ ] Ask Alex how she structures her weekly review #discuss #p/example-person-alex-rivera #project/example-project-compass-vault
+## 笔记内任务
+- [ ] 填写人生主题与核心价值观 #project/example-project-compass-vault
+- [ ] 在配置中填写出生日期 #project/example-project-compass-vault
+- [ ] 询问 Alex 如何安排每周复盘 #discuss #p/example-person-alex-rivera #project/example-project-compass-vault
 
-## Notes
-- Built from the Guide folder. Layer one workflow at a time.
+## 笔记
+- 按照指南逐步搭建，每次实践一个工作流。
 
-## Log
-- 2026-08-26 Created.
+## 日志
+- 2026-08-26 已创建。
 
-## Done
+## 已完成
 ```tasks
 done
 tags include #project/example-project-compass-vault

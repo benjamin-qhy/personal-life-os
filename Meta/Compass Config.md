@@ -1,5 +1,5 @@
 ---
-birthdate: 
+birthdate:
 life_expectancy: 80
 daily_folder: 01 Journal/Daily
 weekly_folder: 01 Journal/Weekly
@@ -9,20 +9,20 @@ projects_folder: 04 Projects
 dq_prefix: dq_
 habit_prefix: habit_
 wheel_prefix: wheel_
-board_done_lanes: Done,Published,Archive
+board_done_lanes: Done,Published,Archive,已完成,已发布,归档
 questions:
   - key: dq_goals
-    text: Did I do my best to set clear goals today?
+    text: 今天我是否尽力设定了清晰的目标？
   - key: dq_progress
-    text: Did I do my best to make progress toward my goals?
+    text: 今天我是否尽力推动目标取得进展？
   - key: dq_meaning
-    text: Did I do my best to find meaning?
+    text: 今天我是否尽力寻找意义？
   - key: dq_happy
-    text: Did I do my best to be happy?
+    text: 今天我是否尽力让自己感到幸福？
   - key: dq_relationships
-    text: Did I do my best to build positive relationships?
+    text: 今天我是否尽力建立积极的关系？
   - key: dq_engaged
-    text: Did I do my best to be fully engaged?
+    text: 今天我是否尽力全心投入？
 habits:
   - habit_journal
   - habit_exercise
@@ -37,42 +37,26 @@ wheel_areas:
   - wheel_fun
   - wheel_meaning
 ---
-# Compass Config
+# 系统配置
 
-The single place the system reads its settings from. Every dashboard widget in `Meta/views/` starts with `dv.page("Meta/Compass Config")`, and the daily, retreat, and questions templates read the lists below when a new note is created. Change things here; nothing else needs to move.
+这是 Personal Life OS 的统一配置。新建日记、静修和每日问题模板读取这里的列表；仪表盘按属性前缀发现数据。修改展示问题，不必更改内部文件路径。
 
-## Personal
-| Property | Used by | Notes |
-| --- | --- | --- |
-| `birthdate` | Memento Mori widget | ISO date, `YYYY-MM-DD`. Empty until you set it. |
-| `life_expectancy` | Memento Mori widget | years |
+## 个人信息
 
-## Daily questions (`questions`)
-"Did I do my best to ..." rated 1 to 10, from Marshall Goldsmith's *Triggers*. Effort, not results. The six shipped are Goldsmith's universal set. Edit the text, rename keys (keep the `dq_` prefix, lowercase, no spaces), add or remove entries. New daily notes pick the list up automatically; the end-of-day prompt asks them in this order; dashboards discover whatever `dq_*` exists.
+出生日期 `birthdate` 使用 YYYY-MM-DD，默认留空；`life_expectancy` 是人生时间视图的估算年数。
 
-Preset from the video (Mike Schmitz), paste over the list if you prefer it:
-```yaml
-questions:
-  - {key: dq_spiritual, text: Did I do my best to grow spiritually?}
-  - {key: dq_spouse, text: Did I do my best to love my spouse?}
-  - {key: dq_kids, text: Did I do my best to love my kids?}
-  - {key: dq_friend, text: Did I do my best to be a good friend?}
-  - {key: dq_learn, text: Did I do my best to learn something?}
-  - {key: dq_create, text: Did I do my best to create something?}
-  - {key: dq_exercise, text: Did I do my best to exercise?}
-```
+## 每日问题
 
-## Habits (`habits`)
-Checkbox properties added to every new daily note. Keep 3 to 5 per season. Prefix `habit_`.
+`questions` 中每项保留稳定的 `key`，中文 `text` 用于提问。按 1 至 10 分评估是否尽力，不评价结果。这六个问题来自 Marshall Goldsmith 的《Triggers》。不要重命名已有记录的属性键。
 
-## Wheel of life (`wheel_areas`)
-Number properties (1 to 10) added to every new personal retreat note. Rename freely with the `wheel_` prefix; the radar chart labels itself from the key.
+## 习惯
 
-## Folders and prefixes
-| Property | Used by |
-| --- | --- |
-| `daily_folder`, `weekly_folder`, `quarterly_folder`, `retreat_folder`, `projects_folder` | widgets and quick links; must match the Periodic Notes settings |
-| `dq_prefix`, `habit_prefix`, `wheel_prefix` | property discovery |
-| `board_done_lanes` | Kanban lanes that count as finished on the Boards dashboard |
+`habits` 是新日记的复选框属性，保留 `habit_` 前缀。每阶段建议专注 3 至 5 项。默认显示为日记、运动与阅读。
 
-Not in English? Rename the keys (`dq_aprender`) and translate the `text` values; every chart labels itself from the key. The Guide stays in English.
+## 人生之轮
+
+`wheel_areas` 是静修笔记中的领域评分，保留 `wheel_` 前缀，使用 1 至 10 分。默认领域为健康、关系、家庭、事业、财务、成长、乐趣与意义。
+
+## 目录与前缀
+
+`daily_folder`、`weekly_folder`、`quarterly_folder`、`retreat_folder`、`projects_folder` 必须与 Periodic Notes 等设置一致。`dq_prefix`、`habit_prefix`、`wheel_prefix` 用于属性发现。`board_done_lanes` 是看板已完成栏目的名称，兼容中文及原英文。

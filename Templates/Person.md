@@ -7,42 +7,42 @@ meets:
 tags:
   - person
 ---
-Tag: `#p/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>`
+人物标签： `#p/{{lifeos-script:person-1}}`
 
-Capture "remember to talk to them about X" as a task with `#discuss #p/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>` anywhere in the vault. Open this note before the meeting.
+想起“下次要和这位朋友讨论某件事”时，可在任意笔记中创建任务并添加 `#discuss #p/{{lifeos-script:person-2}}`。会面前打开这篇人物笔记即可查看待讨论事项。
 
 ```agent
 type: button
-text: "Prep this meeting"
-prompt: "Read Prompts/07 Meeting Prep.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "准备这次会面"
+prompt: "使用当前可用的 read_note 或已配置 Obsidian MCP 的 vault_read 读取 Prompts/07 Meeting Prep.md，按照其中的 Prompt 章节处理我当前打开的笔记；若不适用，则使用当前周期。"
 viewType: right-pane
 ```
 
-## To discuss
+## 待讨论
 ```tasks
 not done
 tags include #discuss
-tags include #p/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>
+tags include #p/{{lifeos-script:person-3}}
 sort by created
 ```
 
-## Open tasks involving them
+## 与此人有关的未完成任务
 ```tasks
 not done
-tags include #p/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>
+tags include #p/{{lifeos-script:person-4}}
 tags do not include #discuss
 sort by due
 ```
 
-## Projects together
+## 共同项目
 ```dataview
 LIST
 FROM "04 Projects"
 WHERE contains(people, this.file.link) AND status != "done"
 ```
 
-## Notes
+## 笔记
 
 
-## Meeting log
-- <% tp.date.now("YYYY-MM-DD") %> 
+## 会面记录
+- {{lifeos-script:person-5}}

@@ -2,46 +2,46 @@
 type: project
 status: active
 area: 
-quarter: <% tp.date.now("YYYY-[Q]Q") %>
-started: <% tp.date.now("YYYY-MM-DD") %>
+quarter: {{lifeos-script:project-1}}
+started: {{lifeos-script:project-2}}
 due: 
 people: []
 tags:
   - project
 ---
-Tag tasks anywhere in the vault with `#project/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>` and they roll up here. Every task stays one click from the context that explains why it exists.
+在笔记库的任意位置为任务添加 `#project/{{lifeos-script:project-3}}`，即可在这里汇总。点击任务就能回到说明任务缘由的原始笔记。
 
 ```agent
 type: button
-text: "Kick off this project"
-prompt: "Read Prompts/08 Project Kickoff.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "启动这个项目"
+prompt: "使用当前可用的 read_note 或已配置 Obsidian MCP 的 vault_read 读取 Prompts/08 Project Kickoff.md，按照其中的 Prompt 章节处理我当前打开的笔记；若不适用，则使用当前周期。"
 viewType: right-pane
 ```
 
-## Outcome
-What "done" looks like:
+## 预期成果
+怎样才算完成：
 - 
 
-## Next actions
+## 下一步行动
 ```tasks
 not done
-tags include #project/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>
+tags include #project/{{lifeos-script:project-4}}
 sort by due
 ```
 
-## Inline tasks
-- [ ] First step #project/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>
+## 本页任务
+- [ ] 第一步 #project/{{lifeos-script:project-5}}
 
-## Notes
+## 笔记
 
 
-## Log
-- <% tp.date.now("YYYY-MM-DD") %> Created.
+## 进展记录
+- {{lifeos-script:project-6}} 已创建。
 
-## Done
+## 已完成
 ```tasks
 done
-tags include #project/<% tp.file.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") %>
+tags include #project/{{lifeos-script:project-7}}
 sort by done reverse
 limit 20
 ```

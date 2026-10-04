@@ -2,62 +2,66 @@
 cssclasses:
   - lifeos-dashboard
 ---
-Everything below is generated from the notes you already write. Change the daily note template, the retreat note, or the config and this page follows. You never touch this code.
+以下内容来自已有笔记。每日模板、静修笔记或配置变化后，页面会自动更新，日常使用不需要修改代码。
 
 ```dataviewjs
-await dv.view("Meta/views/quicklinks");
+{{lifeos-dashboard:compass-dashboard-1}}
 ```
 
-> [!theme] Life theme
-> ![[Life Theme#Theme]]
+> [!theme] 人生主题
+> ![[Life Theme#人生主题]]
 
-## Wheel of life (this quarter's retreat)
+## 人生之轮（本季度静修）
 ```dataviewjs
-await dv.view("Meta/views/wheel");
+{{lifeos-dashboard:compass-dashboard-2}}
 ```
 
-## Daily questions
-Lines and averages of every `dq_*` property in the daily notes. Toggle questions, pick a time frame.
+## 每日问题
+展示日记中各个 `dq_*` 属性的曲线与均值，可切换问题和时间范围。
 ```dataviewjs
-await dv.view("Meta/views/dailyquestions", { days: 30 });
+{{lifeos-dashboard:compass-dashboard-3}}
 ```
 
-## Habits
+## 习惯
 ```dataviewjs
-await dv.view("Meta/views/habits", { days: 21 });
+{{lifeos-dashboard:compass-dashboard-4}}
 ```
 
-## Boards
+## 看板
 ```dataviewjs
-await dv.view("Meta/views/boards", { compact: true });
+{{lifeos-dashboard:compass-dashboard-5}}
 ```
 
-## Memento mori
+## 珍惜有限的时间
 ```dataviewjs
-await dv.view("Meta/views/memento");
+{{lifeos-dashboard:compass-dashboard-6}}
 ```
 
-## Ask
-Open [[Assistant]] for the full prompt library, or fire one of these (needs the Agent Client plugin and a configured agent):
+## 询问助手
+打开 [[Assistant|AI 助手]] 查看完整提示词库，或使用下方入口。需要 Agent Client 和已配置的代理；先检查上下文及实际工具能力，按钮不会自动发送。
+
 ```agent
 type: button
-text: "What matters today"
-prompt: "Read Prompts/14 What Matters Today.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "今天什么最重要"
+prompt: "读取 Prompts/14 What Matters Today.md，先确认实际可用的 read_note 或 Obsidian MCP vault_read，再遵循其中的 Prompt 章节。请先核对我明确提供的目标笔记与日期范围，不要假设嵌入聊天包含其他活动笔记。"
 viewType: right-pane
+autoSend: false
 ```
 ```agent
 type: button
-text: "Review this week"
-prompt: "Read Prompts/03 Weekly Review.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "复盘本周"
+prompt: "读取 Prompts/03 Weekly Review.md，先确认实际可用的 read_note 或 Obsidian MCP vault_read，再遵循其中的 Prompt 章节。请先核对我明确提供的目标笔记与日期范围，不要假设嵌入聊天包含其他活动笔记。"
 viewType: right-pane
+autoSend: false
 ```
 
-## Related dashboards
-- [[Habit Canvas]]
-- [[Daily Questions]]
-- [[Task Dashboard]]
-- [[Projects Dashboard]]
-- [[Boards]]
-- [[Assistant]]
-- [[Setup]]
-- [[Ideal Week]] · [[Core Values]] · [[Life Theme]]
+## 相关仪表盘
+
+- [[Habit Canvas|习惯画布]]
+- [[Daily Questions|每日问题]]
+- [[Task Dashboard|任务仪表盘]]
+- [[Projects Dashboard|项目仪表盘]]
+- [[Boards|看板]]
+- [[Assistant|AI 助手]]
+- [[Setup|初始设置]]
+- [[Ideal Week|理想一周]] · [[Core Values|核心价值观]] · [[Life Theme|人生主题]]

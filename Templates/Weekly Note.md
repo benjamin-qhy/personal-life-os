@@ -1,61 +1,61 @@
 ---
-week: <% tp.file.title %>
-quarter: <% moment(tp.file.title, "gggg-[W]ww").format("YYYY-[Q]Q") %>
+week: {{lifeos-script:weekly-note-1}}
+quarter: {{lifeos-script:weekly-note-2}}
 tags:
   - weekly
 ---
-« [[01 Journal/Weekly/<% moment(tp.file.title, "gggg-[W]ww").subtract(1, "week").format("gggg-[W]ww") %>|Last week]] · [[01 Journal/Quarterly/<% moment(tp.file.title, "gggg-[W]ww").format("YYYY-[Q]Q") %>|Quarter]] · [[Compass Dashboard]] · [[01 Journal/Weekly/<% moment(tp.file.title, "gggg-[W]ww").add(1, "week").format("gggg-[W]ww") %>|Next week]] »
+« [[01 Journal/Weekly/{{lifeos-script:weekly-note-3}}|上周]] · [[01 Journal/Quarterly/{{lifeos-script:weekly-note-4}}|本季度]] · [[Compass Dashboard]] · [[01 Journal/Weekly/{{lifeos-script:weekly-note-5}}|下周]] »
 
-# Week <% moment(tp.file.title, "gggg-[W]ww").format("w, gggg") %>
-<% moment(tp.file.title, "gggg-[W]ww").startOf("week").format("MMM D") %> to <% moment(tp.file.title, "gggg-[W]ww").endOf("week").format("MMM D") %>
+# 第 {{lifeos-script:weekly-note-6}}
+{{lifeos-script:weekly-note-7}} 至 {{lifeos-script:weekly-note-8}}
 
-Days: <%* const s = moment(tp.file.title, "gggg-[W]ww").startOf("week"); const parts = []; for (let i = 0; i < 7; i++) parts.push(`[[01 Journal/Daily/${s.clone().add(i, "day").format("YYYY-MM-DD")}|${s.clone().add(i, "day").format("ddd")}]]`); tR += parts.join(" · "); %>
+本周各日：{{lifeos-script:weekly-note-9}}
 
-> [!intention]- Quarterly intentions
-> ![[01 Journal/Quarterly/<% moment(tp.file.title, "gggg-[W]ww").format("YYYY-[Q]Q") %>#Quarterly intentions]]
+> [!intention]- 季度意图
+> ![[01 Journal/Quarterly/{{lifeos-script:weekly-note-10}}#季度意图]]
 
-## Weekly intentions
-The 3 things that, if done this week, move the quarterly intentions forward.
+## 本周意图
+选出本周完成后最能推动季度意图的三件事。
 1. 
 2. 
 3. 
 
-## Ideal week check
-Look at [[Ideal Week]]. Where does the time for the intentions above actually live this week? Adjust the calendar now, not on Thursday.
+## 理想一周检查
+查看 [[Ideal Week]]。本周在哪些时间落实上述意图？现在就调整日历。
 
 - 
 
-## Due this week
+## 本周到期
 ```tasks
 not done
-due after <% moment(tp.file.title, "gggg-[W]ww").startOf("week").subtract(1, "day").format("YYYY-MM-DD") %>
-due before <% moment(tp.file.title, "gggg-[W]ww").endOf("week").add(1, "day").format("YYYY-MM-DD") %>
+due after {{lifeos-script:weekly-note-11}}
+due before {{lifeos-script:weekly-note-12}}
 sort by due
 group by filename
 ```
 
 ```agent
 type: button
-text: "Review this week"
-prompt: "Read Prompts/03 Weekly Review.md with vault_read and follow its Prompt section for the note I have open (or the current period if none applies)."
+text: "复盘本周"
+prompt: "读取 Prompts/03 Weekly Review.md，并按其 Prompt 章节处理当前打开的笔记；若无适用笔记，则使用当前周期。"
 viewType: right-pane
 ```
 
-## Weekly review
-Done at the end of the week. Effort scores and habit hits per day, from the daily notes.
+## 每周复盘
+在周末完成。从每日笔记回顾努力评分与习惯完成情况。
 ```dataviewjs
-await dv.view("Meta/views/week", { week: dv.current().file.name });
+{{lifeos-script:weekly-note-15}}
 ```
 
-### What went well
+### 做得好的地方
 
-### What did not
+### 未如预期的地方
 
-### Wins this week
+### 本周收获
 ```dataview
 LIST L.text
 FROM "01 Journal/Daily"
 FLATTEN file.lists AS L
-WHERE L.section.subpath = "Wins" AND file.day >= date(<% moment(tp.file.title, "gggg-[W]ww").startOf("week").format("YYYY-MM-DD") %>) AND file.day <= date(<% moment(tp.file.title, "gggg-[W]ww").endOf("week").format("YYYY-MM-DD") %>)
+WHERE ((L.section.subpath = "Wins" OR L.section.subpath = "收获") OR L.section.subpath = "收获") AND file.day >= date({{lifeos-script:weekly-note-13}}) AND file.day <= date({{lifeos-script:weekly-note-14}})
 SORT file.name ASC
 ```

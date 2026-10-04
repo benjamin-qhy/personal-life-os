@@ -1,6 +1,6 @@
 ---
 type: meta
-title: Routing Map
+title: 内容路由
 status: evergreen
 created: 2026-08-26
 updated: 2026-08-26
@@ -9,18 +9,18 @@ tags:
   - routing
 ---
 
-# Routing Map
+# 内容路由
 
-Where claude-obsidian operations file things in this Compass vault. The plugin can only write under `wiki/` (and `.raw/` for ingest payloads); these rules decide the subfolder and what to link instead of duplicating.
+这里规定 claude-obsidian 操作在 Personal Life OS 中保存内容的位置。插件只能写入 `wiki/`，摄取原始材料使用 `.raw/`。所有写入都经过 inspect → approve → apply，即检查、批准、应用。优先链接原有笔记，不复制个人正文。
 
-| Operation | Destination | Rule |
+| 操作 | 目标 | 规则 |
 | --- | --- | --- |
-| `/save` an answer, decision, or insight | `wiki/concepts/<slug>.md` | One page per idea. Link the Compass note it came from (a daily note, a retreat, a project). |
-| `/save` a session summary | `wiki/log.md` | Append; newest first. |
-| Ingest a book, article, transcript, clipped page | `wiki/sources/<slug>.md` + source ledger row | Book notes that the user writes by hand stay in `07 Library/Book Notes` (Templater folder template, block-id quotes). Do not move them. |
-| Anything about a person | link to `05 People/<Name>.md` | Do not create `wiki/entities/<name>.md` for people who have a people note. |
-| Anything about a project | link to `04 Projects/<Name>.md` | Same rule. |
-| Journal, retreat, planning, habit, task content | never ingested | Personal operating data; no ledger rows, no provenance model. |
-| Questions to research later | `wiki/index.md` → Questions | Then `autoresearch` only with explicit consent (network egress). |
+| `/save` 保存回答、决定或见解 | `wiki/concepts/<slug>.md` | 每个想法一页，链接相关笔记；不把日记正文复制到知识层。 |
+| `/save` 保存获准的会话摘要 | `wiki/log.md` | 经批准追加，最新完成的操作排在最前。 |
+| 摄取书籍、文章、字幕或网页 | `wiki/sources/<slug>.md` 与来源账本 | 本人手写的书籍笔记保留在 `07 Library/Book Notes`，包括模板属性与块引文，不移动。 |
+| 与人物有关的内容 | 链接 `05 People/<Name>.md` | 已有人物笔记时，不另建 `wiki/entities/<name>.md` 副本。 |
+| 与项目有关的内容 | 链接 `04 Projects/<Name>.md` | 已有项目笔记时不另建副本。 |
+| 日记、静修、规划、习惯和任务 | 不摄取 | 属于个人生活数据，不建立账本行或来源模型。 |
+| 留待研究的问题 | `wiki/index.md` 的“待研究问题”章节 | `autoresearch` 会访问网络，只在明确同意后运行。 |
 
-Mode: `generic` (no `.vault-meta/mode.json`). Do not switch to PARA; it would duplicate `04 Projects` and `03 Planning` under `wiki/`.
+模式保留 `generic`，不创建 `.vault-meta/mode.json`。不要切换到 PARA，以免在 `wiki/` 中重复现有的 `04 Projects` 和 `03 Planning`。

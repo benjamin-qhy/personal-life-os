@@ -1,6 +1,6 @@
 ---
 type: meta
-title: Hot Cache
+title: 近期上下文
 status: developing
 created: 2026-08-26
 updated: 2026-08-26
@@ -9,21 +9,21 @@ tags:
   - hot-cache
 ---
 
-# Recent Context
+# 近期上下文
 
-## Last Updated
+## 最近更新
 
-2026-08-26: Compass vault adopted by claude-obsidian. No knowledge operations have completed yet.
+这是 Personal Life OS 的默认知识层，尚未完成任何知识操作。这里不是个人经历或已执行工作的记录。
 
-## Key Recent Facts
+## 关键约定
 
-- Dashboards read properties by prefix (`dq_`, `habit_`, `wheel_`); never rename them.
-- `wiki/` is the only folder the plugin writes to; life workflows are edited in Obsidian or via Agent Client with approval.
+- 仪表盘通过 `dq_`、`habit_`、`wheel_` 前缀读取属性，保留已有记录的键。
+- 插件知识事务只写入 `wiki/`，摄取原始材料使用 `.raw/`；生活工作流在 Obsidian 中操作，或经本人批准后通过支持的智能体工具修改。
 
-## Recent Changes
+## 当前状态
 
-- Created the wiki foundation next to the Compass folders.
+- 知识层基础页面已提供，与生活工作流的编号目录分开。
 
-## Active Threads
+## 下一步
 
-- Drop a source into `inbox/`, then ingest it.
+- 本人可选择把来源放入 `inbox/`，再通过检查、批准和应用流程摄取。

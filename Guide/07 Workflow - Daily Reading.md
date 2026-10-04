@@ -1,34 +1,42 @@
-# Workflow 5: Daily Bible Reading
+# 工作流 5：每日阅读
 
-Video: 11:51 to 14:11 (Mike's daily Bible reading). The oldest tracked habit, and "the workflow that taught me why I keep everything in one vault." In this template the module is generic: any daily reading with a plan, chapter notes, study notes, and topic maps. The Bible is the worked example because that is what the video shows and what the scripts generate.
+视频对应 11:51 至 14:11，介绍 Mike 的每日圣经阅读。这套模板也适用于其他有计划的日常阅读：用阅读计划、章节笔记、研读笔记和主题索引把内容串起来。圣经是现有脚本支持的示范材料，并不要求你采用同一阅读内容。
 
-Optional module: delete `09 Reading/` and the `[!reading]` callout in `Templates/Daily Note.md` if you do not want it. Or use it for any daily reading (a book a quarter, a course, a canon of essays): one task per chapter in `Reading Plan.md`, one note per chapter in `Chapters/`, study notes that link the chapters.
+阅读是可选模块。构建不含阅读的独立模板时，使用构建命令的 `--without-reading` 选项；不会改动当前笔记库。如果在自己的笔记库中停用阅读，可移除 `09 Reading/`，并在 `Templates/Daily Note.md` 中移除 `[!reading]` 提示块。你也可以把它用于每季度一本书、一门课程或系列文章：在 `Reading Plan.md` 中按章节安排任务，在 `Chapters/` 中保存章节笔记，再用研读笔记链接相关章节。
 
-## Two representations (12:09)
-| | Note as chapter | Note as verse |
+## 两种笔记粒度
+
+| | 章节笔记 | 经节笔记 |
 | --- | --- | --- |
-| Folder | `09 Reading/Chapters/Genesis 1.md` | `09 Reading/Verses/Genesis 1.1.md` |
-| Purpose | daily reading plan | linking target for sermon notes, topical MOCs, study notes, book notes |
-| Count | 1,189 | 31,102 |
+| 路径示例 | `09 Reading/Chapters/Genesis 1.md` | `09 Reading/Verses/Genesis 1.1.md` |
+| 用途 | 每日阅读计划 | 研读笔记、主题索引和书籍笔记的链接目标 |
+| 完整示例数量 | 1,189 | 31,102 |
 
-## Reading plan (12:22)
-`09 Reading/Reading Plan.md` holds one task per chapter with a scheduled date (⏳). The daily note's **Bible reading** callout runs a Tasks query for chapters scheduled on or before today, so unread chapters roll forward. Check them off in the callout.
+## 阅读计划
 
-Generate a full plan:
+`09 Reading/Reading Plan.md` 为每个章节安排一个带计划日期（⏳）的任务。每日笔记中的阅读提示块通过 Tasks 查询显示今天及之前安排、尚未完成的章节；未读章节会继续出现，读完后直接勾选即可。
+
+维护者可以生成完整计划：
+
 ```bash
 bun scripts/generate_reading_plan.ts --start 2026-09-01 --days 365 > "09 Reading/Reading Plan.md"
 ```
-Options: `--order canonical` (default) or `--order chronological` (a common chronological ordering is built in), `--days 365`.
 
-## Generating chapter and verse notes
+`--order canonical` 使用默认经卷顺序，`--order chronological` 使用内置的时间顺序，`--days` 指定计划天数。命令会写入指定输出文件，请先确认目标文件和起始日期。普通阅读与勾选任务不需要 Bun。
+
+## 生成章节与经节笔记
+
 ```bash
 bun scripts/split_bible.ts path/to/kjv.txt --out "09 Reading"
 ```
-Expects a plain-text file with one verse per line as `Book Chapter:Verse<TAB>Text` (the common format of public-domain KJV/WEB dumps). Produces `Chapters/<Book> <N>.md` with the full text and verse links, and `Verses/<Book> <N>.<V>.md` with previous/next links. 31k small files is fine for Obsidian; give the first index a minute.
 
-## Cross-reference library (12:53)
-- Sermon notes (`Templates/Study Note.md`) link every verse mentioned. Open the local graph on a verse to see every sermon, study note, and topical page that touched it.
-- Topical pages in `09 Reading/Topics/` are maps of content.
-- Paper-Bible highlights become tags on the verse note (`#highlight`, `#topic/...`).
+输入为纯文本，每行一节，格式为 `Book Chapter:Verse<TAB>Text`，即书名、章号、节号、制表符和正文。生成器输出 `Chapters/<Book> <N>.md`，包含章节正文及经节链接；同时输出 `Verses/<Book> <N>.<V>.md`，包含前后经节导航。首次为约三万篇经节笔记建立索引可能需要一些时间。
 
-Mike's own Bible resource files: https://download.mikeschmitz.com/bible
+## 建立交叉参考
+
+- 使用 `Templates/Study Note.md` 创建研读笔记，并链接提到的经节。打开经节的本地图谱，即可找到相关研读笔记与主题页。
+- `09 Reading/Topics/` 中的主题页用于组织内容索引。
+- 可以在经节笔记上使用 `#highlight`、`#topic/...` 等标签记录重点。
+- 在书籍笔记中用 `^quote-1` 这样的块标识保存引文，写作时通过块引用复用。
+
+[Mike 的原始圣经资源](https://download.mikeschmitz.com/bible)

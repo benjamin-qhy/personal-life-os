@@ -1,6 +1,6 @@
 ---
 type: meta
-title: Wiki Log
+title: 知识操作日志
 status: evergreen
 created: 2026-08-26
 updated: 2026-08-26
@@ -9,6 +9,6 @@ tags:
   - log
 ---
 
-# Wiki Log
+# 知识操作日志
 
-Newest completed operations appear first.
+最新完成的操作排在最前面。

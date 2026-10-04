@@ -4,19 +4,19 @@ tags:
   - bible/topical
   - example
 ---
-A topical map of content. Link verses, chapters, sermon notes, and book notes about the theme. This is the "no dedicated Bible app can hold my sermon notes, book notes, and journal" idea in one note.
+围绕主题建立索引，连接相关经节、章节、讲道、书籍和日记，将分散内容放在同一知识网络中。
 
-## Verses
+## 经节
 - [[Genesis 1.1]]
 - [[Genesis 1.3]]
 
-## Sermons
+## 讲道
 - [[Example Study Note - In the Beginning]]
 
-## Books and articles
+## 书籍与文章
 - 
 
-## Journal entries that touched this
+## 提及本主题的日记
 ```dataview
 LIST
 FROM "01 Journal/Daily"

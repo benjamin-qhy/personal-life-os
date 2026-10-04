@@ -1,6 +1,6 @@
 import type { App, Editor } from "obsidian";
 
-export interface Action { icon: string; label: string; description: string; command?: string; path?: string }
+export interface Action { icon: string; label: string; description: string; command?: string; path?: string; requiresReading?: boolean }
 export interface ButtonOptions extends Action { primary?: boolean; onClick: () => unknown }
 export interface CollectionOptions { title: string; description: string; types: string[]; icon: string; empty: string }
 export interface ModuleDefinition { eyebrow: string; title: string; description: string; actions: Action[] }

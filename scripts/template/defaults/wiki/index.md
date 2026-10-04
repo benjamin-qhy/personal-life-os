@@ -1,6 +1,6 @@
 ---
 type: meta
-title: Wiki Index
+title: 知识索引
 status: evergreen
 created: 2026-08-26
 updated: 2026-08-26
@@ -9,22 +9,22 @@ tags:
   - index
 ---
 
-# Wiki Index
+# 知识索引
 
-This catalog is updated by completed knowledge operations.
+完成知识操作后更新此目录。
 
-## Sources
+## 来源
 
-- No sources indexed yet.
+- 尚未收录来源。
 
-## Concepts
+## 概念
 
-- No concepts indexed yet.
+- 尚未收录概念。
 
-## Entities
+## 实体
 
-- No entities indexed yet.
+- 尚未收录实体。
 
-## Questions
+## 待研究问题
 
-- No questions indexed yet.
+- 尚未收录问题。

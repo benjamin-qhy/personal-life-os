@@ -1,51 +1,63 @@
-# Native acceptance record
+# 最终候选人工验收清单
 
-This separates reproducible development evidence from native acceptance. A local candidate has passed automated packaging and disposable extraction checks, but native acceptance is not complete. Run the remaining checks against a fresh, sanitized candidate in an isolated Obsidian profile. Do not use real personal notes or provider credentials for the basic acceptance pass.
+本页供用户在开发结束后亲自验收。**当前所有原生项目均待测。** 自动化、模拟宿主和浏览器合成检查由各次执行记录证明，不自动勾选本页。
 
-## Identify the candidate
+使用全新、脱敏的独立候选与隔离 Obsidian 环境。基础检查用合成记录，不使用真实日记或服务商凭据。
 
-- Template version: 1.1.0 candidate
-- Life OS plugin version: 0.20.0
-- Archive SHA256: use the exact candidate's external `.sha256` sidecar; not embedded here to avoid self-referential hashes
-- Operating system and Obsidian version: not recorded
-- Test date and reviewer: not recorded
-- Result: automated development checks passed; native acceptance incomplete
+## 先登记候选
 
-## Required checks
+- 模板版本：填写实际候选版本。
+- 应用插件版本：读取候选 `manifest.json`。
+- ZIP SHA256：使用候选旁的 `.sha256` 文件，不在包内重复嵌入自引用哈希。
+- 操作系统、设备与 Obsidian 版本：待填写。
+- 验收日期与人员：待填写。
+- 完整阅读或关闭阅读变体：待填写。
+- 当前结论：待用户手测。
 
-| Check | Expected behavior | Result |
+## 桌面基础功能
+
+| 检查项 | 预期 | 结果 |
 | --- | --- | --- |
-| Extraction | No unsafe paths, symlinks, or unexpected files; manifest matches | Automated candidate restore passed; rerun for the exact delivered ZIP |
-| Cold start | Restricted-mode decision is explicit; Home opens after plugins load | Not tested |
-| Reload twice | No duplicate views or stale listeners | Not tested |
-| Home and Today | Accurate empty states; samples do not enter live commitments | Not tested |
-| Capture | Existing QuickAdd routes work; same-name notes are not overwritten | Not tested |
-| Task navigation | Clicking a task opens its exact source line without changing it | Not tested |
-| Calendar | Existing notes open; missing non-today dates are not created | Not tested |
-| Review | Chart values reconcile with fixture properties and source-day links | Not tested |
-| Brain | 3D rotation, pan, zoom, labels, search, filters, hover, and note opening work | Not tested |
-| Keyboard | Navigation and chart details work without a mouse | Not tested |
-| Layout | Narrow panes, 200 percent zoom, light and dark themes remain usable | Not tested |
-| Privacy | No shipped keys or sessions; prompt buttons do not auto-send | Not tested |
-| Bridge | Listener and loopback configuration are checked locally without exposing keys | Not tested |
-| Backup restore | Restore a fixture vault and verify notes and settings | Not tested |
+| 解压与完整性 | 无不安全路径、符号链接或额外文件，清单与内容一致 | 待测 |
+| 首次启动 | 明确受限模式选择，加载后首页可打开 | 待测 |
+| 连续重载两次 | 不重复视图，不遗留失效监听 | 待测 |
+| 首页与今天 | 中文清晰，空状态准确，示例不进入真实承诺 | 待测 |
+| 日记、问题与习惯 | 从规范入口生成，属性写入正确，旧英文章节兼容 | 待测 |
+| 周、季度与静修 | 日期、导航、意图嵌入与图表正确 | 待测 |
+| 统一捕获 | 各既有路由可用，同名笔记不覆盖 | 待测 |
+| 项目与人物 | 中文及英文标签均能汇总，讨论归属准确 | 待测 |
+| 任务跳转 | 打开准确源行，不更改任务 | 待测 |
+| 月历 | 打开已有日期，今日可创建，其他空日期不创建 | 待测 |
+| 回顾 | 图表与测试属性一致，能返回源笔记 | 待测 |
+| 写作与书库 | 看板、模板、引用来源、状态筛选和本地封面可用 | 待测 |
+| 阅读 | 章节、经节、计划与研读导航可用 | 待测 |
+| 关闭阅读变体 | 无失效阅读入口，其他功能完整 | 待测 |
+| Brain | 旋转、平移、缩放、标签、搜索、筛选、悬停与打开笔记 | 待测 |
+| 键盘 | 不用鼠标也可导航和读取图表细节 | 待测 |
+| 显示 | 窄面板、200% 缩放、浅色与深色主题可用 | 待测 |
+| 隐私 | 包内没有密钥或会话，提示词按钮不自动发送；另核实实际客户端缓存位置 | 待测 |
+| 备份恢复 | 在独立目录恢复并核对笔记与设置，不覆盖现用库 | 待测 |
 
-## Separate optional checks
+## 桌面 AI 单独验收
 
-Provider authentication, an actual AI request, external calendar integration, and mobile-specific functionality require separate authorization and evidence. Leave them not tested if they were not exercised. A desktop browser fixture does not prove mobile or native behavior.
+实际模型请求会使用对应服务和额度，仅在本人选择并授权后进行。
 
-## Evidence rules
+| 检查项 | 预期 | 结果 |
+| --- | --- | --- |
+| Agent Client 启动 Pi | 客户端能启动 Bun ACP，状态与错误使用中文 | 待测 |
+| 中文流式聊天 | 分片持续呈现，结束状态正确 | 待测 |
+| 显式上下文 | 只发送选择的笔记与任务材料，不自动遍历全库 | 待测 |
+| 批准追加 | 展示正确目标与完整差异，单次批准后只应用该变更 | 待测 |
+| 拒绝与取消 | 拒绝或取消不产生该次写入，随后仍可继续 | 待测 |
+| 冲突 | 审批期间目标变化时阻止旧变更写入 | 待测 |
+| 会话恢复 | 重启后能恢复对应库外会话，不混入其他库 | 待测 |
+| 模型配置 | 同供应商模型菜单可切换，恢复保留选择，回复期间禁止切换 | 待测 |
+| 可选桥接 | 单独验证回环监听与所用客户端权限，不泄露密钥 | 待测 |
 
-Bind screenshots and results to the exact candidate checksum. Label synthetic fixtures visibly. Record failures and skipped checks. A passing static, mock-runtime, or browser test does not mark this record complete.
+## 移动端与可选集成
 
-## Development checks, 2026-09-09
+移动端仅验收既有非 AI 能力。没有设备或实际操作证据就保留待测，桌面浏览器模拟不能代替移动端原生检查。外部日历、浏览器扩展和其他供应商也单独记录，不因基础流程通过而推断通过。
 
-Life OS application 0.20.0 passed 59 static and mock-runtime checks. The Assistant contract verifier passed 16 explicit non-auto-send workflows and context disclosure checks. Eleven synthetic temporary-directory release-safety tests passed. The dashboard browser fixture passed all ten dashboard modules, Home spacing, task-source navigation, month navigation, charts, library filters, workload and discussion summaries, per-module visual controls, narrow document widths, and a light-theme smoke check.
+## 记录原则
 
-The Brain browser regression fixture passed graph filtering, search, hover, selection, note opening, keyboard controls, zoom, reset, and cleanup. Its latest synthetic rotation CPU timing was median 5.4 ms and p95 6.2 ms. This measures neither native Obsidian frame latency nor mobile performance.
-
-A sanitized local candidate passed 165 template checks. Its ZIP sidecar and embedded file hashes were checked after extraction into a disposable directory. No personal vault was overwritten or restored. The archive remains a development candidate, not an accepted public release. No provider request or publication was performed. Screenshots use synthetic records, with a visible fixture label and stubbed icons.
-
-## User-reported testing
-
-The owner reports having tested and checked the system. That is useful user-reported evidence, but the exact platform, tested artifact, workflow coverage, and results were not specified. Do not infer that every native checklist item passed. Record those details during the next native acceptance run.
+每张截图和结果绑定到具体候选校验和，合成数据注明来源。记录失败与跳过项，不把“尚未测”改成“通过”。历史开发检查与用户概括反馈可作参考，但平台、版本和覆盖不明时，不能移填到本清单。
