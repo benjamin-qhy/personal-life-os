@@ -107,17 +107,17 @@ Upstream repositories and release tags are in `THIRD_PARTY_NOTICES.md`. Obsidian
 
 ## Build and release
 
-![verify](https://github.com/AgriciDaniel/compass/actions/workflows/verify.yml/badge.svg)
+![verify](https://github.com/benjamin-qhy/personal-life-os/actions/workflows/verify.yml/badge.svg)
 
 The template is built from the maintainer's live vault, never edited in the built copy:
 
 ```bash
-python3 scripts/verify_release_safety.py
-python3 scripts/build_template.py --out ../life-os-releases --name LifeOS-1.1.0-candidate --version 1.1.0 --zip
-python3 scripts/verify_template.py ../life-os-releases/LifeOS-1.1.0-candidate
+bun scripts/verify_release_safety.ts
+bun scripts/build_template.ts --out ../life-os-releases --name LifeOS-1.1.0-candidate --version 1.1.0 --zip
+bun scripts/verify_template.ts ../life-os-releases/LifeOS-1.1.0-candidate
 ```
 
-`build_template.py` copies with drop rules, keeps only `example`-tagged notes in user folders, resets defaults, strips machine state from plugin settings, adds the version and a one-page workspace, then verifies and zips. `verify_template.py` exits 1 on any failure: forbidden strings (names, paths, keys, certificates, em dashes), plugin settings (Local REST API exactly `{"enableInsecureServer": true}`, Agent Client with no sessions and auto-allow off, Omnisearch HTTP server off, QuickAdd online features off), plugin folders with LICENSE, notices matching manifests, referenced paths and wikilinks resolving, `Meta/views/*.js` syntax under Node, and total size under 20 MB. The `verify` workflow runs it on every push and pull request. Maintainer checklist: `scripts/RELEASE.md`. Changes: `CHANGELOG.md`.
+`build_template.ts` copies with drop rules, keeps only `example`-tagged notes in user folders, resets defaults, strips machine state from plugin settings, adds the version and a one-page workspace, then verifies and zips. `verify_template.ts` exits 1 on any failure: forbidden strings (names, paths, keys, certificates, em dashes), plugin settings (Local REST API exactly `{"enableInsecureServer": true}`, Agent Client with no sessions and auto-allow off, Omnisearch HTTP server off, QuickAdd online features off), plugin folders with LICENSE, notices matching manifests, referenced paths and wikilinks resolving, `Meta/views/*.js` syntax under Bun, and total size under 20 MB. The `verify` workflow runs it on every push and pull request. Maintainer checklist: `scripts/RELEASE.md`. Changes: `CHANGELOG.md`.
 
 There is no transactional in-place upgrader. Back up the complete vault, extract a new release beside it, and migrate personal content, custom configuration, and templates with conflict review. Do not replace the working `.obsidian` folder wholesale. A backup is not proven until a restore has been tested. See `scripts/RELEASE.md` and `Guide/23 Native Acceptance.md`.
 

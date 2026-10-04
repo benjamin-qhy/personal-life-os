@@ -17,9 +17,13 @@
     "skipLibCheck": true
   },
   "include": [
-    "src/acp/**/*.ts",
-    "src/types/**/*.d.ts",
-    "tests/acp/**/*.ts",
-    "scripts/verify_codex_*.ts"
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "scripts/**/*.ts"
+  ],
+  "exclude": [
+    "scripts/verify_brain_view.ts",
+    "scripts/verify_dashboard_view.ts",
+    "scripts/browser-fixture-types.ts"
   ]
 }

@@ -27,4 +27,4 @@ Read next: [[01 Principles]] (the ideas behind it), [[02 Plugins]] (what is inst
 Everything shown took the original author five years. Pick one workflow, probably the daily journaling, get it working for 30 days, then layer the next one. [[Setup]] enforces that order.
 
 ## Maintainers
-Releases are built with `scripts/build_template.py` and gated by `scripts/verify_template.py`; see `scripts/RELEASE.md`.
+Releases are built with `scripts/build_template.ts` and gated by `scripts/verify_template.ts`; see `scripts/RELEASE.md`.

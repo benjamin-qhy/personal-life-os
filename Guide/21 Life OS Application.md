@@ -71,7 +71,7 @@ The application deliberately composes the existing tools:
 
 ## Verification
 
-Run `node scripts/verify_life_os_app.mjs .` for the focused application gate. The complete template build also runs this gate through `scripts/verify_template.py`. Static and mock-runtime verification do not replace checking the view inside Obsidian after a reload.
+Run `bun scripts/verify_life_os_app.ts .` for the focused application gate. The complete template build also runs this gate through `scripts/verify_template.ts`. Static and mock-runtime verification do not replace checking the view inside Obsidian after a reload.
 
 ## Build direction
 

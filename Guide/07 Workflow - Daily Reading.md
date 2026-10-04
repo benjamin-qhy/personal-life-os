@@ -16,13 +16,13 @@ Optional module: delete `09 Reading/` and the `[!reading]` callout in `Templates
 
 Generate a full plan:
 ```bash
-python3 scripts/generate_reading_plan.py --start 2026-09-01 --days 365 > "09 Reading/Reading Plan.md"
+bun scripts/generate_reading_plan.ts --start 2026-09-01 --days 365 > "09 Reading/Reading Plan.md"
 ```
 Options: `--order canonical` (default) or `--order chronological` (a common chronological ordering is built in), `--days 365`.
 
 ## Generating chapter and verse notes
 ```bash
-python3 scripts/split_bible.py path/to/kjv.txt --out "09 Reading"
+bun scripts/split_bible.ts path/to/kjv.txt --out "09 Reading"
 ```
 Expects a plain-text file with one verse per line as `Book Chapter:Verse<TAB>Text` (the common format of public-domain KJV/WEB dumps). Produces `Chapters/<Book> <N>.md` with the full text and verse links, and `Verses/<Book> <N>.<V>.md` with previous/next links. 31k small files is fine for Obsidian; give the first index a minute.
 

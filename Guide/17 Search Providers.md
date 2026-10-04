@@ -26,7 +26,7 @@ Shipped settings: `.obsidian/plugins/obsidian-local-rest-api/data.json` contains
 - Web viewer: Chromium webview, audited by Cure53, ad-blocking on. While Obsidian runs, third-party plugins can access Web viewer cookies, so use your main browser for anything password protected.
 
 ## Owner's release gate
-`scripts/verify_template.py` refuses to ship a copy whose Local REST API settings contain a generated key or certificate; `scripts/build_template.py` resets that file to `{"enableInsecureServer": true}` on every build. See `scripts/RELEASE.md`.
+`scripts/verify_template.ts` refuses to ship a copy whose Local REST API settings contain a generated key or certificate; `scripts/build_template.ts` resets that file to `{"enableInsecureServer": true}` on every build. See `scripts/RELEASE.md`.
 
 ## Dissent recorded
 1. Turning on a listening server for every member, including those who never install the extension, is a policy choice; the more conservative posture is "installed, not enabled" at the cost of one more checklist step.

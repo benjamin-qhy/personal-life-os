@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  },
+  "include": [
+    "scripts/verify_brain_view.ts",
+    "scripts/verify_dashboard_view.ts",
+    "scripts/browser-fixture-types.ts"
+  ],
+  "exclude": []
+}

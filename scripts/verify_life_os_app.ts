@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 import fs from "node:fs";
 import path from "node:path";
@@ -15,12 +15,28 @@ const noticesPath = path.join(root, "THIRD_PARTY_NOTICES.md");
 const setupViewPath = path.join(root, "Meta/views/setup.js");
 const hotkeysPath = path.join(root, ".obsidian/hotkeys.json");
 
-const results = [];
-const check = (name, condition, detail = "") => {
+// The VM loads an untyped Obsidian plugin. Dynamic values are confined to this
+// synthetic host boundary; no real vault note contents enter the runtime fixture.
+type HostValue = any;
+interface ElementOptions { cls?: string; text?: unknown; attr?: Record<string, unknown> }
+interface Manifest { id: string; isDesktopOnly: boolean; version: string }
+interface QuickAddChoice {
+  id: string;
+  type?: string;
+  command?: boolean;
+  templatePath?: string;
+  folder?: { folders?: string[] };
+  fileNameFormat?: { format?: string };
+  fileExistsMode?: string;
+}
+interface QuickAddConfiguration { choices?: QuickAddChoice[] }
+interface CheckResult { name: string; ok: boolean; detail: string }
+const results: CheckResult[] = [];
+const check = (name: string, condition: unknown, detail = "") => {
   results.push({ name, ok: Boolean(condition), detail });
 };
-const read = (file) => fs.readFileSync(file, "utf8");
-const readJson = (file) => JSON.parse(read(file));
+const read = (file: string) => fs.readFileSync(file, "utf8");
+const readJson = <T>(file: string): T => JSON.parse(read(file)) as T;
 
 for (const file of [mainPath, cssPath, manifestPath, communityPath, quickAddPath, noticesPath, setupViewPath, hotkeysPath]) {
   check(`present: ${path.relative(root, file)}`, fs.existsSync(file));
@@ -32,12 +48,12 @@ if (results.some((result) => !result.ok)) {
 
 const source = read(mainPath);
 const css = read(cssPath);
-const manifest = readJson(manifestPath);
-const community = readJson(communityPath);
-const quickAdd = readJson(quickAddPath);
+const manifest = readJson<Manifest>(manifestPath);
+const community = readJson<string[]>(communityPath);
+const quickAdd = readJson<QuickAddConfiguration>(quickAddPath);
 const notices = read(noticesPath);
 const setupView = read(setupViewPath);
-const hotkeys = readJson(hotkeysPath);
+const hotkeys = readJson<Record<string, unknown>>(hotkeysPath);
 
 check("manifest id", manifest.id === "life-os-app", String(manifest.id));
 check("manifest is mobile-capable", manifest.isDesktopOnly === false);
@@ -67,7 +83,7 @@ try {
   new vm.Script(source, { filename: mainPath });
   check("JavaScript parses", true);
 } catch (error) {
-  check("JavaScript parses", false, error.message);
+  check("JavaScript parses", false, error instanceof Error ? error.message : String(error));
 }
 
 const configuredCommands = new Set(
@@ -79,10 +95,10 @@ const referencedCommands = new Set(
 const missingCommands = [...referencedCommands].filter(
   (command) => !configuredCommands.has(command)
 );
-const quickAddById = new Map(
+const quickAddById = new Map<string, QuickAddChoice>(
   (quickAdd.choices || []).map((choice) => [choice.id, choice])
 );
-const recordChoiceContracts = [
+const recordChoiceContracts: [string, string, string][] = [
   ["lifeos-new-project", "Templates/Project.md", "04 Projects"],
   ["lifeos-new-person", "Templates/Person.md", "05 People"],
   ["lifeos-new-newsletter", "Templates/Newsletter.md", "06 Writing/Newsletters"],
@@ -118,7 +134,7 @@ check(
 
 const referencedPaths = new Set(
   [...source.matchAll(/(?:path:\s*|openPath\()"([^"]+\.md)"/g)].map(
-    (match) => match[1]
+    (match) => match[1]!
   )
 );
 const missingPaths = [...referencedPaths].filter(
@@ -156,7 +172,11 @@ check(
 );
 
 class FakeElement {
-  constructor(tag = "div", options = {}) {
+  tag: string;
+  options: ElementOptions;
+  children: FakeElement[];
+  handlers: Record<string, () => void>;
+  constructor(tag = "div", options: ElementOptions = {}) {
     this.tag = tag;
     this.options = options;
     this.children = [];
@@ -167,49 +187,53 @@ class FakeElement {
     this.children = [];
   }
 
-  addClass(name) { this.options.cls = `${this.options.cls || ""} ${name}`.trim(); }
-  setAttribute(name, value) { this.options.attr = { ...this.options.attr, [name]: value }; }
+  addClass(name: string) { this.options.cls = `${this.options.cls || ""} ${name}`.trim(); }
+  setAttribute(name: string, value: unknown) { this.options.attr = { ...this.options.attr, [name]: value }; }
 
-  toHTML() {
-    const escape = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  toHTML(): string {
+    const escape = (value: unknown) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     const attrs = { ...this.options.attr, ...(this.options.cls ? { class: this.options.cls } : {}) };
     return `<${this.tag} ${Object.entries(attrs).map(([key, value]) => `${key}="${escape(value)}"`).join(" ")}>${escape(this.options.text || "")}${this.children.map((child) => child.toHTML()).join("")}</${this.tag}>`;
   }
 
-  createDiv(options = {}) {
+  createDiv(options: ElementOptions = {}) {
     return this.createEl("div", options);
   }
 
-  createSpan(options = {}) {
+  createSpan(options: ElementOptions = {}) {
     return this.createEl("span", options);
   }
 
-  createEl(tag, options = {}) {
+  createEl(tag: string, options: ElementOptions = {}) {
     const child = new FakeElement(tag, options);
     this.children.push(child);
     return child;
   }
 
-  addEventListener(name, handler) {
+  addEventListener(name: string, handler: () => void) {
     this.handlers[name] = handler;
   }
 }
 
 class Component {
+  children?: Set<HostValue>;
   // Child rendering is exercised in the real-browser fixture, not this DOM stub.
-  addChild(child) { (this.children ||= new Set()).add(child); }
-  removeChild(child) { this.children?.delete(child); }
-  registerDomEvent(element, name, handler) {
+  addChild(child: HostValue) { (this.children ||= new Set()).add(child); }
+  removeChild(child: HostValue) { this.children?.delete(child); }
+  registerDomEvent(element: FakeElement, name: string, handler: () => void) {
     element.addEventListener(name, handler);
   }
 
-  registerEvent(event) {
+  registerEvent(event: HostValue) {
     return event;
   }
 }
 
 class ItemView extends Component {
-  constructor(leaf) {
+  leaf: HostValue;
+  app: HostValue;
+  contentEl: FakeElement;
+  constructor(leaf: HostValue) {
     super();
     this.leaf = leaf;
     this.app = leaf.app;
@@ -218,7 +242,12 @@ class ItemView extends Component {
 }
 
 class Modal extends Component {
-  constructor(app) {
+  static lastOpened: Modal | undefined;
+  app: HostValue;
+  contentEl: FakeElement;
+  onOpen(): void {}
+  onClose(): void {}
+  constructor(app: HostValue) {
     super();
     this.app = app;
     this.contentEl = new FakeElement();
@@ -235,24 +264,30 @@ class Modal extends Component {
 }
 
 class Plugin extends Component {
-  registerView(type, factory) {
+  views?: Map<string, HostValue>;
+  viewType?: string;
+  viewFactory?: HostValue;
+  ribbon?: { icon: string; name: string; callback: HostValue };
+  commands?: HostValue[];
+  registerView(type: string, factory: HostValue) {
     this.views = this.views || new Map();
     this.views.set(type, factory);
     this.viewType = type;
     this.viewFactory = factory;
   }
 
-  addRibbonIcon(icon, name, callback) {
+  addRibbonIcon(icon: string, name: string, callback: HostValue) {
     this.ribbon = { icon, name, callback };
   }
 
-  addCommand(command) {
+  addCommand(command: HostValue) {
     this.commands = this.commands || [];
     this.commands.push(command);
   }
 }
 
 class TFile {
+  path: string;
   constructor(filePath = "") {
     this.path = filePath;
   }
@@ -261,13 +296,13 @@ class TFile {
 class Notice {}
 
 try {
-  const moduleBox = { exports: {} };
+  const moduleBox: { exports: HostValue } = { exports: {} };
   vm.runInNewContext(
     source,
     {
       module: moduleBox,
       exports: moduleBox.exports,
-      require(id) {
+      require(id: string) {
         if (id !== "obsidian") {
           throw new Error(`Unexpected dependency: ${id}`);
         }
@@ -284,13 +319,13 @@ try {
               clone: () => {
                 const cloned = new Date(date.getTime());
                 return {
-                  subtract(amount, unit) {
+                  subtract(amount: number, unit: string) {
                     if (unit === "days") {
                       cloned.setUTCDate(cloned.getUTCDate() - amount);
                     }
                     return this;
                   },
-                  format(format) {
+                  format(format: string) {
                     if (format === "YYYY-MM-DD") {
                       return cloned.toISOString().slice(0, 10);
                     }
@@ -301,8 +336,8 @@ try {
                   },
                 };
               },
-              format(format) {
-                const values = {
+              format(format: string) {
+                const values: Record<string, string> = {
                   "YYYY-MM-DD": "2026-09-09",
                   "gggg-[W]ww": "2026-W37",
                   "YYYY-[Q]Q": "2026-Q3",
@@ -331,7 +366,7 @@ try {
     new TFile("08 Tasks/Tasks.md"),
     new TFile("08 Tasks/Archive.md"),
   ];
-  const metadata = new Map([
+  const metadata = new Map<string, Record<string, unknown>>([
     ["04 Projects/Example.md", { type: "project", status: "active" }],
     ["05 People/Person.md", { type: "person" }],
     ["06 Writing/Articles/Article.md", { type: "article" }],
@@ -347,7 +382,7 @@ try {
     ["01 Journal/Daily/2026-09-09.md", { dq_goals: 8, habit_journal: true }],
     ["00 Dashboards/Setup.md", { status: "open" }],
   ]);
-  const taskItem = (task, line) => ({
+  const taskItem = (task: string, line: number) => ({
     task,
     position: { start: { line } },
   });
@@ -391,24 +426,24 @@ try {
     ["08 Tasks/Archive.md", "- [ ] Out-of-scope task archive"],
   ]);
   const metadataUnavailable = new Set(["04 Projects/Metadata Pending.md"]);
-  const pluginInstances = new Map([
+  const pluginInstances = new Map<string, HostValue>([
     ["agent-client", { settings: { defaultAgentId: "synthetic-agent", autoAllowPermissions: false } }],
     ["obsidian-local-rest-api", { settings: {} }],
   ]);
-  const requestedPaths = [];
-  const fakeLeaf = {
+  const requestedPaths: string[] = [];
+  const fakeLeaf: HostValue = {
     app: null,
-    async setViewState(state) {
+    async setViewState(this: HostValue, state: HostValue) {
       this.state = state;
     },
-    async openFile(file) { this.openedFile = file; },
+    async openFile(this: HostValue, file: TFile) { this.openedFile = file; },
   };
-  const fakeApp = {
+  const fakeApp: HostValue = {
     commands: { executeCommandById: () => true },
-    plugins: { getPlugin: (id) => pluginInstances.get(id) || null },
+    plugins: { getPlugin: (id: string) => pluginInstances.get(id) || null },
     metadataCache: {
       on: () => ({ off: () => {} }),
-      getFileCache: (file) =>
+      getFileCache: (file: TFile) =>
         metadataUnavailable.has(file.path)
           ? null
           : {
@@ -419,13 +454,13 @@ try {
     vault: {
       on: () => ({ off: () => {} }),
       getMarkdownFiles: () => fakeFiles,
-      cachedRead: async (file) => {
+      cachedRead: async (file: TFile) => {
         if (file.path.startsWith("05 People/")) {
           throw new Error("simulated unreadable note");
         }
         return fileContents.get(file.path) || "";
       },
-      getAbstractFileByPath: (filePath) => {
+      getAbstractFileByPath: (filePath: string) => {
         requestedPaths.push(filePath);
         return filePath.endsWith(".md") ? new TFile(filePath) : null;
       },
@@ -433,7 +468,7 @@ try {
     workspace: {
       getLeavesOfType: () => [],
       getLeaf: () => fakeLeaf,
-      onLayoutReady: (callback) => callback(),
+      onLayoutReady: (callback: () => void) => callback(),
       revealLeaf: async () => {},
       detachLeavesOfType: () => {},
     },
@@ -446,7 +481,7 @@ try {
   await plugin.onload();
   check("view registered", plugin.viewType === "life-os-home", plugin.viewType);
   check("Brain view registered", plugin.views.has("life-os-brain"));
-  const commandIds = new Set((plugin.commands || []).map((command) => command.id));
+  const commandIds = new Set((plugin.commands || []).map((command: HostValue) => command.id));
   const requiredCommandIds = [
     "open-home",
     "open-capture",
@@ -486,8 +521,8 @@ try {
     "library",
     "ai",
   ];
-  const emptyScreens = [];
-  const requiredPanels = {
+  const emptyScreens: string[] = [];
+  const requiredPanels: Record<string, string> = {
     today: "life-os-today-live",
     plan: "life-os-plan-live",
     focus: "life-os-collection-live",
@@ -503,12 +538,12 @@ try {
   let homeHasSystemSummary = false;
   let homeHasSetupBanner = false;
   let todayHasPropertyValues = false;
-  const treeHasClass = (element, className) =>
+  const treeHasClass = (element: FakeElement, className: string): boolean =>
     String(element.options?.cls || "")
       .split(/\s+/)
       .includes(className) ||
     element.children.some((child) => treeHasClass(child, className));
-  const treeHasText = (element, value) =>
+  const treeHasText = (element: FakeElement, value: string): boolean =>
     element.options?.text === value ||
     element.children.some((child) => treeHasText(child, value));
   for (const screen of screens) {
@@ -564,8 +599,8 @@ try {
       skipped: view.taskSnapshot?.skipped,
     })
   );
-  const indexedTaskTexts = new Set(
-    (view.taskSnapshot?.tasks || []).map((task) => task.text)
+  const indexedTaskTexts = new Set<string>(
+    (view.taskSnapshot?.tasks || []).map((task: HostValue) => task.text)
   );
   check(
     "task index uses structural metadata and includes Writing",
@@ -659,9 +694,9 @@ try {
     "Today distinguishes unchecked, missing, and invalid habits",
     strictToday.habitRecorded === 1 &&
       strictToday.habitDone === 0 &&
-      strictToday.habits.map((habit) => habit.state).join(",") ===
+      strictToday.habits.map((habit: HostValue) => habit.state).join(",") ===
         "unchecked,missing,invalid" &&
-      strictToday.habits.map((habit) => habit.display).join(",") ===
+      strictToday.habits.map((habit: HostValue) => habit.display).join(",") ===
         "Unchecked,Not recorded,Invalid value"
   );
   const coverage = view.summarizeDailyProperties(
@@ -735,15 +770,15 @@ try {
     habit_journal: true,
   });
 
-  const editorCalls = [];
-  const taskLeaf = {
+  const editorCalls: [string, HostValue][] = [];
+  const taskLeaf: HostValue = {
     view: {
       editor: {
-        setCursor: (position) => editorCalls.push(["cursor", position]),
-        scrollIntoView: (range) => editorCalls.push(["scroll", range]),
+        setCursor: (position: HostValue) => editorCalls.push(["cursor", position]),
+        scrollIntoView: (range: HostValue) => editorCalls.push(["scroll", range]),
       },
     },
-    async openFile(file) { this.openedFile = file; },
+    async openFile(this: HostValue, file: TFile) { this.openedFile = file; },
   };
   const getLeaf = fakeApp.workspace.getLeaf;
   fakeApp.workspace.getLeaf = () => taskLeaf;
@@ -772,7 +807,7 @@ try {
   fakeFiles.push(new TFile("01 Journal/Daily/2026-09-09.md"), new TFile("01 Journal/Daily/2026-09-08.md"));
   metadata.set("01 Journal/Daily/2026-09-08.md", { tags: ["example"], dq_goals: 2, habit_journal: false });
   const real = view.getAnalytics();
-  check("analytics excludes sample scores and preserves missing days", real.average === 8 && real.scored === 1 && real.days.filter((day) => day.score === null).length === 29);
+  check("analytics excludes sample scores and preserves missing days", real.average === 8 && real.scored === 1 && real.days.filter((day: HostValue) => day.score === null).length === 29);
   view.includeExamples = true;
   check("analytics sample inclusion is explicit", view.getAnalytics().average === 5);
   metadata.set("01 Journal/Daily/2026-09-08.md", { dq_goals: true, habit_journal: false });
@@ -783,14 +818,14 @@ try {
     !view.isDomainRecord(new TFile("build/04 Projects/Project.md")));
   view.activeScreen = "home";
   view.render();
-  const findText = (element, text) => element.options?.text === text ? element :
+  const findText = (element: FakeElement, text: string): FakeElement | undefined => element.options?.text === text ? element :
     element.children.map((child) => findText(child, text)).find(Boolean);
   check("Home keeps full analytics in Review", !findText(view.contentEl, "7 days") && !!findText(view.contentEl, "Explore Review"));
   view.activeScreen = "review";
   view.render();
-  findText(view.contentEl, "7 days").handlers.click();
+  findText(view.contentEl, "7 days")!.handlers.click!();
   check("chart range control changes aggregation window", view.getAnalytics().days.length === 7);
-  findText(view.contentEl, "Include samples").handlers.click();
+  findText(view.contentEl, "Include samples")!.handlers.click!();
   check("sample control changes state", view.includeExamples === true);
   view.analyticsDays = 30;
   view.includeExamples = false;
@@ -812,7 +847,7 @@ try {
       ${css}</style></head><body><div class="fixture-pane">${view.contentEl.toHTML()}</div></body></html>`);
   }
 } catch (error) {
-  check("runtime smoke", false, error.stack || error.message);
+  check("runtime smoke", false, error instanceof Error ? error.stack || error.message : String(error));
 }
 
 finish();
@@ -822,6 +857,6 @@ function finish() {
   for (const result of failed) {
     console.error(`FAIL ${result.name}${result.detail ? ` (${result.detail})` : ""}`);
   }
-  console.log(`${results.length - failed.length} passed, ${failed.length} failed`);
+  console.log(`应用行为验证：${results.length - failed.length} 通过，${failed.length} 失败`);
   process.exit(failed.length ? 1 : 0);
 }

@@ -7,17 +7,28 @@
   "packageManager": "bun@1.3.14",
   "scripts": {
     "acp": "bun run src/acp/main.ts",
-    "test": "bun test tests/acp",
-    "typecheck": "tsc --noEmit"
+    "test": "bun test",
+    "typecheck": "tsc --noEmit && tsc --project tsconfig.browser.json --noEmit",
+    "build:template": "bun scripts/build_template.ts",
+    "verify:template": "bun scripts/verify_template.ts",
+    "verify:archive": "bun scripts/verify_archive_restore.ts",
+    "verify:release": "bun scripts/verify_release_safety.ts",
+    "verify:app": "bun scripts/verify_life_os_app.ts . && bun scripts/verify_assistant_contracts.ts .",
+    "verify:browser": "bun scripts/verify_brain_view.ts && bun scripts/verify_dashboard_view.ts"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "1.7.0",
     "@earendil-works/pi-ai": "1.0.0",
     "@earendil-works/pi-coding-agent": "1.0.0",
-    "proper-lockfile": "4.1.2"
+    "proper-lockfile": "4.1.2",
+    "yauzl": "3.2.0",
+    "yazl": "3.3.1"
   },
   "devDependencies": {
     "@types/bun": "1.3.14",
+    "@types/yauzl": "3.4.0",
+    "@types/yazl": "3.3.1",
+    "playwright": "1.63.0",
     "typescript": "7.0.2"
   },
   "overrides": {

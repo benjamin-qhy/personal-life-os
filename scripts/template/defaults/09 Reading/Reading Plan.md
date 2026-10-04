@@ -14,6 +14,6 @@ Format:
 - [ ] Read "Atomic Habits" chapter 3 ⏳ 2027-01-02
 ```
 
-Bible readers: `scripts/generate_reading_plan.py --start YYYY-MM-DD --days 365` writes the full 1,189-chapter plan into this file, and `scripts/split_bible.py` creates the chapter and verse notes. See [[07 Workflow - Daily Reading]].
+Bible readers: `scripts/generate_reading_plan.ts --start YYYY-MM-DD --days 365` writes the full 1,189-chapter plan into this file, and `scripts/split_bible.ts` creates the chapter and verse notes. See [[07 Workflow - Daily Reading]].
 
 ## Plan

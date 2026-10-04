@@ -1,4 +1,4 @@
-# Build and verify a disposable, sanitized template, never the source checkout.
+# 只构建与校验独立脱敏副本，不对源码库运行完整发行验证器。
 name: verify
 
 on:
@@ -8,34 +8,36 @@ on:
 permissions:
   contents: read
 
-env:
-  PYTHONDONTWRITEBYTECODE: "1"
-
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 检出源码
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: 安装 Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          python-version: "3.12"
+          bun-version: 1.3.14
 
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+      - name: 安装锁定依赖
+        run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Check application and release contracts
+      - name: 类型检查、合成测试与应用契约
         run: |
-          node scripts/verify_life_os_app.mjs .
-          node scripts/verify_assistant_contracts.mjs .
-          python3 scripts/verify_release_safety.py
+          bun run typecheck
+          bun test
+          bun scripts/verify_life_os_app.ts .
+          bun scripts/verify_assistant_contracts.ts .
 
-      - name: Build and verify sanitized template
+      - name: 安装合成浏览器验收环境
+        run: bun x playwright install --with-deps chromium
+
+      - name: 浏览器交互验收
+        run: bun run verify:browser
+
+      - name: 构建并恢复验证独立发行候选
         run: |
-          python3 scripts/build_template.py --out "$RUNNER_TEMP/compass-output" --name Compass-ci --version 1.1.0 --zip
-          python3 scripts/verify_template.py "$RUNNER_TEMP/compass-output/Compass-ci"
-          python3 scripts/verify_archive_restore.py "$RUNNER_TEMP/compass-output/Compass-ci-template-v1.1.0.zip"
+          bun scripts/build_template.ts --out "$RUNNER_TEMP/personal-life-os-output" --name Personal-Life-OS-ci --version 1.1.0 --zip
+          bun scripts/verify_template.ts "$RUNNER_TEMP/personal-life-os-output/Personal-Life-OS-ci"
+          bun scripts/verify_archive_restore.ts "$RUNNER_TEMP/personal-life-os-output/Personal-Life-OS-ci-template-v1.1.0.zip"

@@ -1,13 +1,16 @@
+import type {} from "./browser-fixture-types.ts";
+import type * as Playwright from "playwright";
 // Real browser DOM, synthetic vault only. No personal notes or providers.
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright") as typeof Playwright;
 const browser = await chromium.launch({ headless: true, ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}) });
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-  const errors = [];
+  // Existing fixture assertions use English month and control labels.
+  const page = await browser.newPage({ locale: "en-US", viewport: { width: 1440, height: 1000 } });
+  const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.setContent('<html><body style="margin:0;font:14px Arial;background:#17191c;color:#ddd"><div id="root" style="height:100vh;overflow:auto"></div><div role="note" style="position:fixed;bottom:0;z-index:9999;background:#10242d;padding:4px 8px;font-size:10px;pointer-events:none">SYNTHETIC FIXTURE · No live vault or provider data</div></body></html>');
   await page.addStyleTag({ content: ':root{--background-primary:#17191c;--background-secondary:#202328;--text-normal:#ddd;--text-muted:#a5abb3;--text-faint:#777;--background-modifier-border:#393d44;--interactive-accent:#ff906b;--font-interface:Arial;--font-text:Arial}button,input,select{font:inherit;color:inherit;background:#252a31;border:1px solid #454c55}button{cursor:pointer}' + fs.readFileSync('.obsidian/plugins/life-os-app/styles.css','utf8') });
@@ -19,13 +22,13 @@ try {
     HTMLElement.prototype.createDiv=function(options){return this.createEl('div',options);};
     HTMLElement.prototype.createSpan=function(options){return this.createEl('span',options);};
     const now='2026-09-09';
-    function moment(value=now){const date=new Date(`${value}T12:00:00Z`);return {clone:()=>moment(date.toISOString().slice(0,10)),subtract(n){date.setUTCDate(date.getUTCDate()-n);return this;},format(f){const iso=date.toISOString().slice(0,10);return ({'YYYY-MM-DD':iso,'YYYY-MM':iso.slice(0,7),'gggg-[W]ww':'2026-W37','YYYY-[Q]Q':'2026-Q3','[Week] ww':'Week 37','D MMM':`${date.getUTCDate()} Sep`,'ddd':['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][date.getUTCDay()]})[f]||iso;}};}
+    function moment(value=now){const date=new Date(`${value}T12:00:00Z`);return {clone:()=>moment(date.toISOString().slice(0,10)),subtract(n: number){date.setUTCDate(date.getUTCDate()-n);return this;},format(f: string){const iso=date.toISOString().slice(0,10);return ({'YYYY-MM-DD':iso,'YYYY-MM':iso.slice(0,7),'gggg-[W]ww':'2026-W37','YYYY-[Q]Q':'2026-Q3','[Week] ww':'Week 37','D MMM':`${date.getUTCDate()} Sep`,'ddd':['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][date.getUTCDay()]} as Record<string, string | undefined>)[f]||iso;}};}
     moment.localeData=()=>({firstDayOfWeek:()=>1});
-    class TFile{constructor(path){this.path=path;this.basename=path.split('/').pop().replace(/\.md$/,'');this.extension='md';}}
-    class Component{constructor(){this.disposers=[];}registerDomEvent(el,event,fn,options){el.addEventListener(event,fn,options);this.disposers.push(()=>el.removeEventListener(event,fn,options));}registerEvent(){}addChild(child){child.onload?.();}removeChild(child){child.onunload?.();child.disposers.forEach(fn=>fn());}}
-    class ItemView extends Component{constructor(leaf){super();this.app=leaf.app;this.contentEl=document.querySelector('#root');}}
-    const files=new Map(), metadata=new Map(), contents=new Map();
-    const add=(path,data={},body='')=>{files.set(path,new TFile(path));metadata.set(path,{frontmatter:data,listItems:body.split('\n').flatMap((line,i)=>{const m=line.match(/^- \[(.)\]/);return m?[{task:m[1],position:{start:{line:i}}}]:[];})});contents.set(path,body);};
+    class TFile{path: string; basename: string; extension: string; constructor(path: string){this.path=path;this.basename=path.split('/').pop()!.replace(/\.md$/,'');this.extension='md';}}
+    class Component{disposers: Array<() => void>; constructor(){this.disposers=[];}registerDomEvent(el: EventTarget,event: string,fn: EventListener,options?: boolean | AddEventListenerOptions){el.addEventListener(event,fn,options);this.disposers.push(()=>el.removeEventListener(event,fn,options));}registerEvent(){}addChild(child: { onload?: () => void }){child.onload?.();}removeChild(child: { onunload?: () => void; disposers: Array<() => void> }){child.onunload?.();child.disposers.forEach(fn=>fn());}}
+    class ItemView extends Component{app: unknown; contentEl: Element | null; constructor(leaf: { app: unknown }){super();this.app=leaf.app;this.contentEl=document.querySelector<HTMLElement>('#root')!;}}
+    const files=new Map<string, TFile>(), metadata=new Map<string, { frontmatter: Record<string, unknown>; listItems: Array<{ task: string; position: { start: { line: number } } }>; headings?: Array<{ level: number; heading: string; position: { start: { line: number } } }> }>(), contents=new Map<string, string>();
+    const add=(path: string,data: Record<string, unknown>={},body='')=>{files.set(path,new TFile(path));metadata.set(path,{frontmatter:data,listItems:body.split('\n').flatMap((line,i)=>{const m=line.match(/^- \[(.)\]/);return m?[{task:m[1]!,position:{start:{line:i}}}]:[];})});contents.set(path,body);};
     add('Meta/Compass Config.md',{questions:[{key:'dq_focus',text:'Did I focus on what matters?'}],habits:['habit_walk','habit_read']});
     add('00 Dashboards/Setup.md',{status:'open'});
     for(const name of ['Assistant','Task Dashboard','Projects Dashboard','Compass Dashboard','Boards'])add(`00 Dashboards/${name}.md`);
@@ -40,13 +43,14 @@ try {
     add('07 Library/Source.md',{type:'source',cover:'https://example.invalid/cover.png'});
     const boardPath='06 Writing/Articles/Article Board.md';
     add(boardPath,{'kanban-plugin':'board'},'## Ideas\n- [ ] Fixture idea\n## Drafting\n- [ ] Fixture draft\n- [x] Fixture checked item');
-    metadata.get(boardPath).headings=[{level:2,heading:'Ideas',position:{start:{line:0}}},{level:2,heading:'Drafting',position:{start:{line:2}}}];
+    metadata.get(boardPath)!.headings=[{level:2,heading:'Ideas',position:{start:{line:0}}},{level:2,heading:'Drafting',position:{start:{line:2}}}];
     window.opened=[];window.commands=[];
     const plugins={'agent-client':{settings:{autoAllowPermissions:false}},'obsidian-local-rest-api':{settings:{}}};
-    const app={vault:{getMarkdownFiles:()=>[...files.values()],getAbstractFileByPath:p=>files.get(p),cachedRead:async f=>contents.get(f.path)||'',on(){}},metadataCache:{getFileCache:f=>metadata.get(f.path),on(){}},plugins:{getPlugin:id=>plugins[id]},workspace:{getLeaf:()=>({openFile:async(f,o)=>window.opened.push({path:f.path,options:o})}),revealLeaf:async()=>{}},commands:{commands:{}}};
+    const app={vault:{getMarkdownFiles:()=>[...files.values()],getAbstractFileByPath:(p: string)=>files.get(p),cachedRead:async (f: TFile)=>contents.get(f.path)||'',on(){}},metadataCache:{getFileCache:(f: TFile)=>metadata.get(f.path),on(){}},plugins:{getPlugin:(id: keyof typeof plugins)=>plugins[id]},workspace:{getLeaf:()=>({openFile:async(f: TFile,o: { eState?: { line: number } })=>window.opened.push({path:f.path,options:o})}),revealLeaf:async()=>{}},commands:{commands:{}}};
     const module={exports:{}};
+    // Dynamic plugin evaluation is the untyped VM boundary; observed instances use FixtureHomeView.
     const View=new Function('require','module',`${source};return LifeOSHomeView;`)(()=>({Component,ItemView,TFile,Plugin:class{},Modal:class{},Notice:class{},moment,setIcon(){}}),module);
-    const plugin={runCommand:(id)=>{window.commands.push(id);return true;},openCapture(){window.commands.push('capture');},activateView(){}};
+    const plugin={runCommand:(id: string)=>{window.commands.push(id);return true;},openCapture(){window.commands.push('capture');},activateView(){}};
     window.view=new View({app},plugin);await window.view.onOpen();
   }, fs.readFileSync('.obsidian/plugins/life-os-app/main.js','utf8'));
   assert.equal(await page.getByRole('note').count(),1);
@@ -56,7 +60,7 @@ try {
   assert.equal(await page.locator('.life-os-brain-preview .life-os-brain-note').count(),0);
   assert.ok(await page.locator('.life-os-task-row').count() <= 3);
   await page.locator('.life-os-task-row').first().click();
-  assert.ok(await page.evaluate(()=>window.opened.at(-1)?.options?.eState?.line >= 0));
+  assert.ok(await page.evaluate(()=>window.opened.at(-1)?.options?.eState?.line! >= 0));
   for(const screen of ['home','today','plan','review','focus','projects','people','create','library','ai']){
     await page.evaluate((s)=>{window.view.activeScreen=s;window.view.render();},screen);
     assert.ok(await page.locator('.life-os-shell').innerText());
@@ -64,18 +68,18 @@ try {
     if(screen==='home'){
       assert.equal(await page.locator('.life-os-shell > .life-os-summary, .life-os-shell > .life-os-ai-panel').count(),0);
       assert.ok(await page.evaluate(()=>{
-        const children=[...document.querySelector('.life-os-shell').children];
-        return children.slice(1).every((child,i)=>child.getBoundingClientRect().top-children[i].getBoundingClientRect().bottom>=19);
+        const children=[...document.querySelector('.life-os-shell')!.children];
+        return children.slice(1).every((child,i)=>child.getBoundingClientRect().top-children[i]!.getBoundingClientRect().bottom>=19);
       }));
-      await page.evaluate(()=>{const root=document.querySelector('#root');root.scrollTop=root.scrollHeight;});
+      await page.evaluate(()=>{const root=document.querySelector<HTMLElement>('#root')!;root.scrollTop=root.scrollHeight;});
       await page.screenshot({path:'/tmp/life-os-home-lower-candidate.png'});
-      await page.evaluate(()=>document.querySelector('#root').scrollTop=0);
+      await page.evaluate(()=>document.querySelector<HTMLElement>('#root')!.scrollTop=0);
     }
     if(screen==='today')assert.equal(await page.locator('.life-os-checkin-meter').getAttribute('max'),'3');
-    if(screen==='projects')assert.ok((await page.locator('.life-os-record-metrics').textContent()).includes('2 tagged open'),await page.locator('.life-os-record-metrics').textContent());
+    if(screen==='projects')assert.ok((await page.locator('.life-os-record-metrics').textContent())!.includes('2 tagged open'),(await page.locator('.life-os-record-metrics').textContent()) ?? "");
     if(screen==='people'){
       await page.locator('.life-os-discussion-queue button').click();
-      assert.equal(await page.evaluate(()=>window.opened.at(-1).path),'05 People/Synthetic person.md');
+      assert.equal(await page.evaluate(()=>window.opened.at(-1)!.path),'05 People/Synthetic person.md');
     }
     if(screen==='focus'){
       assert.ok(await page.locator('.life-os-workload-segment').count()>0);
@@ -90,7 +94,7 @@ try {
       assert.equal(await page.locator('.life-os-lane-item').count(),2);
       assert.equal(await page.getByRole('button',{name:'Ideas · 1',exact:true}).count(),1);
       await page.getByRole('button',{name:'Drafting · 2',exact:true}).click();
-      assert.equal(await page.evaluate(()=>window.opened.at(-1).options.eState.line),2);
+      assert.equal(await page.evaluate(()=>window.opened.at(-1)!.options!.eState!.line),2);
       await page.screenshot({path:'/tmp/life-os-create-candidate.png',fullPage:true});
     }
     if(screen==='library'){
@@ -112,7 +116,7 @@ try {
       await page.getByRole('button',{name:'2026-09-09: Open daily note',exact:true}).click();
       assert.equal(await page.evaluate(()=>window.opened.at(-1)?.path),'01 Journal/Daily/2026-09-09.md');
       await page.getByRole('button',{name:'Next month',exact:true}).click();
-      assert.ok((await page.locator('.life-os-calendar h2').innerText()).includes('October'));
+      assert.ok((await page.locator('.life-os-calendar h2').innerText()).includes('October'), await page.locator('.life-os-calendar h2').innerText());
       await page.getByRole('button',{name:'This month',exact:true}).click();
     }
     if(screen==='review'){
