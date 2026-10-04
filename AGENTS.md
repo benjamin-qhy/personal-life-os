@@ -65,3 +65,23 @@ Say what you will not do, why in one clause, and what you can do instead. Exampl
 
 ## Prompt library
 Recurring jobs are written once in `Prompts/`. When asked to run one (by name, or by a button whose text says "Read Prompts/..."), read that note and follow its `## Prompt` section exactly for the note the person has open. The note's `writes` and `risk` properties tell you what it may touch.
+
+## Agent skills
+
+These engineering settings remain subject to this vault's privacy,
+approval, and file access rules.
+
+### Issue tracker
+
+Engineering issues use GitHub Issues in benjamin-qhy/personal-life-os.
+See [[docs/agents/issue-tracker]].
+
+### Triage labels
+
+Use the five default triage labels.
+See [[docs/agents/triage-labels]].
+
+### Domain docs
+
+Use a single-context layout with root CONTEXT.md and docs/adr/.
+See [[docs/agents/domain]].
