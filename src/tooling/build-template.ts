@@ -13,6 +13,7 @@ import {
 import { dirname, join, resolve, relative, basename } from "node:path";
 import { exists, filesIn, put, pathKey } from "./files";
 import { writeManifest, createArchive, verifyArchive } from "./archive";
+import { compilePlugin } from "./build-obsidian";
 const defaults = resolve(import.meta.dir, "../../scripts/template/defaults");
 const userFolders = [
   "01 Journal/",
@@ -312,6 +313,8 @@ export async function copyTree(live: string, out: string) {
       }
       if (path.startsWith(".obsidian/plugins/")) {
         if (path.split("/").length !== 4) continue;
+        // First-party runtime assets come from maintained source, never the live installation.
+        if (path.startsWith(".obsidian/plugins/life-os-app/") && item.name !== "data.json") continue;
         if (item.name === "data.json") {
           const settings = await safePluginSettings(
             path.split("/")[2]!,
@@ -474,6 +477,9 @@ export async function buildTemplate(options: BuildOptions) {
     await mkdir(candidate, { mode: 0o700 });
     await copyTree(source, candidate);
     await resetDefaults(candidate);
+    for (const artifact of await compilePlugin()) {
+      await put(join(candidate, ".obsidian/plugins/life-os-app", artifact.name), artifact.content);
+    }
     await put(
       join(candidate, ".obsidian/plugins/obsidian-local-rest-api/data.json"),
       JSON.stringify({ enableInsecureServer: true }, null, 2) + "\n",

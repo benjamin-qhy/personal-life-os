@@ -1,0 +1,9 @@
+{
+  "id": "life-os-app",
+  "name": "Personal Life OS",
+  "version": "0.20.0",
+  "minAppVersion": "1.13.1",
+  "description": "在本地管理规划、复盘、记录与 AI 辅助工作。",
+  "author": "秋水 (qiushui)",
+  "isDesktopOnly": false
+}

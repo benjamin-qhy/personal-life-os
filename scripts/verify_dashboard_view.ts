@@ -2,6 +2,8 @@ import type {} from "./browser-fixture-types.ts";
 import type * as Playwright from "playwright";
 // Real browser DOM, synthetic vault only. No personal notes or providers.
 import fs from "node:fs";
+import path from "node:path";
+const pluginDir = path.resolve(process.argv[2] || ".obsidian/plugins/life-os-app");
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
@@ -13,7 +15,7 @@ try {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.setContent('<html><body style="margin:0;font:14px Arial;background:#17191c;color:#ddd"><div id="root" style="height:100vh;overflow:auto"></div><div role="note" style="position:fixed;bottom:0;z-index:9999;background:#10242d;padding:4px 8px;font-size:10px;pointer-events:none">SYNTHETIC FIXTURE · No live vault or provider data</div></body></html>');
-  await page.addStyleTag({ content: ':root{--background-primary:#17191c;--background-secondary:#202328;--text-normal:#ddd;--text-muted:#a5abb3;--text-faint:#777;--background-modifier-border:#393d44;--interactive-accent:#ff906b;--font-interface:Arial;--font-text:Arial}button,input,select{font:inherit;color:inherit;background:#252a31;border:1px solid #454c55}button{cursor:pointer}' + fs.readFileSync('.obsidian/plugins/life-os-app/styles.css','utf8') });
+  await page.addStyleTag({ content: ':root{--background-primary:#17191c;--background-secondary:#202328;--text-normal:#ddd;--text-muted:#a5abb3;--text-faint:#777;--background-modifier-border:#393d44;--interactive-accent:#ff906b;--font-interface:Arial;--font-text:Arial}button,input,select{font:inherit;color:inherit;background:#252a31;border:1px solid #454c55}button{cursor:pointer}' + fs.readFileSync(path.join(pluginDir, "styles.css"), "utf8") });
   await page.evaluate(async (source) => {
     HTMLElement.prototype.empty=function(){this.replaceChildren();};
     HTMLElement.prototype.addClass=function(...names){this.classList.add(...names);};
@@ -52,7 +54,7 @@ try {
     const View=new Function('require','module',`${source};return LifeOSHomeView;`)(()=>({Component,ItemView,TFile,Plugin:class{},Modal:class{},Notice:class{},moment,setIcon(){}}),module);
     const plugin={runCommand:(id: string)=>{window.commands.push(id);return true;},openCapture(){window.commands.push('capture');},activateView(){}};
     window.view=new View({app},plugin);await window.view.onOpen();
-  }, fs.readFileSync('.obsidian/plugins/life-os-app/main.js','utf8'));
+  }, fs.readFileSync(path.join(pluginDir, "main.js"), "utf8"));
   assert.equal(await page.getByRole('note').count(),1);
   assert.equal(await page.locator('.life-os-analytics').count(),0);
   assert.equal(await page.locator('.life-os-brain-preview canvas').count(),1);

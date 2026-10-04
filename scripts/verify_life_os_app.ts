@@ -5,7 +5,7 @@ import path from "node:path";
 import vm from "node:vm";
 
 const root = path.resolve(process.argv[2] || ".");
-const pluginDir = path.join(root, ".obsidian/plugins/life-os-app");
+const pluginDir = process.argv[3] ? path.resolve(process.argv[3]) : path.join(root, ".obsidian/plugins/life-os-app");
 const mainPath = path.join(pluginDir, "main.js");
 const cssPath = path.join(pluginDir, "styles.css");
 const manifestPath = path.join(pluginDir, "manifest.json");
@@ -241,14 +241,14 @@ class ItemView extends Component {
   }
 }
 
-class Modal extends Component {
+// Obsidian Modal is not a Component and does not provide registerDomEvent.
+class Modal {
   static lastOpened: Modal | undefined;
   app: HostValue;
   contentEl: FakeElement;
   onOpen(): void {}
   onClose(): void {}
   constructor(app: HostValue) {
-    super();
     this.app = app;
     this.contentEl = new FakeElement();
     Modal.lastOpened = this;
@@ -791,13 +791,25 @@ try {
       editorCalls[0]?.[1]?.line === 6
   );
 
-  plugin.openCapture();
+  plugin.commands.find((command: HostValue) => command.id === "open-capture").callback();
   check(
     "capture modal renders three action groups",
     (Modal.lastOpened?.contentEl.children || []).filter((child) =>
       treeHasClass(child, "life-os-capture-section")
     ).length === 3
   );
+  const captureCommands: string[] = [];
+  const originalExecute = fakeApp.commands.executeCommandById;
+  fakeApp.commands.executeCommandById = (id: string) => { captureCommands.push(id); return true; };
+  const captureButtons = (element: FakeElement): FakeElement[] => [
+    ...(element.tag === "button" ? [element] : []),
+    ...element.children.flatMap(captureButtons),
+  ];
+  captureButtons(Modal.lastOpened!.contentEl)[0]!.handlers.click!();
+  check("capture choice executes journal command and closes modal",
+    captureCommands.length === 1 && captureCommands[0] === "quickadd:choice:lifeos-journal" &&
+    Modal.lastOpened!.contentEl.children.length === 0);
+  fakeApp.commands.executeCommandById = originalExecute;
   fakeLeaf.view = view;
   fakeApp.workspace.getLeavesOfType = () => [fakeLeaf];
   await plugin.activateView("today");

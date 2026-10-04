@@ -27,8 +27,7 @@ jobs:
         run: |
           bun run typecheck
           bun test
-          bun scripts/verify_life_os_app.ts .
-          bun scripts/verify_assistant_contracts.ts .
+          bun run verify:app
 
       - name: 安装合成浏览器验收环境
         run: bun x playwright install --with-deps chromium

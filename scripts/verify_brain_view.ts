@@ -3,6 +3,8 @@ import type * as Playwright from "playwright";
 // Visual and interaction regression using synthetic notes only.
 // Usage: PLAYWRIGHT_MODULE=/absolute/path/to/playwright bun scripts/verify_brain_view.ts
 import fs from "node:fs";
+import path from "node:path";
+const pluginDir = path.resolve(process.argv[2] || ".obsidian/plugins/life-os-app");
 import { createRequire } from "node:module";
 import assert from "node:assert/strict";
 const require = createRequire(import.meta.url);
@@ -23,7 +25,7 @@ try {
     document.body.appendChild(badge);
   });
   assert.equal(await page.getByRole("note").count(), 1);
-  await page.addStyleTag({ content: fs.readFileSync(".obsidian/plugins/life-os-app/styles.css", "utf8") });
+  await page.addStyleTag({ content: fs.readFileSync(path.join(pluginDir, "styles.css"), "utf8") });
   await page.evaluate((source) => {
     HTMLElement.prototype.empty = function () { this.replaceChildren(); };
     HTMLElement.prototype.addClass = function (name) { this.classList.add(name); };
@@ -63,7 +65,7 @@ try {
     };
     window.brain = new BrainView(app, document.querySelector("#root"));
     return window.brain.onOpen();
-  }, fs.readFileSync(".obsidian/plugins/life-os-app/main.js", "utf8"));
+  }, fs.readFileSync(path.join(pluginDir, "main.js"), "utf8"));
   assert.equal(await page.evaluate(() => window.brain.nodes.length), 160);
   assert.equal(await page.evaluate(() => window.brain.edges.length), 320);
   assert.equal(await page.evaluate(() => window.brain.projected.length), 160);

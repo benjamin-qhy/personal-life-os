@@ -8,13 +8,14 @@
   "scripts": {
     "acp": "bun run src/acp/main.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit && tsc --project tsconfig.browser.json --noEmit",
+    "typecheck": "tsc --noEmit && tsc --project tsconfig.browser.json --noEmit && tsc --project tsconfig.obsidian.json --noEmit",
     "build:template": "bun scripts/build_template.ts",
     "verify:template": "bun scripts/verify_template.ts",
     "verify:archive": "bun scripts/verify_archive_restore.ts",
     "verify:release": "bun scripts/verify_release_safety.ts",
-    "verify:app": "bun scripts/verify_life_os_app.ts . && bun scripts/verify_assistant_contracts.ts .",
-    "verify:browser": "bun scripts/verify_brain_view.ts && bun scripts/verify_dashboard_view.ts"
+    "verify:app": "bun run build:obsidian && bun scripts/verify_life_os_app.ts . dist/obsidian/life-os-app && bun scripts/verify_assistant_contracts.ts .",
+    "verify:browser": "bun run build:obsidian && bun scripts/verify_brain_view.ts dist/obsidian/life-os-app && bun scripts/verify_dashboard_view.ts dist/obsidian/life-os-app",
+    "build:obsidian": "bun scripts/build_obsidian.ts"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "1.7.0",
@@ -28,6 +29,7 @@
     "@types/bun": "1.3.14",
     "@types/yauzl": "3.4.0",
     "@types/yazl": "3.3.1",
+    "obsidian": "1.13.1",
     "playwright": "1.63.0",
     "typescript": "7.0.2"
   },

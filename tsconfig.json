@@ -24,6 +24,7 @@
   "exclude": [
     "scripts/verify_brain_view.ts",
     "scripts/verify_dashboard_view.ts",
-    "scripts/browser-fixture-types.ts"
+    "scripts/browser-fixture-types.ts",
+    "src/obsidian/**/*"
   ]
 }
