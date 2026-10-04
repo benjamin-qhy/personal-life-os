@@ -8,4 +8,4 @@ declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 declare let tR: string;
 const q = moment(dv.current().quarter, "YYYY-[Q]Q");
-await dv.view("Meta/views/dailyquestions", { from: q.clone().startOf("quarter").format("YYYY-MM-DD"), to: q.clone().endOf("quarter").format("YYYY-MM-DD") });
+await dv.view("系统/views/dailyquestions", { from: q.clone().startOf("quarter").format("YYYY-MM-DD"), to: q.clone().endOf("quarter").format("YYYY-MM-DD") });

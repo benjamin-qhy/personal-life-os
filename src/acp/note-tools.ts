@@ -3,10 +3,11 @@ import { createHash } from "node:crypto";
 import { lock } from "proper-lockfile";
 import { constants } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
+import { policyPath, forbidsDirectWrite } from "./path-policy";
+export { policyPath } from "./path-policy";
 import type { ProposedChange } from "./approval";
 
 const queues = new Map<string, Promise<unknown>>();
-export const policyPath = (path: string) => path.normalize("NFC").toLowerCase();
 const MAX_BYTES = 1024 * 1024;
 
 async function notePath(vault: string, relativePath: string, writing = false): Promise<string> {
@@ -15,8 +16,7 @@ async function notePath(vault: string, relativePath: string, writing = false): P
       parts.some((part) => !part || part.startsWith(".")) || !relativePath.toLowerCase().endsWith(".md")) {
     throw new Error("仅接受仓库内普通 Markdown 笔记的相对路径。");
   }
-  if (writing && (["wiki", "inbox", "templates", "prompts", "meta", "guide", "docs", "scripts", "00 dashboards", "09 reading"]
-    .includes(policyPath(parts[0]!)) || ["agents.md", "context.md", "readme.md"].includes(policyPath(parts.at(-1)!)))) {
+  if (writing && forbidsDirectWrite(relativePath)) {
     throw new Error("该目录或文件不支持直接追加，请使用原有系统或知识层事务流程。");
   }
   let path = await realpath(vault);

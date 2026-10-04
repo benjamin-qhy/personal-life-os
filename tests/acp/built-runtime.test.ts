@@ -11,7 +11,8 @@ test("独立发行运行文件从无依赖测试库启动并完成中文 ACP 请
   const root = await mkdtemp(join(tmpdir(), "personal-life-os-runtime-"));
   await copyFile(resolve("dist/ai-runtime/pi-acp.js"), join(root, "pi-acp.js"));
   const cwd = join(root, "vault"); await mkdir(cwd);
-  await writeFile(join(cwd, "附件.md"), "合成附件内容");
+  await mkdir(join(cwd,"04 项目"));
+  await writeFile(join(cwd, "04 项目/附件.md"), "合成附件内容");
   const requests: string[] = [];
   const server = Bun.serve({ hostname: "127.0.0.1", port: 0, async fetch(request) {
     requests.push(await request.text());
@@ -30,10 +31,16 @@ test("独立发行运行文件从无依赖测试库启动并完成中文 ACP 请
     expect((await client.prompt({ sessionId, prompt: [
       { type: "text", text: "请总结选区和附件" },
       { type: "resource", resource: { uri: pathToFileURL(join(cwd, "未保存.md")).href, mimeType: "text/markdown", text: "合成未保存选区" } },
-      { type: "resource_link", uri: pathToFileURL(join(cwd, "附件.md")).href, name: "附件" },
+      { type: "resource_link", uri: pathToFileURL(join(cwd, "04 项目/附件.md")).href, name: "附件" },
     ] })).stopReason).toBe("end_turn");
     expect(requests[0]).toContain("合成未保存选区"); expect(requests[0]).toContain("合成附件内容");
     await expect(client.prompt({ sessionId, prompt: [{ type: "resource_link", uri: pathToFileURL(join(root, "外部.md")).href, name: "外部" }] })).rejects.toThrow();
+    for (const path of ["08 任务/任务总表.md", "08 任务/Tasks.md", "08 Tasks/任务总表.md", "08 Tasks/Tasks.md"]) {
+      for (const kind of ["resource", "resource_link"] as const) {
+        const uri = pathToFileURL(join(cwd, path)).href;
+        await expect(client.prompt({sessionId, prompt: [kind === "resource" ? {type: kind, resource: {uri, mimeType: "text/markdown", text: "任务选区合成隐私"}} : {type: kind, uri, name: "受限附件"}]})).rejects.toThrow();
+      }
+    }
     expect(requests).toHaveLength(1);
   } finally { child.kill(); await child.exited; server.stop(true); await rm(root, { recursive: true, force: true }); }
 }, 30000);

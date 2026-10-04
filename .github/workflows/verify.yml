@@ -37,6 +37,6 @@ jobs:
 
       - name: 构建并恢复验证独立发行候选
         run: |
-          bun scripts/build_template.ts --out "$RUNNER_TEMP/personal-life-os-output" --name Personal-Life-OS-ci --version 1.1.0 --zip
+          bun scripts/build_template.ts --out "$RUNNER_TEMP/personal-life-os-output" --name Personal-Life-OS-ci --version 2.0.0 --zip
           bun scripts/verify_template.ts "$RUNNER_TEMP/personal-life-os-output/Personal-Life-OS-ci"
-          bun scripts/verify_archive_restore.ts "$RUNNER_TEMP/personal-life-os-output/Personal-Life-OS-ci-template-v1.1.0.zip"
+          bun scripts/verify_archive_restore.ts "$RUNNER_TEMP/personal-life-os-output/Personal-Life-OS-ci-template-v2.0.0.zip"

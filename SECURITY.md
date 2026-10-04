@@ -14,15 +14,15 @@ Life OS is a local-first Obsidian vault. The first-party dashboard makes no netw
 | SEO | External link checking off | Needs the network only if you turn it on. |
 | Obsidian Sync (core) | Off | |
 
-Read `Guide/17 Search Providers.md` and `Guide/19 Obsidian MCP Bridge.md` for the reasoning behind these defaults.
+Read `使用指南/17 搜索服务.md` and `使用指南/19 Obsidian MCP 桥接.md` for the reasoning behind these defaults.
 
 ## What never ships
 
 - API keys, bearer tokens, certificates, or private keys of any kind.
 - A real `.mcp.json` (only `.mcp.example.json` with a placeholder) or `.claude/settings.local.json`.
-- Agent Client sessions, exported chats, or `Meta/Agent Chats/`.
+- Agent Client sessions, exported chats, or `系统/Agent Chats/`.
 - Journal, retreat, planning, or other personal notes. User folders contain only notes tagged `example`.
-- `.vault-meta/` (claude-obsidian journal), `wiki/` content folders, `inbox/` contents, workspace files.
+- `.vault-系统/` (claude-obsidian journal), `wiki/` content folders, `inbox/` contents, workspace files.
 - Absolute paths, user names, or email addresses.
 
 The builder excludes raw plugin settings from copying and reconstructs allowlisted settings before writing staging files. The verifier rejects machine-local state before its content scan and checks the sanitized candidate. These checks reduce risk; they do not replace reviewing an exact candidate before distribution. Never ZIP the working vault directly.

@@ -3,21 +3,22 @@
 import { parseArgs } from "node:util";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { chineseBookName } from "./reading-books";
 
 function main() {
   const { values, positionals } = parseArgs({ allowPositionals: true, options: {
-    out: { type: "string", default: "09 Reading" }, books: { type: "string", default: "" },
+    out: { type: "string", default: "09 阅读" }, books: { type: "string", default: "" },
     translation: { type: "string", default: "KJV" }, help: { type: "boolean", short: "h" },
   } });
-  if (values.help) { console.log('用法：bun scripts/split_bible.ts source.txt [--out "09 Reading"] [--books "Genesis,John"] [--translation KJV]\n每行格式：书名 章:节<TAB>正文。支持中文书名，已有文件会覆盖。'); return; }
+  if (values.help) { console.log('用法：bun scripts/split_bible.ts source.txt [--out "09 阅读"] [--books "Genesis,John"] [--translation KJV]\n每行格式：书名 章:节<TAB>正文。支持中文书名，已有文件会覆盖。'); return; }
   if (positionals.length !== 1) throw new Error("必须提供一个源文本文件");
-  const only = new Set(values.books.split(",").map(x => x.trim()).filter(Boolean));
+  const only = new Set(values.books.split(",").map(chineseBookName).filter(Boolean));
   const data = new Map<string, Map<number, Map<number, string>>>();
   for (const raw of readFileSync(positionals[0]!, "utf8").split(/\r?\n/)) {
     // A restricted Unicode name alphabet supports Chinese while excluding path and wikilink syntax.
     const m = raw.match(/^([1-3]?\s?[\p{L}\p{M} ]+?)\s+(\d+):(\d+)\t(.+)$/u);
     if (!m) continue;
-    const book = m[1]!.trim(), ch = Number(m[2]), verse = Number(m[3]);
+    const book = chineseBookName(m[1]!), ch = Number(m[2]), verse = Number(m[3]);
     if (only.size && !only.has(book)) continue;
     if (!Number.isSafeInteger(ch) || !Number.isSafeInteger(verse) || ch < 1 || verse < 1) continue;
     if (!data.has(book)) data.set(book, new Map());
@@ -25,7 +26,7 @@ function main() {
     if (!chapters.has(ch)) chapters.set(ch, new Map());
     chapters.get(ch)!.set(verse, m[4]!.trim());
   }
-  const chapDir = join(values.out, "Chapters"), verseDir = join(values.out, "Verses");
+  const chapDir = join(values.out, "章节"), verseDir = join(values.out, "经文");
   mkdirSync(chapDir, { recursive: true }); mkdirSync(verseDir, { recursive: true });
   let nCh = 0, nV = 0;
   for (const [book, chapters] of data) for (const [ch, verses] of chapters) {

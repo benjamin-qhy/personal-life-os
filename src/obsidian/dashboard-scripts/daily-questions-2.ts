@@ -1,7 +1,7 @@
 import type { Dataview, Page } from "../views/host";
 declare const dv: Dataview;
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
-const folder = cfg.daily_folder || "01 Journal/Daily", pre = cfg.dq_prefix || "dq_";
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
+const folder = cfg.daily_folder || "01 日记/每日", pre = cfg.dq_prefix || "dq_";
 const pages = dv.pages(`"${folder}"`).where(p => /^\d{4}-\d{2}-\d{2}$/.test(p.file.name)).sort(p => p.file.name, "desc").array();
 const keys = [...new Set(pages.flatMap(p => Object.keys(p.file.frontmatter || {}).filter(k => k.startsWith(pre))))].sort();
 const defaults: Readonly<Record<string, string>> = { goals: "明确目标", progress: "推进目标", meaning: "意义", happy: "快乐", relationships: "人际关系", engaged: "投入" };

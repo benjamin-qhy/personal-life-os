@@ -17,9 +17,9 @@ bun test
 bun run verify:app
 bun run verify:browser
 bun scripts/verify_release_safety.ts
-bun scripts/build_template.ts --out ../life-os-releases --name Personal-Life-OS-1.1.0-candidate --version 1.1.0 --zip
-bun scripts/verify_template.ts ../life-os-releases/Personal-Life-OS-1.1.0-candidate
-bun scripts/verify_archive_restore.ts ../life-os-releases/Personal-Life-OS-1.1.0-candidate-template-v1.1.0.zip
+bun scripts/build_template.ts --out ../life-os-releases --name Personal-Life-OS-2.0.0-candidate --version 2.0.0 --zip
+bun scripts/verify_template.ts ../life-os-releases/Personal-Life-OS-2.0.0-candidate
+bun scripts/verify_archive_restore.ts ../life-os-releases/Personal-Life-OS-2.0.0-candidate-template-v2.0.0.zip
 ```
 
 版本必须明确指定，输出目录必须位于源码库及其祖先目录之外。已有候选目录、ZIP 或摘要文件会被拒绝覆盖。构建失败会删除私有临时目录和本次创建的失败产物。
@@ -48,7 +48,7 @@ ZIP 验证包括完整 SHA256、条目路径、大小写冲突、符号链接和
 - 确认 README、CHANGELOG、应用 manifest、第三方声明和候选版本一致。
 - 单独核查上游二进制来源及许可证。Kanban 的许可证为 GPL-3.0，不能因存在 LICENSE 就视为完成再分发审查。
 - 包内 Local REST API 仍按既定策略启用回环 HTTP；在隔离原生测试中验证实际监听行为。
-- 根据归档摘要完成 `Guide/23 Native Acceptance.md`，分别记录桌面、移动、供应商和 MCP 验收。
+- 根据归档摘要完成 `使用指南/23 原生应用验收.md`，分别记录桌面、移动、供应商和 MCP 验收。
 - 未实际验证时，不声称模型已连接、备份可恢复或原生功能通过。
 - 提交、推送、创建发行版及公开发布仍需单独授权。
 

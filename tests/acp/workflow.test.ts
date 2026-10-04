@@ -34,17 +34,17 @@ async function workflow(input: { path: string; before: string; tool: string; arg
   } finally { clearTimeout(timer); child.kill(); await child.exited; server.stop(true); await rm(root, { recursive: true, force: true }); }
 }
 
-test("每日评分经完整差异单次批准后只修改既有属性值", async () => {
+test.each(["01 Journal/Daily/2026-10-04.md", "01 日记/每日/2026-10-04.md"])("每日评分 %s 经完整差异单次批准后只修改既有属性值", async path => {
   const before = "---\ndq_focus: 4\nhabit_walk: false\n---\n## 日记\n保留的合成记录\n";
-  const result = await workflow({ path: "01 Journal/Daily/2026-10-04.md", before, tool: "set_note_property", args: { path: "01 Journal/Daily/2026-10-04.md", key: "dq_focus", value: 7 } });
+  const result = await workflow({ path, before, tool: "set_note_property", args: { path, key: "dq_focus", value: 7 } });
   expect(result.approvals).toHaveLength(1);
   expect(result.approvals[0]?.toolCall.content?.[0]).toMatchObject({ type: "diff", oldText: before, newText: "---\ndq_focus: 7\nhabit_walk: false\n---\n## 日记\n保留的合成记录\n" });
   expect(result.content).toBe("---\ndq_focus: 7\nhabit_walk: false\n---\n## 日记\n保留的合成记录\n");
 });
 
-test("三级标题追加保留相邻章节且仍需批准", async () => {
+test.each(["01 Journal/Weekly/2026-W40.md", "01 日记/每周/2026-W40.md"])("三级标题追加 %s 保留相邻章节且仍需批准", async path => {
   const before = "## 回顾\n### 亮点\n合成原文\n### 下一步\n保留\n";
-  const result = await workflow({ path: "01 Journal/Weekly/2026-W40.md", before, tool: "append_note", args: { path: "01 Journal/Weekly/2026-W40.md", heading: "亮点", level: 3, text: "合成补充" } });
+  const result = await workflow({ path, before, tool: "append_note", args: { path, heading: "亮点", level: 3, text: "合成补充" } });
   expect(result.approvals).toHaveLength(1);
   expect(result.content).toBe("## 回顾\n### 亮点\n合成原文\n\n合成补充\n\n### 下一步\n保留\n");
 });
@@ -77,7 +77,7 @@ test.each(["rejected", "conflict"])("属性更新 %s 时不产生批准之外的
   expect(result.content).toBe(mode === "conflict" ? changed : before);
 });
 
-test.each(["01 Journal", "02 Retreats", "03 Planning", "wiki", "inbox"])("%s 正文不允许局部重写，即使模型要求", async folder => {
+test.each(["01 Journal", "02 Retreats", "03 Planning", "wiki", "inbox", "01 日记", "02 静修", "03 规划"])("%s 正文不允许局部重写，即使模型要求", async folder => {
   const path = `${folder}/合成.md`; const before = "## 正文\n合成记录\n";
   const result = await workflow({ path, before, tool: "patch_note_section", args: { path, heading: "正文", before: "合成记录", after: "被改写" } });
   expect(result.approvals).toHaveLength(0); expect(result.content).toBe(before);
@@ -107,13 +107,13 @@ test("发行默认项目看板能够完成启动提示词规定的移卡步骤",
   const root = await mkdtemp(resolve("build/acp-tests/board-"));
   try {
     const live = join(root, "live"); const candidate = join(root, "candidate");
-    const path = "04 Projects/Projects Board.md";
-    await mkdir(join(live, "04 Projects"), { recursive: true });
+    const path = "04 项目/项目看板.md";
+    await mkdir(join(live, "04 项目"), { recursive: true });
     await writeFile(join(live, path), "synthetic source board");
     await copyTree(live, candidate);
     const generated = await readFile(join(candidate, path), "utf8");
     const before = generated.replace("## 想法\n", "## 想法\n- [ ] [[合成项目]]\n");
-    const prompt = await readFile("Prompts/08 Project Kickoff.md", "utf8");
+    const prompt = await readFile("提示词/08 项目启动.md", "utf8");
     const target = /展示移到“## ([^”]+)”/.exec(prompt)?.[1];
     expect(target).toBeDefined();
     const result = await workflow({ path, before, tool: "move_board_card", args: { path, from: "想法", to: target, card: "- [ ] [[合成项目]]" } });
@@ -128,4 +128,48 @@ test("目录列表可按明确日期前缀缩小范围", async () => {
   const result = await workflow({ path: "01 Journal/Daily/2025-01-01.md", before: "旧年度合成正文", tool: "list_notes", args: { folder: "01 Journal/Daily", prefix: "2026-10-" } });
   expect(result.toolOutput).not.toContain("2025-01-01.md");
   expect(result.toolOutput).toContain("entries");
+});
+
+test("中文写作目录经单次准确审批修改章节", async () => {
+  const path = "06 写作/合成文章.md";
+  const before = "## 正文\n合成旧段落\n## 参考\n保留\n";
+  const result = await workflow({ path, before, tool: "patch_note_section", args: { path, heading: "正文", before: "合成旧段落", after: "合成新段落" } });
+  expect(result.approvals).toHaveLength(1);
+  expect(result.content).toBe("## 正文\n合成新段落\n## 参考\n保留\n");
+});
+
+test.each(["08 任务/任务总表.md", "08 任务/Tasks.md", "08 Tasks/任务总表.md", "08 TASKS/TASKS.MD"])("任务总表新旧与混合路径 %s 均不能读取", async path => {
+  const result = await workflow({ path, before: "任务隐私合成哨兵", tool: "read_note", args: { path } });
+  expect(result.toolOutput).not.toContain("任务隐私合成哨兵");
+  expect(result.toolOutput).toContain("任务总表不直接读取");
+});
+
+test.each(["模板", "提示词", "系统", "使用指南", "00 仪表盘", "09 阅读", "Templates", "Prompts", "Meta", "Guide", "00 Dashboards", "09 Reading"])("中文系统目录 %s 不能直接追加", async folder => {
+  const path = `${folder}/合成.md`, before = "## 记录\n保留\n";
+  const result = await workflow({ path, before, tool: "append_note", args: { path, heading: "记录", text: "不得写入" } });
+  expect(result.approvals).toHaveLength(0); expect(result.content).toBe(before);
+});
+
+test("中文项目看板移卡仍只请求一次准确差异审批", async () => {
+  const path = "04 项目/项目看板.md";
+  const before = "---\nkanban-plugin: board\n---\n## 想法\n- [ ] [[合成项目]]\n## 进行中\n";
+  const result = await workflow({ path, before, tool: "move_board_card", args: { path, from: "想法", to: "进行中", card: "- [ ] [[合成项目]]" } });
+  expect(result.approvals).toHaveLength(1);
+  expect(result.content).toBe("---\nkanban-plugin: board\n---\n## 想法\n## 进行中\n\n- [ ] [[合成项目]]\n\n");
+});
+
+test.each(["search_notes", "set_note_property", "append_note"])("中文任务总表的 %s 不可绕过捕获限制", async tool => {
+  const path = "08 任务/任务总表.md", before = "---\nstatus: active\n---\n## 收件箱\n合成任务\n## 已完成\n不得改写\n";
+  const args = tool === "search_notes" ? { paths: [path], query: "合成" } : tool === "set_note_property" ? { path, key: "status", value: "done" } : { path, heading: "已完成", text: "不得写入" };
+  const result = await workflow({ path, before, tool, args });
+  expect(result.approvals).toHaveLength(0); expect(result.content).toBe(before); expect(result.toolOutput).not.toContain("合成任务");
+});
+test("中文任务总表只能按批准差异捕获到已有收件箱", async () => {
+  const path = "08 任务/任务总表.md", before = "## 收件箱\n\n## 已完成\n保留\n";
+  const result = await workflow({path,before,tool:"append_note",args:{path,heading:"收件箱",text:"- [ ] 合成捕获"}});
+  expect(result.approvals).toHaveLength(1); expect(result.content).toBe("## 收件箱\n\n- [ ] 合成捕获\n\n## 已完成\n保留\n");
+});
+test("旧路径请求不会静默读取另一条中文路径", async () => {
+  const result = await workflow({path:"04 项目/合成.md",before:"不应从新路径读取的合成内容",tool:"read_note",args:{path:"04 Projects/合成.md"}});
+  expect(result.toolOutput).not.toContain("不应从新路径读取的合成内容");expect(result.approvals).toHaveLength(0);
 });

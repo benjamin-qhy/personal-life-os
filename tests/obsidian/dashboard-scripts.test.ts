@@ -10,12 +10,12 @@ class Rows<T> {
 
 test("仪表盘构建产物在 Dataview 中保留中文项目关联和英文标签", async () => {
   const artifacts = await compileVaultArtifacts();
-  const dashboard = artifacts.find(a => a.path === "00 Dashboards/Projects Dashboard.md");
+  const dashboard = artifacts.find(a => a.path === "00 仪表盘/项目仪表盘.md");
   expect(dashboard).toBeDefined();
   const script = dashboard!.content.match(/```dataviewjs\n([\s\S]*?)```/)![1]!;
   const pages = new Rows([
-    { type: "project", status: "active", file: { name: "秋水项目", path: "04 Projects/秋水项目.md", link: "中文项目", tasks: [{ tags: ["#project/秋水项目"], completed: false }] } },
-    { type: "project", status: "active", file: { name: "English Project", path: "04 Projects/English Project.md", link: "英文项目", tasks: [{ tags: ["#project/english-project"], completed: true }] } },
+    { type: "project", status: "active", file: { name: "秋水项目", path: "04 项目/秋水项目.md", link: "中文项目", tasks: [{ tags: ["#project/秋水项目"], completed: false }] } },
+    { type: "project", status: "active", file: { name: "English Project", path: "04 项目/English Project.md", link: "英文项目", tasks: [{ tags: ["#project/english-project"], completed: true }] } },
   ]);
   let headers: string[] = [], rows: unknown[][] = [];
   const dv = { page: () => ({}), pages: () => pages, table: (h: string[], r: unknown[][]) => { headers = h; rows = r; } };
@@ -29,9 +29,9 @@ test("仪表盘构建产物在 Dataview 中保留中文项目关联和英文标�
 
 test("仪表盘加载保留视图参数、每日问题中文文案和独立 Markdown 产物", async () => {
   const artifacts = await compileVaultArtifacts();
-  const dashboards = artifacts.filter(a => a.path.startsWith("00 Dashboards/"));
+  const dashboards = artifacts.filter(a => a.path.startsWith("00 仪表盘/"));
   expect(dashboards).toHaveLength(8);
-  const note = dashboards.find(a => a.path === "00 Dashboards/Daily Questions.md")!;
+  const note = dashboards.find(a => a.path === "00 仪表盘/每日问题.md")!;
   const calls: Array<[string, unknown]> = [];
   let headers: string[] = [], rows: unknown[][] = [];
   const dv = {
@@ -42,7 +42,7 @@ test("仪表盘加载保留视图参数、每日问题中文文案和独立 Mark
   };
   const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
   for (const block of note.content.matchAll(/```dataviewjs\n([\s\S]*?)```/g)) await new AsyncFunction("dv", block[1])(dv);
-  expect(calls).toEqual([["Meta/views/dailyquestions", { days: 90 }]]);
+  expect(calls).toEqual([["系统/views/dailyquestions", { days: 90 }]]);
   expect(headers).toEqual(["日期", "今天是否尽力专注？"]);
   expect(rows).toEqual([["今日日记", "8"]]);
   expect(dashboards.every(a => !a.content.includes("{{lifeos-dashboard:"))).toBe(true);

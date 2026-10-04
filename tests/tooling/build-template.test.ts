@@ -41,17 +41,17 @@ test("unsafe names, overlaps, existing output and symlink ancestors are refused"
 });
 test("private defaults and unknown boards never staged; known boards regenerated", async () => {
   for (const rel of [
-    "Meta/Compass Config.md",
-    "03 Planning/Life Theme.md",
-    "08 Tasks/Tasks.md",
-    "04 Projects/Private Board.md",
-    "04 Projects/Projects Board.md",
+    "系统/系统配置.md",
+    "03 规划/人生主题.md",
+    "08 任务/任务总表.md",
+    "04 项目/Private Board.md",
+    "04 项目/项目看板.md",
   ])
     await put(join(live, rel), "PRIVATE_SENTINEL");
   await copyTree(live, out);
-  expect(await filesIn(out)).toEqual(["04 Projects/Projects Board.md"]);
+  expect(await filesIn(out)).toEqual(["04 项目/项目看板.md"]);
   expect(
-    await readFile(join(out, "04 Projects/Projects Board.md"), "utf8"),
+    await readFile(join(out, "04 项目/项目看板.md"), "utf8"),
   ).not.toContain("PRIVATE_SENTINEL");
 });
 test("plugin credentials, sessions and machine state never staged", async () => {
@@ -61,6 +61,7 @@ test("plugin credentials, sessions and machine state never staged", async () => 
       JSON.stringify({
         apiKey: "PRIVATE_SENTINEL",
         savedSessions: ["PRIVATE_SENTINEL"],
+        version: "2.23.0",
         choices: [],
         ai: { providers: [{ apiKey: "PRIVATE_SENTINEL" }] },
       }),
@@ -78,6 +79,9 @@ test("plugin credentials, sessions and machine state never staged", async () => 
   );
   expect(agent.autoAllowPermissions).toBe(false);
   expect(agent.autoMentionActiveNote).toBe(false);
+  const quickAdd = JSON.parse(await readFile(join(out, ".obsidian/plugins/quickadd/data.json"), "utf8"));
+  expect(quickAdd.version).toBe("2.23.0");
+  expect("版本" in quickAdd).toBe(false);
 });
 test("source symlinks rejected", async () => {
   await symlink(join(base, "missing"), join(live, "link.md"));
@@ -95,15 +99,19 @@ test("only example notes retained; engineering and credential artifacts dropped"
     "package.json",
     "bun.lock",
     "tsconfig.json",
-    "01 Journal/Daily/private.md",
+    "01 日记/每日/private.md",
+    "01 Journal/Daily/legacy-private.md",
+    "08 Tasks/Tasks.md",
+    "Meta/Compass Config.md",
+    "系统/Agent Chats/private.md",
   ])
     await put(join(live, rel), "PRIVATE_SENTINEL");
   await put(
-    join(live, "01 Journal/Daily/example.md"),
+    join(live, "01 日记/每日/example.md"),
     "---\ntags:\n  - example\n---\nSeed",
   );
   await copyTree(live, out);
-  expect(await filesIn(out)).toEqual(["01 Journal/Daily/example.md"]);
+  expect(await filesIn(out)).toEqual(["01 日记/每日/example.md"]);
 });
 test("failed validation publishes nothing and removes staging", async () => {
   await expect(
@@ -123,8 +131,8 @@ test("valid destination accepted and collisions refused", async () => {
   expect((await validateDestination(live, out, "Candidate")).destination).toBe(
     join(out, "Candidate"),
   );
-  await put(join(live, "Guide/A.md"), "a");
-  await put(join(live, "Guide/a.md"), "b");
+  await put(join(live, "使用指南/A.md"), "a");
+  await put(join(live, "使用指南/a.md"), "b");
   // Case-insensitive filesystems coalesce these names; test Unicode/case paths only where distinct.
   const names = await filesIn(live);
   if (names.length === 2) await expect(copyTree(live, out)).rejects.toThrow();
@@ -189,7 +197,7 @@ test("engineering docs allowlist retains only linked agent instructions", async 
 });
 
 test("reading directory case variants cannot stage private notes", async () => {
-  for (const rel of ["09 Reading/chapters/private.md", "09 Reading/Study notes/private.md", "09 Reading/VERSES/private.md"]) {
+  for (const rel of ["09 阅读/chapters/private.md", "09 阅读/Study notes/private.md", "09 阅读/VERSES/private.md"]) {
     await put(join(live, rel), "SYNTHETIC_PRIVATE_SENTINEL");
   }
   await copyTree(live, out);

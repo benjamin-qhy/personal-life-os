@@ -5,14 +5,14 @@ export interface VaultArtifact { path: string; content: string }
 const source = resolve(import.meta.dir, "../obsidian/views");
 
 export const quickAddCaptureDefaults: Readonly<Record<string, { target: string; headings: readonly string[] }>> = {
-  "lifeos-journal": { target: "01 Journal/Daily/{{DATE:YYYY-MM-DD}}.md", headings: ["日记", "Journal"] },
-  "lifeos-win": { target: "01 Journal/Daily/{{DATE:YYYY-MM-DD}}.md", headings: ["收获", "Wins"] },
-  "lifeos-gratitude": { target: "01 Journal/Daily/{{DATE:YYYY-MM-DD}}.md", headings: ["感恩", "Gratitude"] },
-  "lifeos-task": { target: "08 Tasks/Tasks.md", headings: ["收件箱", "Inbox"] },
-  "lifeos-newsletter-idea": { target: "06 Writing/Newsletters/Newsletter Board.md", headings: ["想法", "Ideas", "Backlog"] },
-  "lifeos-video-idea": { target: "06 Writing/YouTube Scripts/YouTube Board.md", headings: ["想法", "Ideas", "Backlog"] },
-  "lifeos-article-idea": { target: "06 Writing/Articles/Article Board.md", headings: ["想法", "Ideas", "Backlog"] },
-  "lifeos-project-idea": { target: "04 Projects/Projects Board.md", headings: ["想法", "Ideas", "Backlog"] },
+  "lifeos-journal": { target: "01 日记/每日/{{DATE:YYYY-MM-DD}}.md", headings: ["日记", "Journal"] },
+  "lifeos-win": { target: "01 日记/每日/{{DATE:YYYY-MM-DD}}.md", headings: ["收获", "Wins"] },
+  "lifeos-gratitude": { target: "01 日记/每日/{{DATE:YYYY-MM-DD}}.md", headings: ["感恩", "Gratitude"] },
+  "lifeos-task": { target: "08 任务/任务总表.md", headings: ["收件箱", "Inbox"] },
+  "lifeos-newsletter-idea": { target: "06 写作/通讯/通讯看板.md", headings: ["想法", "Ideas", "Backlog"] },
+  "lifeos-video-idea": { target: "06 写作/视频脚本/视频看板.md", headings: ["想法", "Ideas", "Backlog"] },
+  "lifeos-article-idea": { target: "06 写作/文章/文章看板.md", headings: ["想法", "Ideas", "Backlog"] },
+  "lifeos-project-idea": { target: "04 项目/项目看板.md", headings: ["想法", "Ideas", "Backlog"] },
 };
 
 /** QuickAdd formats captureTo before insertAfter, executing each fenced script. */
@@ -56,7 +56,7 @@ export async function compileVaultArtifacts(): Promise<VaultArtifact[]> {
   const result: VaultArtifact[] = [];
   for (const file of (await readdir(source)).sort()) {
     if (!file.endsWith(".ts") || file === "host.ts") continue;
-    result.push({ path: `Meta/views/${file.replace(/\.ts$/, ".js")}`,
+    result.push({ path: `系统/views/${file.replace(/\.ts$/, ".js")}`,
       content: await transpiler.transform(await readFile(join(source, file), "utf8")) });
   }
   result.push(...await compileTemplates());
@@ -65,7 +65,7 @@ export async function compileVaultArtifacts(): Promise<VaultArtifact[]> {
 }
 
 export async function compileTemplates(): Promise<VaultArtifact[]> {
-  const templates = resolve(import.meta.dir, "../../Templates");
+  const templates = resolve(import.meta.dir, "../../模板");
   const scripts = resolve(import.meta.dir, "../obsidian/template-scripts");
   const transpiler = new Bun.Transpiler({ loader: "ts", target: "browser" });
   const compiled = new Map<string, string>();
@@ -85,13 +85,13 @@ export async function compileTemplates(): Promise<VaultArtifact[]> {
     });
   };
   return Promise.all((await readdir(templates)).filter(f => f.endsWith(".md")).sort().map(async file => ({
-    path: `Templates/${file}`, content: expand(await readFile(join(templates, file), "utf8")),
+    path: `模板/${file}`, content: expand(await readFile(join(templates, file), "utf8")),
   })));
 }
 
 /** Compile dashboard script markers into the Markdown consumed by Dataview. */
 export async function compileDashboards(): Promise<VaultArtifact[]> {
-  const dashboards = resolve(import.meta.dir, "../../00 Dashboards");
+  const dashboards = resolve(import.meta.dir, "../../00 仪表盘");
   const scripts = resolve(import.meta.dir, "../obsidian/dashboard-scripts");
   const transpiler = new Bun.Transpiler({ loader: "ts", target: "browser" });
   const compiled = new Map<string, string>();
@@ -106,6 +106,6 @@ export async function compileDashboards(): Promise<VaultArtifact[]> {
       if (script === undefined) throw new Error("仪表盘脚本缺失。");
       return script;
     });
-    return { path: `00 Dashboards/${file}`, content };
+    return { path: `00 仪表盘/${file}`, content };
   }));
 }

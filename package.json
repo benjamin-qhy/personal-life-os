@@ -13,7 +13,7 @@
     "verify:template": "bun scripts/verify_template.ts",
     "verify:archive": "bun scripts/verify_archive_restore.ts",
     "verify:release": "bun scripts/verify_release_safety.ts",
-    "verify:app": "bun run build:obsidian && bun scripts/verify_life_os_app.ts . dist/obsidian/life-os-app && bun scripts/verify_assistant_contracts.ts .",
+    "verify:app": "bun scripts/verify_app_candidate.ts",
     "verify:browser": "bun run build:obsidian && bun scripts/verify_brain_view.ts dist/obsidian/life-os-app && bun scripts/verify_dashboard_view.ts dist/obsidian/life-os-app",
     "build:obsidian": "bun scripts/build_obsidian.ts"
   },

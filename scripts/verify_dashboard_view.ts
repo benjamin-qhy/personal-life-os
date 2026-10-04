@@ -31,20 +31,20 @@ try {
     class ItemView extends Component{app: unknown; contentEl: Element | null; constructor(leaf: { app: unknown }){super();this.app=leaf.app;this.contentEl=document.querySelector<HTMLElement>('#root')!;}}
     const files=new Map<string, TFile>(), metadata=new Map<string, { frontmatter: Record<string, unknown>; listItems: Array<{ task: string; position: { start: { line: number } } }>; headings?: Array<{ level: number; heading: string; position: { start: { line: number } } }> }>(), contents=new Map<string, string>();
     const add=(path: string,data: Record<string, unknown>={},body='')=>{files.set(path,new TFile(path));metadata.set(path,{frontmatter:data,listItems:body.split('\n').flatMap((line,i)=>{const m=line.match(/^- \[(.)\]/);return m?[{task:m[1]!,position:{start:{line:i}}}]:[];})});contents.set(path,body);};
-    add('Meta/Compass Config.md',{questions:[{key:'dq_focus',text:'Did I focus on what matters?'}],habits:['habit_walk','habit_read']});
-    add('00 Dashboards/Setup.md',{status:'open'});
-    for(const name of ['Assistant','Task Dashboard','Projects Dashboard','Compass Dashboard','Boards'])add(`00 Dashboards/${name}.md`);
-    for(let i=0;i<20;i++){const d=new Date('2026-09-09T12:00:00Z');d.setUTCDate(d.getUTCDate()-i);add(`01 Journal/Daily/${d.toISOString().slice(0,10)}.md`,{dq_focus:4+i%7,habit_walk:i%3!==0,habit_read:i%2===0});}
-    add('02 Retreats/2026-Q3 Personal Retreat.md',{wheel_health:7,wheel_work:6,wheel_relationships:8});
-    add('04 Projects/秋水项目.md',{type:'project',status:'active'},'- [ ] Review synthetic plan #project/秋水项目 📅 2026-09-09\n- [ ] Draft outline #project/秋水项目 ⏳ 2026-09-10');
-    add('04 Projects/English Project.md',{type:'project',status:'active'},'- [ ] English routing #project/english-project');
-    add('08 Tasks/Tasks.md',{},'- [ ] Resolve fixture overdue task 📅 2026-09-08\n- [ ] Pick a focus ⏫');
-    add('05 People/秋水.md',{type:'person'},'- [ ] Discuss fixture #p/秋水 #discuss');
-    add('07 Library/Book Notes/Synthetic book.md',{type:'book'});
-    add('07 Library/Book Notes/Finished book.md',{type:'book',status:'completed'});
-    add('07 Library/Book Notes/Sample book.md',{type:'book',status:'reading',tags:['example']});
-    add('07 Library/Source.md',{type:'source',cover:'https://example.invalid/cover.png'});
-    const boardPath='06 Writing/Articles/Article Board.md';
+    add('系统/系统配置.md',{questions:[{key:'dq_focus',text:'Did I focus on what matters?'}],habits:['habit_walk','habit_read']});
+    add('00 仪表盘/开始使用.md',{status:'open'});
+    for(const name of ['AI 助手','任务仪表盘','项目仪表盘','人生仪表盘','看板总览'])add(`00 仪表盘/${name}.md`);
+    for(let i=0;i<20;i++){const d=new Date('2026-09-09T12:00:00Z');d.setUTCDate(d.getUTCDate()-i);add(`01 日记/每日/${d.toISOString().slice(0,10)}.md`,{dq_focus:4+i%7,habit_walk:i%3!==0,habit_read:i%2===0});}
+    add('02 静修/2026-Q3 个人静修.md',{wheel_health:7,wheel_work:6,wheel_relationships:8});
+    add('04 项目/秋水项目.md',{type:'project',status:'active'},'- [ ] Review synthetic plan #project/秋水项目 📅 2026-09-09\n- [ ] Draft outline #project/秋水项目 ⏳ 2026-09-10');
+    add('04 项目/English Project.md',{type:'project',status:'active'},'- [ ] English routing #project/english-project');
+    add('08 任务/任务总表.md',{},'- [ ] Resolve fixture overdue task 📅 2026-09-08\n- [ ] Pick a focus ⏫');
+    add('05 人物/秋水.md',{type:'person'},'- [ ] Discuss fixture #p/秋水 #discuss');
+    add('07 书库/读书笔记/Synthetic book.md',{type:'book'});
+    add('07 书库/读书笔记/Finished book.md',{type:'book',status:'completed'});
+    add('07 书库/读书笔记/Sample book.md',{type:'book',status:'reading',tags:['example']});
+    add('07 书库/Source.md',{type:'source',cover:'https://example.invalid/cover.png'});
+    const boardPath='06 写作/文章/文章看板.md';
     add(boardPath,{'kanban-plugin':'board'},'## 想法\n- [ ] Fixture idea\n## Drafting\n- [ ] Fixture draft\n- [x] Fixture checked item');
     metadata.get(boardPath)!.headings=[{level:2,heading:'想法',position:{start:{line:0}}},{level:2,heading:'Drafting',position:{start:{line:2}}}];
     window.opened=[];window.commands=[];
@@ -89,7 +89,7 @@ try {
     }
     if(screen==='people'){
       await page.locator('.life-os-discussion-queue button').click();
-      assert.equal(await page.evaluate(()=>window.opened.at(-1)!.path),'05 People/秋水.md');
+      assert.equal(await page.evaluate(()=>window.opened.at(-1)!.path),'05 人物/秋水.md');
     }
     if(screen==='focus'){
       assert.ok(await page.locator('.life-os-workload-segment').count()>0);
@@ -126,7 +126,7 @@ try {
     if(screen==='plan'){
       assert.equal(await page.locator('.life-os-calendar-day').count(),42);
       await page.getByRole('button',{name:'2026-09-09: 打开日记',exact:true}).click();
-      assert.equal(await page.evaluate(()=>window.opened.at(-1)?.path),'01 Journal/Daily/2026-09-09.md');
+      assert.equal(await page.evaluate(()=>window.opened.at(-1)?.path),'01 日记/每日/2026-09-09.md');
       await page.getByRole('button',{name:'下个月',exact:true}).click();
       assert.ok((await page.locator('.life-os-calendar h2').innerText()).includes('2026年10月'), await page.locator('.life-os-calendar h2').innerText());
       await page.getByRole('button',{name:'本月',exact:true}).click();
@@ -135,11 +135,11 @@ try {
       await page.getByRole('button',{name:'7 天',exact:true}).click();
       assert.equal(await page.locator('.life-os-effort-column').count(),7);
       await page.locator('.life-os-effort-column[role="button"]').first().press('Enter');
-      assert.ok(await page.evaluate(()=>window.opened.at(-1)?.path.startsWith('01 Journal/Daily/')));
+      assert.ok(await page.evaluate(()=>window.opened.at(-1)?.path.startsWith('01 日记/每日/')));
       await page.getByText('查看每日数值',{exact:true}).click();
       assert.equal(await page.locator('.life-os-chart-table tbody tr').count(),7);
       await page.getByRole('button',{name:/打开已有评分的静修/}).click();
-      assert.ok(await page.evaluate(()=>window.opened.at(-1)?.path.startsWith('02 Retreats/')));
+      assert.ok(await page.evaluate(()=>window.opened.at(-1)?.path.startsWith('02 静修/')));
     }
   }
   await page.evaluate(()=>{window.view.activeScreen='home';window.view.render();window.previousPreview=window.view.previewBrain;});

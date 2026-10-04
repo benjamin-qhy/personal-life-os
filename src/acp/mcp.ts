@@ -5,7 +5,8 @@ import { Type } from "@earendil-works/pi-ai";
 import { pathToFileURL } from "node:url";
 import { isAbsolute } from "node:path";
 import { inspectDirectory } from "./read-tools";
-import { inspectNote, policyPath } from "./note-tools";
+import { isTaskDirectory } from "./path-policy";
+import { inspectNote } from "./note-tools";
 
 const allowed = new Set(["active_file_get_path", "vault_read", "vault_list", "vault_get_document_map", "search_simple", "tag_list", "open_file", "command_list"]);
 const scoped = new Set(["vault_read", "vault_list", "vault_get_document_map", "search_simple", "open_file"]);
@@ -46,7 +47,7 @@ export async function connectMcp(cwd: string, servers: McpServer[]) {
             signal?.throwIfAborted();
             if (scoped.has(tool.name)) {
               const scope = params[scopeKeys[0]!];
-              if (typeof scope !== "string" || isAbsolute(scope) || /[\\:\x00-\x1f]/.test(scope) || scope.split("/").some(part => !part || part.startsWith(".")) || policyPath(scope).startsWith("08 tasks")) throw new Error("MCP读取范围必须为明确的库内路径，不含任务总表或隐藏目录。");
+              if (typeof scope !== "string" || isAbsolute(scope) || /[\\:\x00-\x1f]/.test(scope) || scope.split("/").some(part => !part || part.startsWith(".")) || isTaskDirectory(scope)) throw new Error("MCP读取范围必须为明确的库内路径，不含任务总表或隐藏目录。");
               if (["vault_read", "vault_get_document_map", "open_file"].includes(tool.name)) await inspectNote(cwd, scope);
               if (["vault_list", "search_simple"].includes(tool.name)) await inspectDirectory(cwd, scope);
               if (tool.name === "search_simple" && (typeof params.query !== "string" || params.query.trim().length < 2)) throw new Error("搜索需要明确查询与范围。");

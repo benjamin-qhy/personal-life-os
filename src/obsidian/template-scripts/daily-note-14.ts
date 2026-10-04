@@ -8,8 +8,8 @@ declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 declare let tR: string;
 const me = dv.current().file.name;
-const cfg: { daily_folder?: string } = dv.page("Meta/Compass Config") || {};
-const folder = cfg.daily_folder || "01 Journal/Daily";
+const cfg: { daily_folder?: string } = dv.page("系统/系统配置") || {};
+const folder = cfg.daily_folder || "01 日记/每日";
 if (/^\d{4}-\d{2}-\d{2}$/.test(me)) {
   const mmdd = me.slice(4);
   const yr = parseInt(me.slice(0, 4));

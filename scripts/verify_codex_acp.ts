@@ -47,9 +47,9 @@ try {
   console.log(JSON.stringify({ passed, model: env.LIFE_OS_MODEL, stopReason: result.stopReason, chunks }));
   if (!passed) throw new Error("chat-check");
   text = "";
-  await mkdir(`${cwd}/Prompts`);
-  await writeFile(`${cwd}/Prompts/合成验收.md`, "## Prompt\n请只回复：提示词按钮验收通过。\n");
-  await client.prompt({ sessionId, prompt: [{ type: "text", text: "这是用户明确请求的提示词按钮验收。请调用 read_note 读取 Prompts/合成验收.md，执行其中 ## Prompt 的要求。" }] });
+  await mkdir(`${cwd}/提示词`);
+  await writeFile(`${cwd}/提示词/合成验收.md`, "## Prompt\n请只回复：提示词按钮验收通过。\n");
+  await client.prompt({ sessionId, prompt: [{ type: "text", text: "这是用户明确请求的提示词按钮验收。请调用 read_note 读取 提示词/合成验收.md，执行其中 ## Prompt 的要求。" }] });
   const promptPassed = text.includes("提示词按钮验收通过");
   console.log(JSON.stringify({ stage: "prompt-button-read", passed: promptPassed }));
   if (!promptPassed) throw new Error("prompt-check");

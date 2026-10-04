@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something in the template does not work as the Guide says
+about: Something in the template does not work as the 使用指南 says
 labels: bug
 ---
 
@@ -18,7 +18,7 @@ labels: bug
 
 ## Environment
 
-- Compass version (`Meta/version.md`):
+- Compass version (`系统/版本.md`):
 - Obsidian version and OS:
 - Restricted mode turned off and app reloaded? yes / no
 - Plugins changed from the shipped versions? which

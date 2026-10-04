@@ -6,12 +6,12 @@ declare const app: HostApp;
 declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 // Compass quick links: capture buttons (QuickAdd commands) + jump to today's multi-scale planning notes.
-// Usage: await dv.view("Meta/views/quicklinks")
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
-const DAILY = cfg.daily_folder || "01 Journal/Daily";
-const WEEKLY = cfg.weekly_folder || "01 Journal/Weekly";
-const QUARTERLY = cfg.quarterly_folder || "01 Journal/Quarterly";
-const RETREATS = cfg.retreat_folder || "02 Retreats";
+// Usage: await dv.view("系统/views/quicklinks")
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
+const DAILY = cfg.daily_folder || "01 日记/每日";
+const WEEKLY = cfg.weekly_folder || "01 日记/每周";
+const QUARTERLY = cfg.quarterly_folder || "01 日记/每季";
+const RETREATS = cfg.retreat_folder || "02 静修";
 const root = dv.container.createEl("div", { cls: "lifeos-widget" });
 
 const now = moment();
@@ -19,7 +19,7 @@ const links: Array<[string, string, string]> = [
   ["今天", `${DAILY}/${now.format("YYYY-MM-DD")}`, now.format("YYYY-MM-DD")],
   ["本周", `${WEEKLY}/${now.format("gggg-[W]ww")}`, now.format("gggg-[W]ww")],
   ["本季度", `${QUARTERLY}/${now.format("YYYY-[Q]Q")}`, now.format("YYYY-[Q]Q")],
-  ["个人静修", `${RETREATS}/${now.format("YYYY-[Q]Q")} Personal Retreat`, `${now.format("YYYY-[Q]Q")} Personal Retreat`],
+  ["个人静修", `${RETREATS}/${now.format("YYYY-[Q]Q")} 个人静修`, `${now.format("YYYY-[Q]Q")} 个人静修`],
 ];
 const p = root.createEl("p");
 p.appendText("跳转：");

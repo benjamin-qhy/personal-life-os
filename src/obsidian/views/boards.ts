@@ -7,10 +7,10 @@ declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 // Compass Boards widget: every Kanban board in the vault with card counts per lane.
 // Usage:
-//   await dv.view("Meta/views/boards")                       all boards, all lanes
-//   await dv.view("Meta/views/boards", { compact: true })    one line per board: open cards + the lane that needs attention
-//   await dv.view("Meta/views/boards", { folder: "06 Writing" })
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
+//   await dv.view("系统/views/boards")                       all boards, all lanes
+//   await dv.view("系统/views/boards", { compact: true })    one line per board: open cards + the lane that needs attention
+//   await dv.view("系统/views/boards", { folder: "06 写作" })
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
 const FOLDER = input && input.folder ? input.folder : null;
 const COMPACT = !!(input && input.compact);
 const DONE_LANES = (cfg.board_done_lanes || "Done,Published,Archive,已完成,已发布,归档").split(",").map(s => s.trim().toLowerCase());

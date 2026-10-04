@@ -1,14 +1,15 @@
 import { RequestError, type PromptRequest } from "@agentclientprotocol/sdk";
 import { fileURLToPath } from "node:url";
 import { isAbsolute, relative } from "node:path";
-import { inspectNote, policyPath } from "./note-tools";
+import { isTaskMaster } from "./path-policy";
+import { inspectNote } from "./note-tools";
 
 function resourcePath(cwd: string, uri: string) {
   const url = new URL(uri);
   if (url.protocol !== "file:" || url.host || url.search || url.hash) throw new Error();
   const path = relative(cwd, fileURLToPath(url));
   if (!path || isAbsolute(path) || path.split(/[\\/]/).some(part => !part || part.startsWith(".")) ||
-      /[\\:\x00-\x1f]/.test(path) || !path.toLowerCase().endsWith(".md") || policyPath(path) === "08 tasks/tasks.md") throw new Error();
+      /[\\:\x00-\x1f]/.test(path) || !path.toLowerCase().endsWith(".md") || isTaskMaster(path)) throw new Error();
   return path;
 }
 

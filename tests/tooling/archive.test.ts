@@ -32,7 +32,7 @@ test("归档路径拒绝穿越、绝对路径、重复分隔与平台别名", as
   for (const path of ["../escape", "/absolute", "root/../escape", "root\\escape", "C:/escape", "root//file", "root/./file", "root/a\n"]) {
     expect(safeName(path)).toBe(false);
   }
-  expect(safeName("Candidate/Guide/开始.md")).toBe(true);
+  expect(safeName("Candidate/使用指南/开始.md")).toBe(true);
 });
 
 test("清单不匹配的归档即使外部摘要正确也被拒绝", async () => {

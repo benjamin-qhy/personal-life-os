@@ -8,29 +8,29 @@ declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 // Compass Wheel of Life widget: radar chart from wheel_* number properties.
 // Usage:
-//   await dv.view("Meta/views/wheel")                                  -> this quarter's retreat (by naming convention), else most recent
-//   await dv.view("Meta/views/wheel", { page: dv.current().file.path })  -> a specific retreat note (used inside the retreat template)
+//   await dv.view("系统/views/wheel")                                  -> this quarter's retreat (by naming convention), else most recent
+//   await dv.view("系统/views/wheel", { page: dv.current().file.path })  -> a specific retreat note (used inside the retreat template)
 const escapeText = (value: string) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
-const FOLDER = cfg.retreat_folder || "02 Retreats";
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
+const FOLDER = cfg.retreat_folder || "02 静修";
 const PREFIX = cfg.wheel_prefix || "wheel_";
 
 let page = input && input.page ? dv.page(input.page) : null;
 let how = "";
 if (!page) {
   const q = moment().quarter(), yr = moment().year();
-  page = dv.page(`${FOLDER}/${yr}-Q${q} Personal Retreat`);
+  page = dv.page(`${FOLDER}/${yr}-Q${q} 个人静修`);
   how = page ? `本季度（${yr}-Q${q}）` : "";
 }
 if (!page) {
-  const all = dv.pages(`"${FOLDER}"`).where(p => /^\d{4}-Q[1-4] Personal Retreat$/.test(p.file.name)).sort(p => p.file.name, "desc").array();
+  const all = dv.pages(`"${FOLDER}"`).where(p => /^\d{4}-Q[1-4] 个人静修$/.test(p.file.name)).sort(p => p.file.name, "desc").array();
   page = all[0];
   how = page ? "最近一次静修" : "";
 }
 
 const root = dv.container.createEl("div", { cls: "lifeos-widget" });
 if (!page) {
-  root.createEl("p", { text: `${FOLDER} 中暂无静修笔记。请创建名为 YYYY-QN Personal Retreat 的笔记，并填写 ${PREFIX}* 属性。` });
+  root.createEl("p", { text: `${FOLDER} 中暂无静修笔记。请创建名为 YYYY-QN 个人静修 的笔记，并填写 ${PREFIX}* 属性。` });
 } else {
   const fm = page.file.frontmatter || {};
   const axes = Object.keys(fm)

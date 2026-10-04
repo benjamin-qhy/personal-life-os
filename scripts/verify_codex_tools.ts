@@ -90,20 +90,20 @@ try {
   console.log(JSON.stringify({ stage: "continue-after-cancel", passed: continued }));
   if (!continued) throw new Error("continue-check");
 
-  const scorePath = join(cwd, "01 Journal/Daily/2026-10-04.md");
+  const scorePath = join(cwd, "01 日记/每日/2026-10-04.md");
   const scoreBefore = "---\ndq_focus: 4\n---\n## 回顾\n### 收获\n合成原文\n### 保留\n保留段\n";
   const scoreAfter = "---\ndq_focus: 7\n---\n## 回顾\n### 收获\n合成原文\n### 保留\n保留段\n";
-  await mkdir(join(cwd, "01 Journal/Daily"), { recursive: true }); await writeFile(scorePath, scoreBefore);
+  await mkdir(join(cwd, "01 日记/每日"), { recursive: true }); await writeFile(scorePath, scoreBefore);
   expectedChange = { path: scorePath, before: scoreBefore, after: scoreAfter }; allow = true; approvals = 0;
   const coaching = await active.client.newSession({ cwd, mcpServers: [] });
-  await active.client.prompt({ sessionId: coaching.sessionId, prompt: [{ type: "text", text: "这是独立合成评分测试，我明确把 dq_focus 评分定为7。请使用 set_note_property 更新 01 Journal/Daily/2026-10-04.md 的现有 dq_focus 属性为数字7，等待准确差异审批，不改正文。" }] });
+  await active.client.prompt({ sessionId: coaching.sessionId, prompt: [{ type: "text", text: "这是独立合成评分测试，我明确把 dq_focus 评分定为7。请使用 set_note_property 更新 01 日记/每日/2026-10-04.md 的现有 dq_focus 属性为数字7，等待准确差异审批，不改正文。" }] });
   const scorePassed = approvals === 1 && await readFile(scorePath, "utf8") === scoreAfter;
   console.log(JSON.stringify({ stage: "approved-score-property", passed: scorePassed }));
   if (!scorePassed) throw new Error("score-check");
 
   const h3After = "---\ndq_focus: 7\n---\n## 回顾\n### 收获\n合成原文\n\n合成三级标题验收\n\n### 保留\n保留段\n";
   expectedChange = { path: scorePath, before: scoreAfter, after: h3After }; approvals = 0;
-  await active.client.prompt({ sessionId: coaching.sessionId, prompt: [{ type: "text", text: "现在使用 append_note，path仍为 01 Journal/Daily/2026-10-04.md，heading为收获、level为3、text严格为合成三级标题验收。等待单次审批，不修改其他内容。" }] });
+  await active.client.prompt({ sessionId: coaching.sessionId, prompt: [{ type: "text", text: "现在使用 append_note，path仍为 01 日记/每日/2026-10-04.md，heading为收获、level为3、text严格为合成三级标题验收。等待单次审批，不修改其他内容。" }] });
   const h3Passed = approvals === 1 && await readFile(scorePath, "utf8") === h3After;
   console.log(JSON.stringify({ stage: "approved-h3-append", passed: h3Passed }));
   if (!h3Passed) throw new Error("h3-check");

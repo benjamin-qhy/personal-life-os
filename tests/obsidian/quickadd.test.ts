@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { safePluginSettings } from "../../src/tooling/build-template";
 
 interface Choice { captureTo: string; insertAfter: { after: string; createIfNotFound: boolean } }
-async function generatedChoice(target = "01 Journal/Daily/{{DATE:YYYY-MM-DD}}.md", heading = "## Journal"): Promise<Choice> {
+async function generatedChoice(target = "01 日记/每日/{{DATE:YYYY-MM-DD}}.md", heading = "## Journal"): Promise<Choice> {
   const dir = await mkdtemp(join(tmpdir(), "lifeos-quickadd-"));
   try {
     const path = join(dir, "data.json");
@@ -27,7 +27,7 @@ test("生成的 QuickAdd 捕获仅在实际目标的唯一中英文章节下追�
   const choice = await generatedChoice();
   for (const heading of ["日记", "Journal"]) {
     const reads: string[] = [];
-    const path = "01 Journal/Daily/2026-10-04.md";
+    const path = "01 日记/每日/2026-10-04.md";
     const host = {
       variables: {},
       quickAddApi: { format: async () => path },
@@ -45,7 +45,7 @@ test("生成的 QuickAdd 捕获仅在实际目标的唯一中英文章节下追�
 
 test.each([{ headings: [] }, { headings: ["日记", "Journal"] }, { headings: ["Journal", "Journal"] }])("捕获缺失或重复章节 %j 时停止，不新建同义标题", async ({ headings }) => {
   const choice = await generatedChoice();
-  const host = { variables: {}, quickAddApi: { format: async () => "01 Journal/Daily/test.md" }, app: {
+  const host = { variables: {}, quickAddApi: { format: async () => "01 日记/每日/test.md" }, app: {
     vault: { getFileByPath: (path: string) => ({ path }) },
     metadataCache: { getFileCache: () => ({ headings: headings.map(heading => ({ level: 2, heading })) }) },
   } };
@@ -63,7 +63,7 @@ test("新建日记等待目标标题缓存，变量使用 QuickAdd 的 Map 代�
     deleteProperty: (_target, key) => { shared.delete(String(key)); return true; },
   });
   let calls = 0;
-  const host = { variables, quickAddApi: { format: async () => "01 Journal/Daily/test.md" }, app: {
+  const host = { variables, quickAddApi: { format: async () => "01 日记/每日/test.md" }, app: {
     vault: { getFileByPath: (path: string) => ({ path }) },
     metadataCache: { getFileCache: () => ++calls < 3 ? null : { headings: [{ level: 2, heading: "日记" }] } },
   } };
@@ -75,7 +75,7 @@ test("新建日记等待目标标题缓存，变量使用 QuickAdd 的 Map 代�
 test("目标不存在、标题缓存未就绪或未解析目标时停止，不回退活动笔记", async () => {
   const choice = await generatedChoice();
   for (const missingFile of [true, false]) {
-    const host = { variables: {}, quickAddApi: { format: async () => "01 Journal/Daily/test.md" }, app: {
+    const host = { variables: {}, quickAddApi: { format: async () => "01 日记/每日/test.md" }, app: {
       vault: { getFileByPath: (path: string) => missingFile ? null : { path } },
       metadataCache: { getFileCache: () => null },
     } };
@@ -86,7 +86,7 @@ test("目标不存在、标题缓存未就绪或未解析目标时停止，不�
 });
 
 test("任务捕获只读取明确任务总表的标题缓存，无正文读取能力仍可定位", async () => {
-  const choice = await generatedChoice("08 Tasks/Tasks.md", "## Inbox");
+  const choice = await generatedChoice("08 任务/任务总表.md", "## Inbox");
   for (const heading of ["收件箱", "Inbox"]) {
     const paths: string[] = [];
     const host = { variables: {}, quickAddApi: { format: async (text: string) => text }, app: {
@@ -95,6 +95,6 @@ test("任务捕获只读取明确任务总表的标题缓存，无正文读取�
     } };
     await runFormat(choice.captureTo, host);
     expect(await runFormat(choice.insertAfter.after, host)).toBe(`## ${heading}`);
-    expect(paths).toEqual(["08 Tasks/Tasks.md"]);
+    expect(paths).toEqual(["08 任务/任务总表.md"]);
   }
 });

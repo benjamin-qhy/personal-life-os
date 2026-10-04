@@ -4,14 +4,14 @@
 
 ## 源码与候选版本
 
-本仓库是开发源码。`Templates/*.md` 和 `00 Dashboards/*.md` 中的受控构建标记由构建器展开，脚本分别维护在 `src/obsidian/template-scripts/`、`src/obsidian/dashboard-scripts/` 和 `src/obsidian/views/`。**不能直接把源码模板复制进正在使用的库。** 用户应打开构建后的独立候选；第一方插件和仪表盘同样通过 Bun 输出宿主 JavaScript。旧 `Meta/views/*.js` 不再作为源码维护，构建时生成到 `dist/vault/Meta/views/` 和发行候选的原路径。
+本仓库是开发源码。`模板/*.md` 和 `00 仪表盘/*.md` 中的受控构建标记由构建器展开，脚本分别维护在 `src/obsidian/template-scripts/`、`src/obsidian/dashboard-scripts/` 和 `src/obsidian/views/`。**不能直接把源码模板复制进正在使用的库。** 用户应打开构建后的独立候选；第一方插件和仪表盘同样通过 Bun 输出宿主 JavaScript。旧 `系统/views/*.js` 不再作为源码维护，构建时生成到 `dist/vault/系统/views/` 和发行候选的原路径。
 
 ```bash
 bun install --frozen-lockfile
 bun run typecheck
 bun test
 bun run build:obsidian
-bun run build:template --out ../life-os-releases --name Personal-Life-OS-candidate --version 1.1.0 --zip
+bun run build:template --out ../life-os-releases --name Personal-Life-OS-candidate --version 2.0.0 --zip
 bun scripts/verify_template.ts ../life-os-releases/Personal-Life-OS-candidate
 ```
 
@@ -21,19 +21,19 @@ bun scripts/verify_template.ts ../life-os-releases/Personal-Life-OS-candidate
 
 ## 工程规则
 
-1. 修改对应源码和构建流程，保留机器字段、内部目录、命令 ID 与旧英文兼容；中文展示不能破坏原工作流。
+1. 修改对应源码和构建流程，用户目录采用 `scripts/template/chinese-paths.json` 中的中文名称；保留机器字段和固定命令 ID。路径变化必须同步链接、配置、模板和权限，AI 安全边界继续覆盖旧英文路径。
 2. 不提交密钥、证书、绝对机器路径、个人记录、`.mcp.json`、`.claude/settings.local.json`、Agent Client 会话和聊天导出、工作区状态或 `.vault-meta/`。`.gitignore` 不能代替实际发行检查。
 3. 在用户确认的公开入口使用 Matt 的 TDD：先观察测试失败，再做最小实现。测试生成笔记、命令行为、协议或构建结果，不靠源码字面形式代替行为验证。
 4. 定期运行类型检查和相关测试，阶段结束运行完整测试与构建验证。自动化、合成浏览器、真实模型和原生 Obsidian 证据分别记录。
 5. 不使用 U+2014 长破折号，正文、代码、注释和提示词均适用。
-6. 插件版本、LICENSE 与 `THIRD_PARTY_NOTICES.md` 保持一致，模板版本写入 `Meta/version.md`。不要删除上游许可证和来源说明。
+6. 插件版本、LICENSE 与 `THIRD_PARTY_NOTICES.md` 保持一致，模板版本写入 `系统/版本.md`。不要删除上游许可证和来源说明。
 7. 用户可见变更记录到 `CHANGELOG.md`。路径或属性破坏性变更提升主版本，新功能提升次版本，修复与说明通常提升补丁版本。
 8. 遵循 `AGENTS.md` 的 `dq_*`、`habit_*`、`wheel_*`、Tasks 表情符号格式和 wikilink 约定。不得为测试读取不相关个人记录。
 9. 每阶段按 Standards 与 Spec 两轴审查。工程 issue 位于 `benjamin-qhy/personal-life-os`，流程见 `docs/agents/issue-tracker.md`。
 
 ## 新提示词
 
-每个重复任务一篇 `Prompts/` 笔记，结构见 `Guide/20 Prompt Library.md`：
+每个重复任务一篇 `提示词/` 笔记，结构见 `使用指南/20 提示词库.md`：
 
 - 属性：`purpose`、`when`、`inputs`、`writes`、`risk`、`tools`、`agents`。风险值保留 `read-only`、`append`、`edit`、`delete`。
 - 正文：先放 Agent Client 按钮，再放 `## Prompt`。按钮只发送文件指针，显示文字可中文化，路径与章节名保持稳定；关闭 `autoSend`。

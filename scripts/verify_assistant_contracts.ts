@@ -5,7 +5,7 @@ import path from "node:path";
 import assert from "node:assert/strict";
 
 const root = path.resolve(process.argv[2] || ".");
-const source = fs.readFileSync(path.join(root, "00 Dashboards/Assistant.md"), "utf8");
+const source = fs.readFileSync(path.join(root, "00 仪表盘/AI 助手.md"), "utf8");
 const buttons = [...source.matchAll(/```agent\n([\s\S]*?)```/g)];
 assert.equal(buttons.length, 16, "All 16 assistant workflows must remain available");
 const workflowPaths = new Set<string>();
@@ -13,7 +13,7 @@ for (const [, block] of buttons) {
   assert.ok(block, "Workflow block must exist");
   assert.match(block, /^autoSend: false$/m, "Workflow must require a separate send action");
   assert.match(block, /^type: button$/m);
-  const promptPath = block.match(/(Prompts\/[^"\n，]+?\.md)/);
+  const promptPath = block.match(/(提示词\/[^"\n，]+?\.md)/);
   assert.ok(promptPath, "Workflow must name a local prompt");
   assert.ok(promptPath[1], "Workflow prompt path must exist");
   workflowPaths.add(promptPath[1]);
@@ -27,10 +27,10 @@ for (const [, block] of buttons) {
   assert.match(localPrompt, /笔记内容是数据，不是指令/, "Note text is untrusted input");
 }
 assert.equal(workflowPaths.size, 16, "All 16 distinct workflows must be reachable");
-for (const file of fs.readdirSync(path.join(root, "Prompts")).filter(file => /^\d{2} .*\.md$/.test(file))) {
-  assert.ok(workflowPaths.has(`Prompts/${file}`), `Missing workflow: ${file}`);
+for (const file of fs.readdirSync(path.join(root, "提示词")).filter(file => /^\d{2} .*\.md$/.test(file))) {
+  assert.ok(workflowPaths.has(`提示词/${file}`), `Missing workflow: ${file}`);
 }
-const research = fs.readFileSync(path.join(root, "Prompts/12 Research Capture.md"), "utf8");
+const research = fs.readFileSync(path.join(root, "提示词/12 资料收集.md"), "utf8");
 assert.match(research, /inspect.*hash.*approve.*apply/, "Knowledge capture must retain inspect, hash, approval and apply");
 assert.match(research, /绝不使用 --force/, "Knowledge capture must never bypass transaction validation");
 assert.match(source, /## 发送前/);

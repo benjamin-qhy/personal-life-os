@@ -7,4 +7,4 @@ declare const dv: Dataview;
 declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 declare let tR: string;
-await dv.view("Meta/views/week", { week: dv.current().file.name });
+await dv.view("系统/views/week", { week: dv.current().file.name });

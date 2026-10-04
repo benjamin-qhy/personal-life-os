@@ -51,14 +51,14 @@ try {
     const require = () => ({ Component, ItemView, TFile, Plugin: class {}, Modal: class {}, Notice: class {}, setIcon() {} });
     // Dynamic plugin evaluation is the untyped VM boundary; observed instances use FixtureBrain.
     const BrainView = new Function("require", "module", `${source}; return LifeOSBrainRenderer;`)(require, module);
-    const folders = ["03 Planning", "04 Projects", "01 Journal/Daily", "02 Retreats", "05 People", "07 Library", "06 Writing", "08 Tasks"];
+    const folders = ["03 规划", "04 项目", "01 日记/每日", "02 静修", "05 人物", "07 书库", "06 写作", "08 任务"];
     const files = Array.from({ length: 160 }, (_, i) => new TFile(`${folders[i % folders.length]}/${i === 0 ? "中文笔记" : `Note ${String(i + 1).padStart(3, "0")}`}.md`));
     const links: Record<string, Record<string, number>> = {};
     for (let i = 0; i < files.length; i++) links[files[i]!.path] = { [files[(i + 1) % files.length]!.path]: 1, [files[(i + 8) % files.length]!.path]: 1 };
     window.openedNotes = [];
     window.graphCommands = [];
     const app = {
-      vault: { getMarkdownFiles: () => [...files, new TFile("Templates/Project.md")], getAbstractFileByPath: (path: string) => files.find((file) => file.path === path), on() {} },
+      vault: { getMarkdownFiles: () => [...files, new TFile("模板/项目.md")], getAbstractFileByPath: (path: string) => files.find((file) => file.path === path), on() {} },
       metadataCache: { resolvedLinks: links, getFileCache: () => ({ frontmatter: { tags: ["example"] } }), on() {} },
       commands: { executeCommandById: (id: string) => { window.graphCommands.push(id); return true; } },
       workspace: { getLeaf: () => ({ openFile: async (file: TFile) => window.openedNotes.push(file.path) }), revealLeaf: async () => {} },
@@ -84,7 +84,7 @@ try {
   assert.match(await page.locator(".life-os-brain-header p").innerText(), /^1 篇笔记/);
   await page.locator(".life-os-brain-note").first().click();
   await page.getByRole("button", { name: "打开笔记", exact: true }).click();
-  assert.deepEqual(await page.evaluate(() => window.openedNotes), ["03 Planning/中文笔记.md"]);
+  assert.deepEqual(await page.evaluate(() => window.openedNotes), ["03 规划/中文笔记.md"]);
   await page.getByRole("searchbox").fill("");
   await page.getByRole("button", { name: "清除选择", exact: true }).click();
   await page.locator("canvas").focus();

@@ -7,11 +7,11 @@ declare const app: HostApp;
 declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 // Compass Habit Canvas widget.
-// Usage:  await dv.view("Meta/views/habits", { days: 14 })
+// Usage:  await dv.view("系统/views/habits", { days: 14 })
 // Reads every daily note, finds checkbox properties starting with habit_prefix and
 // renders: last N days grid, current streak, best streak, longest break, completion %, total.
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
-const FOLDER = cfg.daily_folder || "01 Journal/Daily";
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
+const FOLDER = cfg.daily_folder || "01 日记/每日";
 const PREFIX = cfg.habit_prefix || "habit_";
 const DAYS = (input && input.days) || 14;
 

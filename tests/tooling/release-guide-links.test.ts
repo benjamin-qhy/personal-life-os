@@ -5,7 +5,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { copyTree } from "../../src/tooling/build-template";
 
 const root = resolve(import.meta.dir, "../..");
-const guides = ["README.md", "Guide/14 Agent Client and Claude Code.md", "Guide/19 Obsidian MCP Bridge.md"];
+const guides = ["README.md", "使用指南/14 AI 助手与 Agent Client.md", "使用指南/19 Obsidian MCP 桥接.md"];
 function markdownTargets(text: string): string[] {
   return [...text.matchAll(/\]\(([^)]+)\)/g)]
     .map(match => decodeURIComponent(match[1]!.split("#")[0]!))

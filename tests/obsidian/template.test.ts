@@ -15,6 +15,13 @@ test("模板构建命令打包生成的插件并通过恢复验证", async () =>
     expect({ code, failure: code ? output : "" }).toEqual({ code: 0, failure: "" });
     const manifest = JSON.parse(await readFile(join(out, "Candidate/.obsidian/plugins/life-os-app/manifest.json"), "utf8"));
     expect(manifest.name).toBe("Personal Life OS");
+    const candidate = join(out, "Candidate");
+    for (const path of ["00 仪表盘/开始使用.md", "01 日记/每日", "04 项目/项目看板.md", "模板/每日日记.md", "提示词/01 晨间开始.md", "使用指南/00 从这里开始.md"]) {
+      await access(join(candidate, path));
+    }
+    await expect(access(join(candidate, "00 Dashboards"))).rejects.toThrow();
+    const workspace = JSON.parse(await readFile(join(candidate, ".obsidian/workspace.json"), "utf8"));
+    expect(workspace.lastOpenFiles).toEqual(["00 仪表盘/开始使用.md"]);
     const client = join(out, "Candidate/.obsidian/plugins/agent-client");
     const clientSettings = JSON.parse(await readFile(join(client, "data.json"), "utf8"));
     expect("savedSessions" in clientSettings).toBe(false);
@@ -49,7 +56,7 @@ test("模板构建命令打包生成的插件并通过恢复验证", async () =>
     const retargeted = JSON.parse(qaOriginal);
     const retargetedJournal = retargeted.choices.find((choice: { id: string }) => choice.id === "lifeos-journal");
     const { compileQuickAddCapture } = await import("../../src/tooling/build-vault-assets");
-    const replacement = await compileQuickAddCapture("lifeos-journal", "01 Journal/Daily/{{DATE:YYYY-MM-DD}}.md", ["无关章节"]);
+    const replacement = await compileQuickAddCapture("lifeos-journal", "01 日记/每日/{{DATE:YYYY-MM-DD}}.md", ["无关章节"]);
     retargetedJournal.captureTo = replacement.captureTo;
     retargetedJournal.insertAfter.after = replacement.after;
     await writeFile(qaPath, JSON.stringify(retargeted));
@@ -78,10 +85,10 @@ test("不含阅读模块的候选仍可完整构建和恢复，且不保留研�
     expect({ code, failure: code ? (await output).join("") : "" }).toEqual({ code: 0, failure: "" });
     await output;
     const root = join(out, "Lite");
-    await expect(access(join(root, "09 Reading"))).rejects.toThrow();
+    await expect(access(join(root, "09 阅读"))).rejects.toThrow();
     const choices = JSON.parse(await readFile(join(root, ".obsidian/plugins/quickadd/data.json"), "utf8")).choices;
     expect(choices.some((choice: { id: string }) => choice.id === "lifeos-new-study-note")).toBe(false);
-    expect(await readFile(join(root, "Templates/Daily Note.md"), "utf8")).not.toContain("[!reading]");
+    expect(await readFile(join(root, "模板/每日日记.md"), "utf8")).not.toContain("[!reading]");
     const restore = Bun.spawn([process.execPath, resolve("scripts/verify_archive_restore.ts"), join(out, "Lite-template-v1.1.0-without-reading.zip")], { stdout: "ignore", stderr: "pipe" });
     const errors = new Response(restore.stderr).text();
     expect(await restore.exited).toBe(0);

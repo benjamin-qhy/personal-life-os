@@ -7,9 +7,9 @@ declare const app: HostApp;
 declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 // Compass weekly review table: one row per day of the week with daily-question scores and habit hits.
-// Usage: await dv.view("Meta/views/week", { week: dv.current().file.name })   // file named gggg-[W]ww
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
-const FOLDER = cfg.daily_folder || "01 Journal/Daily";
+// Usage: await dv.view("系统/views/week", { week: dv.current().file.name })   // file named gggg-[W]ww
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
+const FOLDER = cfg.daily_folder || "01 日记/每日";
 const DQ = cfg.dq_prefix || "dq_";
 const HB = cfg.habit_prefix || "habit_";
 const weekName = (input && input.week) || moment().format("gggg-[W]ww");

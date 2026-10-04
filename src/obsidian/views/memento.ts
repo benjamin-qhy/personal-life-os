@@ -5,9 +5,9 @@ declare const input: ViewInput | undefined;
 declare const app: HostApp;
 declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
-// Compass Memento Mori widget. Usage: await dv.view("Meta/views/memento")
-// Reads birthdate and life_expectancy from Meta/Compass Config.
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
+// Compass Memento Mori widget. Usage: await dv.view("系统/views/memento")
+// Reads birthdate and life_expectancy from 系统/系统配置.
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
 const root = dv.container.createEl("div", { cls: "lifeos-widget" });
 if (!cfg.birthdate) {
   root.createEl("p", { text: "请在配置中填写出生日期 birthdate（YYYY-MM-DD）和预期寿命 life_expectancy，以显示人生时间。" });

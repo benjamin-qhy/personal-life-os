@@ -1,7 +1,8 @@
 import { lstat, readdir, realpath } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
 import { defineTool } from "@earendil-works/pi-coding-agent";
-import { inspectNote, policyPath } from "./note-tools";
+import { inspectNote } from "./note-tools";
+import { isTaskMaster } from "./path-policy";
 import { Type } from "@earendil-works/pi-ai";
 
 export async function inspectDirectory(cwd: string, folder: string) {
@@ -18,7 +19,7 @@ export async function inspectDirectory(cwd: string, folder: string) {
 export function discoveryTools(cwd: string) {
   return [defineTool({
     name: "list_notes", label: "列出指定目录", description: "只列出用户任务所需的明确目录中的 Markdown 文件名和子目录，不读取正文、不递归、不默认扫描整个库。每次最多200项。",
-    parameters: Type.Object({ folder: Type.String({ description: "明确的库内目录，例如 04 Projects，不允许空值或库根" }), prefix: Type.Optional(Type.String({ description: "文件名前缀，可按年月缩小日记范围" })) }),
+    parameters: Type.Object({ folder: Type.String({ description: "明确的库内目录，例如 04 项目，不允许空值或库根" }), prefix: Type.Optional(Type.String({ description: "文件名前缀，可按年月缩小日记范围" })) }),
     async execute(_id, params, signal) {
       const path = await inspectDirectory(cwd, params.folder);
       signal?.throwIfAborted();
@@ -37,7 +38,7 @@ export function discoveryTools(cwd: string) {
       let total = 0; let truncated = false;
       for (const path of [...new Set(params.paths)]) {
         signal?.throwIfAborted();
-        if (policyPath(path) === "08 tasks/tasks.md") throw new Error("任务总表不能直接读取或搜索。");
+        if (isTaskMaster(path)) throw new Error("任务总表不能直接读取或搜索。");
         const note = await inspectNote(cwd, path);
         total += Buffer.byteLength(note.text);
         if (total > 2 * 1024 * 1024) throw new Error("选定笔记总量超过2 MiB，请缩小范围。");

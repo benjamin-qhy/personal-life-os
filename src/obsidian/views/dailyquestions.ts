@@ -8,11 +8,11 @@ declare const moment: typeof import("moment");
 declare const Notice: new (message: string) => unknown;
 // Compass Daily Questions widget: lines + averages of every dq_* number property.
 // Usage:
-//   await dv.view("Meta/views/dailyquestions", { days: 30 })              interactive (dropdown + toggles)
-//   await dv.view("Meta/views/dailyquestions", { from: "2026-07-01", to: "2026-09-30" })  fixed range
+//   await dv.view("系统/views/dailyquestions", { days: 30 })              interactive (dropdown + toggles)
+//   await dv.view("系统/views/dailyquestions", { from: "2026-07-01", to: "2026-09-30" })  fixed range
 const escapeText = (value: unknown) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
-const FOLDER = cfg.daily_folder || "01 Journal/Daily";
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
+const FOLDER = cfg.daily_folder || "01 日记/每日";
 const PREFIX = cfg.dq_prefix || "dq_";
 const DEFAULT_RANGE = (input && input.days) || 30;
 const FIXED_FROM = input && input.from ? moment(input.from) : null;

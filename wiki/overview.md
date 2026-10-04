@@ -10,7 +10,7 @@ tags:
 
 # Vault Overview
 
-This is the knowledge layer of a Compass vault. The life workflows (journal, retreats, planning, habits, tasks, people, writing) live in the numbered folders and are driven from Obsidian; see [[Compass Dashboard]] and [[00 Start Here]]. The `wiki/` folder is managed by the claude-obsidian plugin and holds source-backed knowledge: ingested sources, saved answers, concepts, and their provenance ledgers.
+This is the knowledge layer of a Compass vault. The life workflows (journal, retreats, planning, habits, tasks, people, writing) live in the numbered folders and are driven from Obsidian; see [[人生仪表盘]] and [[00 从这里开始]]. The `wiki/` folder is managed by the claude-obsidian plugin and holds source-backed knowledge: ingested sources, saved answers, concepts, and their provenance ledgers.
 
 ## What goes where
 - Personal operating data (daily notes, retreats, planning, people, tasks) stays outside `wiki/` and is never ingested into the ledgers.

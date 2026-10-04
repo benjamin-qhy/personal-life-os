@@ -1,3 +1,3 @@
 import type { Dataview, Page } from "../views/host";
 declare const dv: Dataview;
-await dv.view("Meta/views/wheel");
+await dv.view("系统/views/wheel");

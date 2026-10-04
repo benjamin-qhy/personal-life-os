@@ -18,25 +18,24 @@ import { compileVaultArtifacts, compileQuickAddCapture, quickAddCaptureDefaults 
 import { compilePiRuntime } from "./build-pi-runtime";
 import { runtimeLicenses } from "./runtime-licenses";
 import { patchAgentClient } from "./patch-agent-client";
+import { localizeSettings } from "./localize-settings";
+import chinesePaths from "../../scripts/template/chinese-paths.json";
 const defaults = resolve(import.meta.dir, "../../scripts/template/defaults");
 const userFolders = [
-  "01 Journal/",
-  "02 Retreats/",
-  "04 Projects/",
-  "05 People/",
-  "06 Writing/",
-  "07 Library/",
-  "09 Reading/Chapters/",
-  "09 Reading/Verses/",
-  "09 Reading/Study Notes/",
-  "09 Reading/Topics/",
+  "01 日记/",
+  "02 静修/",
+  "04 项目/",
+  "05 人物/",
+  "06 写作/",
+  "07 书库/",
+  "09 阅读/",
 ];
 const boards: Record<string, string> = {
-  "04 Projects/Projects Board.md": "项目看板",
-  "06 Writing/Newsletters/Newsletter Board.md": "通讯看板",
-  "06 Writing/YouTube Scripts/YouTube Board.md": "视频看板",
-  "06 Writing/Articles/Article Board.md": "文章看板",
-  "06 Writing/Course Content/Course Board.md": "课程看板",
+  "04 项目/项目看板.md": "项目看板",
+  "06 写作/通讯/通讯看板.md": "通讯看板",
+  "06 写作/视频脚本/视频看板.md": "视频看板",
+  "06 写作/文章/文章看板.md": "文章看板",
+  "06 写作/课程/课程看板.md": "课程看板",
 };
 const dropRoots = new Set([
   ".git",
@@ -55,6 +54,9 @@ export function dropped(rel: string): boolean {
   rel = rel.normalize("NFC").toLowerCase();
   const parts = rel.split("/"),
     name = parts.at(-1)!;
+  // Retired source folders must not become unclassified files and bypass the
+  // private-note filters after the canonical layout changes to Chinese.
+  if (chinesePaths.directories.some(row => !row.from.includes("/") && parts[0] === row.from.toLowerCase())) return true;
   if (
     parts.some(
       (p) =>
@@ -89,17 +91,18 @@ export function dropped(rel: string): boolean {
     return ![
       "scripts/generate_reading_plan.ts",
       "scripts/split_bible.ts",
+      "scripts/reading-books.ts",
       "scripts/release.md",
     ].includes(rel);
   if (
-    ["guide/18 distribution checklist.md", ".obsidian/graph.json"].includes(
+    ["使用指南/18 distribution checklist.md", ".obsidian/graph.json"].includes(
       rel,
     ) ||
     /^\.obsidian\/workspace.*\.json$/.test(rel)
   )
     return true;
   if (
-    /^(?:meta\/agent chats|agent client)(?:\/|$)/.test(rel) ||
+    /^(?:meta\/agent chats|系统\/(?:agent chats|聊天记录)|agent client)(?:\/|$)/.test(rel) ||
     /^\.obsidian\/plugins\/agent-client\/sessions(?:\/|$)/.test(rel) ||
     /data\.json\.bak$/.test(rel)
   )
@@ -109,8 +112,8 @@ export function dropped(rel: string): boolean {
     rel.startsWith("inbox/")
   )
     return true;
-  if (rel.startsWith("meta/attachments/"))
-    return name !== ".gitkeep" && !name.startsWith("cover.");
+  if (rel.startsWith("系统/附件/"))
+    return name !== ".gitkeep" && !name.startsWith("封面.");
   return false;
 }
 function clean(value: any): any {
@@ -149,7 +152,7 @@ export async function safePluginSettings(plugin: string, source: string) {
       autoMentionActiveNote: false,
       expandWikilinkContext: false,
     },
-    seo: { scanDirectories: "06 Writing", checkExternalLinks: false },
+    seo: { scanDirectories: "06 写作", checkExternalLinks: false },
     omnisearch: { httpApiEnabled: false, DANGER_httpHost: null },
     "life-os-app": {},
   };
@@ -204,14 +207,14 @@ export async function safePluginSettings(plugin: string, source: string) {
   const original = JSON.parse(await readFile(source, "utf8"));
   if (!original || Array.isArray(original) || typeof original !== "object")
     throw new Error("Unsupported plugin settings");
-  const result = clean(
+  const result = localizeSettings(clean(
     Object.fromEntries(
       allowed[plugin]!.filter((k) => k in original).map((k) => [
         k,
         original[k],
       ]),
     ),
-  );
+  ));
   if (plugin === "quickadd")
     Object.assign(result, {
       disableOnlineFeatures: true,
@@ -253,9 +256,9 @@ export async function copyTree(live: string, out: string) {
       if (dropped(path)) continue;
       const canonicalRoots = [
         ".obsidian",
-        "Meta",
-        "03 Planning",
-        "08 Tasks",
+        "系统",
+        "03 规划",
+        "08 任务",
         "wiki",
         ...userFolders.map((p) => p.split("/")[0]!),
       ];
@@ -279,7 +282,7 @@ export async function copyTree(live: string, out: string) {
         target = join(out, path);
       if (
         defaultKeys.has(pathKey(path)) ||
-        /^(?:03 Planning|08 Tasks|wiki)\//.test(path)
+        /^(?:03 规划|08 任务|wiki)\//.test(path)
       )
         continue;
       if (
@@ -325,6 +328,15 @@ export async function copyTree(live: string, out: string) {
               ),
             );
             if (name === "core-plugins.json") settings.sync = false;
+            if (name === "hotkeys.json") {
+              for (const [id, modifiers, key] of [
+                ["quickadd:choice:lifeos-daily", ["Mod", "Shift"], "D"],
+                ["quickadd:choice:lifeos-weekly", ["Mod", "Alt"], "W"],
+                ["quickadd:choice:lifeos-quarterly", ["Mod", "Alt"], "Q"],
+                ["quickadd:choice:lifeos-retreat", ["Mod", "Alt"], "R"],
+                ["templater-obsidian:模板/每日问题评分.md", ["Mod", "Shift"], "Q"],
+              ] as const) settings[id] = [{ modifiers, key }];
+            }
             settings = clean(settings);
           }
         }
@@ -401,11 +413,11 @@ export async function validateDestination(
 }
 async function resetDefaults(out: string) {
   for (const rel of [
-    "Meta/Compass Config.md",
-    "03 Planning/Life Theme.md",
-    "03 Planning/Core Values.md",
-    "03 Planning/Ideal Week.md",
-    "08 Tasks/Tasks.md",
+    "系统/系统配置.md",
+    "03 规划/人生主题.md",
+    "03 规划/核心价值观.md",
+    "03 规划/理想一周.md",
+    "08 任务/任务总表.md",
   ]) {
     const s = await lstat(join(defaults, rel));
     if (!s.isFile() || s.isSymbolicLink())
@@ -421,7 +433,7 @@ async function textSurgery(out: string, withoutReading: boolean) {
     const p = join(out, rel);
     if (await exists(p)) await put(p, fn(await readFile(p, "utf8")));
   }
-  await edit("Guide/Source - Video Analysis.md", (s) =>
+  await edit("使用指南/来源 - 视频分析.md", (s) =>
     s.replace(
       /\n## Transcript[\s\S]*/,
       "\n## Transcript\nNot included in the distributed template. Watch the video at the source URL above.\n",
@@ -429,39 +441,40 @@ async function textSurgery(out: string, withoutReading: boolean) {
   );
   if (!withoutReading) return;
   for (const rel of [
-    "09 Reading",
-    "Guide/07 Workflow - Daily Reading.md",
+    "09 阅读",
+    "使用指南/07 工作流 - 每日阅读.md",
     "scripts/generate_reading_plan.ts",
     "scripts/split_bible.ts",
-    "Templates/Study Note.md",
+    "scripts/reading-books.ts",
+    "模板/研读笔记.md",
   ])
     await rm(join(out, rel), { recursive: true, force: true });
-  await edit("Templates/Daily Note.md", (s) =>
+  await edit("模板/每日日记.md", (s) =>
     s
       .replace(/> \[!reading\]-[^\n]*\n[\s\S]*?> ```\n\n/, "")
-      .replaceAll("path does not include 09 Reading/Reading Plan\n", ""),
+      .replaceAll("path does not include 09 阅读/阅读计划\n", ""),
   );
-  await edit("00 Dashboards/Setup.md", (s) =>
+  await edit("00 仪表盘/开始使用.md", (s) =>
     s.replace(
       /按需选择阅读模块；[^\n]*/g,
       "本版本不含阅读模块。书籍笔记仍可正常使用。",
     ),
   );
-  await edit("Guide/00 Start Here.md", (s) =>
+  await edit("使用指南/00 从这里开始.md", (s) =>
     s.replace(/^\| 每日阅读[^\n]*\n/gm, ""),
   );
-  await edit("AGENTS.md", (s) => s.replace(/^\| `09 Reading\/`.*\n/gm, ""));
+  await edit("AGENTS.md", (s) => s.replace(/^\| `09 阅读\/`.*\n/gm, ""));
   await edit("README.md", (s) => s
-    .replace(/^\| `09 Reading\/`[^\n]*\n/gm, "")
+    .replace(/^\| `09 阅读\/`[^\n]*\n/gm, "")
     .replace(/^\| 可选每日阅读[^\n]*\n/gm, "")
     .replace("## 七个工作流", "## 六个工作流（本版本不含阅读模块）"));
-  await edit("00 Dashboards/Task Dashboard.md", (s) =>
-    s.replaceAll("path does not include 09 Reading/Reading Plan\n", ""),
+  await edit("00 仪表盘/任务仪表盘.md", (s) =>
+    s.replaceAll("path does not include 09 阅读/阅读计划\n", ""),
   );
   await edit(".obsidian/plugins/templater-obsidian/data.json", (s) => {
     const d = JSON.parse(s);
     d.folder_templates = (d.folder_templates ?? []).filter(
-      (x: any) => !String(x.folder ?? "").startsWith("09 Reading"),
+      (x: any) => !String(x.folder ?? "").startsWith("09 阅读"),
     );
     return JSON.stringify(d, null, 2) + "\n";
   });
@@ -550,7 +563,7 @@ export async function buildTemplate(options: BuildOptions) {
                 type: "leaf",
                 state: {
                   type: "markdown",
-                  state: { file: "00 Dashboards/Setup.md", mode: "preview" },
+                  state: { file: "00 仪表盘/开始使用.md", mode: "preview" },
                 },
               },
             ],
@@ -559,7 +572,7 @@ export async function buildTemplate(options: BuildOptions) {
         direction: "vertical",
       },
       active: "setup",
-      lastOpenFiles: ["00 Dashboards/Setup.md"],
+      lastOpenFiles: ["00 仪表盘/开始使用.md"],
     };
     await put(
       join(candidate, ".obsidian/workspace.json"),
@@ -575,11 +588,11 @@ export async function buildTemplate(options: BuildOptions) {
         );
       }
     await put(
-      join(candidate, "Meta/version.md"),
+      join(candidate, "系统/版本.md"),
       `---\ntemplate_version: ${version}\nbuilt: ${new Date().toISOString().slice(0, 10)}\nrelease_status: candidate\nmin_obsidian: 1.13.1\nplugins:\n${plugins.join("")}---\n# 版本\n\n这是本地候选版本，尚不代表完成原生应用验收或发布。本系统不提供原地更新。请先备份旧知识库，再将内容和自定义配置迁移到独立的新副本，并逐项检查冲突。参见 \`scripts/RELEASE.md\`。\n`,
     );
     await put(join(candidate, "inbox/.gitkeep"), "");
-    await put(join(candidate, "Meta/attachments/.gitkeep"), "");
+    await put(join(candidate, "系统/附件/.gitkeep"), "");
     for (const rel of await filesIn(candidate))
       await chmod(join(candidate, rel), 0o644);
     await writeManifest(candidate);

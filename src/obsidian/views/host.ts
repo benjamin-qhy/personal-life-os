@@ -7,7 +7,7 @@ export interface Page {
   dq_prefix?: string; habit_prefix?: string; wheel_prefix?: string; board_done_lanes?: string;
   birthdate?: unknown; life_expectancy?: number; questions?: unknown[]; habits?: string[];
   status?: string; tags?: string[]; example?: boolean; quarter?: string;
-  setup_claude_login?: boolean; setup_mcp_registered?: boolean; setup_vault_lens?: boolean; setup_backup?: boolean;
+  setup_agent_chat?: boolean; setup_claude_login?: boolean; setup_mcp_registered?: boolean; setup_vault_lens?: boolean; setup_backup?: boolean;
 }
 export interface DataArray<T> { length: number; where(fn: (page: T) => boolean): DataArray<T>; sort(fn: (page: T) => string, direction?: string): DataArray<T>; array(): T[] }
 export interface Dataview { page(path: string): Page | undefined; pages(query?: string): DataArray<Page>; view(path: string, input?: ViewInput): Promise<void>; current(): Page | undefined; container: HTMLElement; table(headers: string[], rows: unknown[][]): void; paragraph(value: string): void; fileLink(path: string, embed: boolean, text: string): unknown }

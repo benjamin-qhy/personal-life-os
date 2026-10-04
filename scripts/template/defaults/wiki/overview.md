@@ -10,7 +10,7 @@ tags:
 
 # 知识层概览
 
-这是 Personal Life OS 的知识层。日记、静修、规划、习惯、任务、人物和写作位于编号目录，由 Obsidian 工作流管理，参见 [[Compass Dashboard|罗盘仪表盘]] 和 [[00 Start Here|从这里开始]]。`wiki/` 由可选的 claude-obsidian 插件管理，保存带来源的资料、获准保存的回答、概念及其来源账本。
+这是 Personal Life OS 的知识层。日记、静修、规划、习惯、任务、人物和写作位于编号目录，由 Obsidian 工作流管理，参见 [[人生仪表盘|罗盘仪表盘]] 和 [[00 从这里开始|从这里开始]]。`wiki/` 由可选的 claude-obsidian 插件管理，保存带来源的资料、获准保存的回答、概念及其来源账本。
 
 ## 内容去向
 

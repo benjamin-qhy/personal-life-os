@@ -13,8 +13,8 @@ const FORBIDDEN = [/agricidaniel/, /\/var\/home/, /\/home\/[a-z]/, /\/Users\//, 
   /@gmail\.com/, /@proton/, /BEGIN CERTIFICATE/, /BEGIN RSA/, /privateKey/, /"apiKey": "[A-Za-z0-9]/,
   /\bsk-[A-Za-z0-9]{8}/, /AKIA[0-9A-Z]{12}/, /xoxb-/, /ghp_[A-Za-z0-9]/, /Bearer [A-Za-z0-9]{16}/,
   /Decision taken 20/, /tested 20\d\d/, /on this machine/, /\u2014/];
-const USER = ["01 Journal/", "02 Retreats/", "04 Projects/", "05 People/", "06 Writing/", "07 Library/", "09 Reading/Chapters/", "09 Reading/Verses/", "09 Reading/Study Notes/", "09 Reading/Topics/"];
-const DATE_LINK = /^\d{4}-(\d\d-\d\d|W\d\d|Q\d( Personal Retreat)?)$/;
+const USER = ["01 日记/", "02 静修/", "04 项目/", "05 人物/", "06 写作/", "07 书库/", "09 阅读/章节/", "09 阅读/经文/", "09 阅读/研读笔记/", "09 阅读/主题/"];
+const DATE_LINK = /^\d{4}-(\d\d-\d\d|W\d\d|Q\d( 个人静修)?)$/;
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export async function verifyTemplate(root: string): Promise<Check[]> {
@@ -85,7 +85,7 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
     const ac = await load(".obsidian/plugins/agent-client/data.json");
     check("Agent Client 无会话且自动批准关闭", ac && !("savedSessions" in ac) && ac.autoAllowPermissions === false &&
       Object.values(ac.presetAgents || {}).every((pa: any) => !String(pa?.command || "").startsWith("/")));
-    const seo = await load(".obsidian/plugins/seo/data.json"); check("SEO 无缓存且扫描写作目录", seo && !("cachedGlobalResults" in seo) && seo.scanDirectories?.includes("06 Writing"));
+    const seo = await load(".obsidian/plugins/seo/data.json"); check("SEO 无缓存且扫描写作目录", seo && !("cachedGlobalResults" in seo) && seo.scanDirectories?.includes("06 写作"));
     const om = await load(".obsidian/plugins/omnisearch/data.json"); check("Omnisearch HTTP 关闭", !om || (om.httpApiEnabled === false && !om.DANGER_httpHost));
     const qa = await load(".obsidian/plugins/quickadd/data.json"); check("QuickAdd 在线功能关闭且无密钥", qa && qa.disableOnlineFeatures === true && (qa.ai?.providers || []).every((p: any) => !p?.apiKey));
     const cp = await load(".obsidian/core-plugins.json"); check("核心插件配置", cp && cp.sync === false && cp.webviewer === true && cp.bases === true);
@@ -127,26 +127,26 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
     }
   } catch { check("配置结构完整有效", false, "配置无法解析或字段类型无效。"); }
   for (const rel of files) {
-    if (rel.endsWith(".md") && USER.some(folder => pathKey(rel).startsWith(pathKey(folder))) && !rel.endsWith(" Board.md")) {
+    if (rel.endsWith(".md") && USER.some(folder => pathKey(rel).startsWith(pathKey(folder))) && !["04 项目/项目看板.md", "06 写作/文章/文章看板.md", "06 写作/课程/课程看板.md", "06 写作/通讯/通讯看板.md", "06 写作/视频脚本/视频看板.md"].includes(rel)) {
       const frontmatter = /^---\n([\s\S]*?)\n---/.exec(texts[rel] || "");
       check(`用户目录示例标记 ${rel}`, frontmatter && /^\s*-\s*example\s*$/m.test(frontmatter[1]!));
     }
-    if (rel.startsWith("01 Journal/Weekly/") && rel.endsWith(".md")) check(`周记名称属性 ${rel}`, /^week:\s*(\S+)/m.exec(texts[rel] || "")?.[1] === basename(rel, ".md"));
+    if (rel.startsWith("01 日记/每周/") && rel.endsWith(".md")) check(`周记名称属性 ${rel}`, /^week:\s*(\S+)/m.exec(texts[rel] || "")?.[1] === basename(rel, ".md"));
   }
-  check("出生日期为空", /^birthdate:\s*$/m.test(texts["Meta/Compass Config.md"] || ""));
-  check("人生主题使用发行默认值", texts["03 Planning/Life Theme.md"] === await readFile(join(SOURCE, "scripts/template/defaults/03 Planning/Life Theme.md"), "utf8"));
-  check("核心价值使用发行默认值", texts["03 Planning/Core Values.md"] === await readFile(join(SOURCE, "scripts/template/defaults/03 Planning/Core Values.md"), "utf8"));
+  check("出生日期为空", /^birthdate:\s*$/m.test(texts["系统/系统配置.md"] || ""));
+  check("人生主题使用发行默认值", texts["03 规划/人生主题.md"] === await readFile(join(SOURCE, "scripts/template/defaults/03 规划/人生主题.md"), "utf8"));
+  check("核心价值使用发行默认值", texts["03 规划/核心价值观.md"] === await readFile(join(SOURCE, "scripts/template/defaults/03 规划/核心价值观.md"), "utf8"));
   check("知识操作日志为空", texts["wiki/log.md"] === await readFile(join(SOURCE, "scripts/template/defaults/wiki/log.md"), "utf8"));
-  check("阅读计划无个人任务", !/^- \[ \]/m.test((texts["09 Reading/Reading Plan.md"] || "").replace(/```[\s\S]*?```/g, "")));
-  for (const bad of ["wiki/concepts", "wiki/sources", "wiki/entities", "wiki/questions", ".vault-meta", ".raw", ".mcp.json", ".claude/settings.local.json", ".obsidian/plugins/agent-client/sessions", "Untitled.canvas", "08 Tasks/Untitled.base", "Guide/18 Distribution Checklist.md"]) check(`不包含 ${bad}`, !await present(bad));
+  check("阅读计划无个人任务", !/^- \[ \]/m.test((texts["09 阅读/阅读计划.md"] || "").replace(/```[\s\S]*?```/g, "")));
+  for (const bad of ["wiki/concepts", "wiki/sources", "wiki/entities", "wiki/questions", ".vault-meta", ".raw", ".mcp.json", ".claude/settings.local.json", ".obsidian/plugins/agent-client/sessions", "Untitled.canvas", "08 任务/Untitled.base", "使用指南/18 Distribution Checklist.md"]) check(`不包含 ${bad}`, !await present(bad));
   check("收件箱为空", !files.some(f => f.startsWith("inbox/") && !f.endsWith(".gitkeep")));
-  if (texts[".obsidian/workspace.json"]) check("工作区打开设置页", texts[".obsidian/workspace.json"].includes("00 Dashboards/Setup.md"));
-  for (const must of ["AGENTS.md", "CLAUDE.md", "GEMINI.md", ".mcp.example.json", "LICENSE", "THIRD_PARTY_NOTICES.md", "CREDITS.md", "CHANGELOG.md", "Meta/version.md", "00 Dashboards/Setup.md", "Prompts/16 Onboarding Assistant.md"]) check(`包含 ${must}`, await present(must));
+  if (texts[".obsidian/workspace.json"]) check("工作区打开设置页", texts[".obsidian/workspace.json"].includes("00 仪表盘/开始使用.md"));
+  for (const must of ["AGENTS.md", "CLAUDE.md", "GEMINI.md", ".mcp.example.json", "LICENSE", "THIRD_PARTY_NOTICES.md", "CREDITS.md", "CHANGELOG.md", "系统/版本.md", "00 仪表盘/开始使用.md", "提示词/16 入门助手.md"]) check(`包含 ${must}`, await present(must));
   check("助手文件导入 AGENTS.md", texts["CLAUDE.md"]?.includes("@AGENTS.md") && texts["GEMINI.md"]?.includes("@AGENTS.md"));
   const names = new Map(files.filter(f => f.endsWith(".md")).map(f => [basename(f, ".md"), f]));
   const unresolved = new Set<string>(), badFragments = new Set<string>(), missingMarkdown = new Set<string>();
   for (const [rel, text] of Object.entries(texts)) {
-    if (!rel.endsWith(".md") || rel.startsWith("Guide/Source") || rel.startsWith("Templates/")) continue;
+    if (!rel.endsWith(".md") || rel.startsWith("使用指南/Source") || rel.startsWith("模板/")) continue;
     const body = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`\n]*`/g, "").replace(/<%[\s\S]*?%>/g, "");
     for (const match of body.matchAll(/\]\(([^\s)]+)\)/g)) {
       const target = match[1]!;
@@ -167,11 +167,11 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
   check("Markdown 本地链接可解析", !missingMarkdown.size, [...missingMarkdown].slice(0, 8).join(", "));
   check("双向链接可解析（周期日期除外）", !unresolved.size, [...unresolved].slice(0, 8).join(", "));
   const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-  for (const [rel, text] of Object.entries(texts)) if (rel.startsWith("Meta/views/") && rel.endsWith(".js")) {
+  for (const [rel, text] of Object.entries(texts)) if (rel.startsWith("系统/views/") && rel.endsWith(".js")) {
     try { new AsyncFunction("dv", "input", "moment", "app", "Notice", text); check(`视图语法 ${rel}`, true); }
     catch { check(`视图语法 ${rel}`, false); }
   }
-  for (const rel of ["Templates/Daily Note.md", "Templates/Personal Retreat.md"]) if (await present(rel)) {
+  for (const rel of ["模板/每日日记.md", "模板/个人静修.md"]) if (await present(rel)) {
     try {
       const template = texts[rel] || "";
       const frontmatter = /^---\n([\s\S]*?)\n---/.exec(template)?.[1];
@@ -179,11 +179,11 @@ export async function verifyTemplate(root: string): Promise<Check[]> {
       const cfg = { questions: [{ key: "dq_a", text: "a" }, { key: "dq_b", text: "b" }], habits: ["habit_x"], wheel_areas: ["wheel_y", "wheel_z"] };
       for (const value of [cfg, null]) {
         const app = { vault: { getFileByPath: () => value ? {} : null }, metadataCache: { getFileCache: () => value ? { frontmatter: value } : null } };
-        const tp = { date: { now: () => "2026-10-04" }, file: { title: rel.includes("Daily") ? "2026-10-04" : "2026-Q4 Personal Retreat" } };
+        const tp = { date: { now: () => "2026-10-04" }, file: { title: rel === "模板/每日日记.md" ? "2026-10-04" : "2026-Q4 个人静修" } };
         const output = frontmatter.replace(/<%\*([\s\S]*?)%>/g, (_match, code: string) =>
           new Function("app", "tp", "tR", `${code}; return tR;`)(app, tp, ""));
         const lines = output.split("\n").filter(line => /^(dq_|habit_|wheel_)/.test(line));
-        const expected = rel.includes("Daily")
+        const expected = rel === "模板/每日日记.md"
           ? value ? ["dq_a: ", "dq_b: ", "habit_x: false"] : ["dq_goals: ", "dq_progress: ", "dq_meaning: ", "dq_happy: ", "dq_relationships: ", "dq_engaged: ", "habit_journal: false", "habit_exercise: false", "habit_reading: false"]
           : value ? ["wheel_y: ", "wheel_z: "] : ["wheel_health: ", "wheel_relationships: ", "wheel_family: ", "wheel_career: ", "wheel_finances: ", "wheel_growth: ", "wheel_fun: ", "wheel_meaning: "];
         if (JSON.stringify(lines.sort()) !== JSON.stringify(expected.sort())) throw new Error();

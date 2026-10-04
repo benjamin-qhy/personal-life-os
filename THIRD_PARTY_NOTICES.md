@@ -23,7 +23,7 @@
 
 | 插件 ID | 随附版本 | 许可证 | 来源 |
 | --- | --- | --- | --- |
-| life-os-app | 0.20.0 | MIT | `.obsidian/plugins/life-os-app/` |
+| life-os-app | 0.21.0 | MIT | `.obsidian/plugins/life-os-app/` |
 
 Life OS Brain 视图是独立编写的 Canvas 实现，视觉概念受 SEO OS 的脑形设计启发。未随附 SEO OS 的源码、素材、依赖或客户数据。
 

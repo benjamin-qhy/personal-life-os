@@ -1,7 +1,7 @@
 import type { Dataview, Page } from "../views/host";
 declare const dv: Dataview;
-const cfg: Partial<Page> = dv.page("Meta/Compass Config") || {};
-const folder = cfg.projects_folder || "04 Projects";
+const cfg: Partial<Page> = dv.page("系统/系统配置") || {};
+const folder = cfg.projects_folder || "04 项目";
 const projects = dv.pages(`"${folder}"`).where(p => p.type === "project" && p.status !== "done").sort(p => p.due ?? "9999", "asc").array();
 const slug = (n: string) => n.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/(^-|-$)/g, "");
 const allTasks = dv.pages().where(p => !p.file.path.startsWith("wiki/")).array().flatMap(p => Array.from(p.file.tasks || []));

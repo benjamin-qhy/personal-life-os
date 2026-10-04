@@ -14,5 +14,5 @@ declare const Notice: new (message: string) => unknown;
 //   - Daily questions are number properties named <dq_prefix><name>  (1..10).
 //   - Habits are checkbox properties named <habit_prefix><name>.
 //   - Wheel of life areas are number properties named <wheel_prefix><name> (1..10)
-//     inside the note "<retreat_folder>/YYYY-QN Personal Retreat".
+//     inside the note "<retreat_folder>/YYYY-QN 个人静修".
 //   - moment() is available globally inside Obsidian.

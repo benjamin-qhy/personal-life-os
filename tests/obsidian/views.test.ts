@@ -3,12 +3,12 @@ import moment from "moment";
 
 test("生成的周复盘视图以中文展示日记分数和平均值", async () => {
   const { compileVaultArtifacts } = await import("../../src/tooling/build-vault-assets");
-  const artifact = (await compileVaultArtifacts()).find(a => a.path === "Meta/views/week.js")!;
+  const artifact = (await compileVaultArtifacts()).find(a => a.path === "系统/views/week.js")!;
   const pages = [
-    { file: { name: "2026-09-28", path: "01 Journal/Daily/2026-09-28.md", frontmatter: { dq_focus: 6, habit_reading: true } } },
-    { file: { name: "2026-09-29", path: "01 Journal/Daily/2026-09-29.md", frontmatter: { dq_focus: 8, habit_reading: false } } },
-    { file: { name: "2026-09-30", path: "01 Journal/Daily/2026-09-30.md", frontmatter: { dq_focus: true, habit_reading: false } } },
-    { file: { name: "2026-10-01", path: "01 Journal/Daily/2026-10-01.md", frontmatter: { dq_focus: 11, habit_reading: false } } },
+    { file: { name: "2026-09-28", path: "01 日记/每日/2026-09-28.md", frontmatter: { dq_focus: 6, habit_reading: true } } },
+    { file: { name: "2026-09-29", path: "01 日记/每日/2026-09-29.md", frontmatter: { dq_focus: 8, habit_reading: false } } },
+    { file: { name: "2026-09-30", path: "01 日记/每日/2026-09-30.md", frontmatter: { dq_focus: true, habit_reading: false } } },
+    { file: { name: "2026-10-01", path: "01 日记/每日/2026-10-01.md", frontmatter: { dq_focus: 11, habit_reading: false } } },
   ];
   let headers: string[] = [], rows: unknown[][] = [];
   const dv = { page: () => ({}), pages: () => ({ array: () => pages }),
@@ -45,7 +45,7 @@ test.each([
   { presetAgents: { codex: { command: "codex" } }, expected: "✅" },
 ])("设置清单识别已启用自定义或预置代理且不显示启动参数 %j", async ({ expected, ...settings }) => {
   const { compileVaultArtifacts } = await import("../../src/tooling/build-vault-assets");
-  const artifact = (await compileVaultArtifacts()).find(a => a.path === "Meta/views/setup.js")!;
+  const artifact = (await compileVaultArtifacts()).find(a => a.path === "系统/views/setup.js")!;
   const root = new DisplayElement();
   const emptyPages = { length: 0, where() { return this; }, array: () => [] };
   const dv = { container: root, page: () => ({}), current: () => ({}), pages: () => emptyPages };
@@ -64,12 +64,12 @@ test.each([
 
 async function renderPropertyView(view: string, frontmatter: Record<string, unknown>) {
   const { compileVaultArtifacts } = await import("../../src/tooling/build-vault-assets");
-  const artifact = (await compileVaultArtifacts()).find(a => a.path === `Meta/views/${view}.js`)!;
+  const artifact = (await compileVaultArtifacts()).find(a => a.path === `系统/views/${view}.js`)!;
   const root = new DisplayElement();
   const page = { file: { name: "2026-10-04", frontmatter } };
   const pages = { where() { return this; }, array: () => [page] };
-  const dv = { container: root, page: (path: string) => path === "Meta/Compass Config" ? {} : page, pages: () => pages };
-  const input = view === "wheel" ? { page: "02 Retreats/合成静修" } : { from: "2026-10-04", to: "2026-10-04" };
+  const dv = { container: root, page: (path: string) => path === "系统/系统配置" ? {} : page, pages: () => pages };
+  const input = view === "wheel" ? { page: "02 静修/合成静修" } : { from: "2026-10-04", to: "2026-10-04" };
   const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
   await new AsyncFunction("dv", "input", "moment", artifact.content)(dv, input, moment);
   return root;
@@ -109,4 +109,23 @@ test("每日问题表格保留自定义标签文本而不把标签中的标记�
   expect(scripts).toBe(0);
   expect(tableText).toContain("&lt;script&gt;攻击&amp;标签&lt;/script&gt;");
   expect(tableText).toContain("8.0");
+});
+
+test("设置清单以本人手动确认聊天验收，不读取库外历史或依赖库内旧索引", async () => {
+  const { compileVaultArtifacts } = await import("../../src/tooling/build-vault-assets");
+  const artifact = (await compileVaultArtifacts()).find(a => a.path === "系统/views/setup.js")!;
+  const root = new DisplayElement();
+  const reads: string[] = [];
+  const emptyPages = { length: 0, where() { return this; }, array: () => [] };
+  const dv = { container: root, page: () => ({}), current: () => ({ setup_agent_chat: true }), pages: () => emptyPages };
+  const app = {
+    vault: { adapter: { read: async (path: string) => { reads.push(path); return "{}"; } }, getFileByPath: () => null, getAbstractFileByPath: () => null },
+    plugins: { enabledPlugins: new Set(), plugins: {} }, commands: { findCommand: () => null },
+    customCss: { enabledSnippets: new Set() }, hotkeyManager: { customKeys: {} }, internalPlugins: { plugins: {} },
+  };
+  const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+  await new AsyncFunction("dv", "app", "moment", "navigator", artifact.content)(dv, app, moment, { userAgent: "Mac" });
+  const row = root.all().find(el => el.tag === "tr" && el.children[1]?.text.includes("Agent Client") && el.children[1]?.text.includes("聊天"));
+  expect(row?.children[0]?.text).toBe("✅");
+  expect(reads.every(path => !path.includes("sessions") && !path.includes("index.json"))).toBe(true);
 });

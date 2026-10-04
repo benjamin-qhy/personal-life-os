@@ -1,0 +1,562 @@
+{
+  "directories": [
+    {
+      "from": "00 Dashboards",
+      "to": "00 仪表盘"
+    },
+    {
+      "from": "01 Journal",
+      "to": "01 日记"
+    },
+    {
+      "from": "01 Journal/Daily",
+      "to": "01 日记/每日"
+    },
+    {
+      "from": "01 Journal/Weekly",
+      "to": "01 日记/每周"
+    },
+    {
+      "from": "01 Journal/Quarterly",
+      "to": "01 日记/每季"
+    },
+    {
+      "from": "02 Retreats",
+      "to": "02 静修"
+    },
+    {
+      "from": "03 Planning",
+      "to": "03 规划"
+    },
+    {
+      "from": "04 Projects",
+      "to": "04 项目"
+    },
+    {
+      "from": "05 People",
+      "to": "05 人物"
+    },
+    {
+      "from": "06 Writing",
+      "to": "06 写作"
+    },
+    {
+      "from": "06 Writing/Articles",
+      "to": "06 写作/文章"
+    },
+    {
+      "from": "06 Writing/Course Content",
+      "to": "06 写作/课程"
+    },
+    {
+      "from": "06 Writing/Newsletters",
+      "to": "06 写作/通讯"
+    },
+    {
+      "from": "06 Writing/YouTube Scripts",
+      "to": "06 写作/视频脚本"
+    },
+    {
+      "from": "07 Library",
+      "to": "07 书库"
+    },
+    {
+      "from": "07 Library/Book Notes",
+      "to": "07 书库/读书笔记"
+    },
+    {
+      "from": "08 Tasks",
+      "to": "08 任务"
+    },
+    {
+      "from": "09 Reading",
+      "to": "09 阅读"
+    },
+    {
+      "from": "09 Reading/Chapters",
+      "to": "09 阅读/章节"
+    },
+    {
+      "from": "09 Reading/Verses",
+      "to": "09 阅读/经文"
+    },
+    {
+      "from": "09 Reading/Study Notes",
+      "to": "09 阅读/研读笔记"
+    },
+    {
+      "from": "09 Reading/Topics",
+      "to": "09 阅读/主题"
+    },
+    {
+      "from": "Templates",
+      "to": "模板"
+    },
+    {
+      "from": "Prompts",
+      "to": "提示词"
+    },
+    {
+      "from": "Guide",
+      "to": "使用指南"
+    },
+    {
+      "from": "Meta",
+      "to": "系统"
+    },
+    {
+      "from": "Meta/attachments",
+      "to": "系统/附件"
+    },
+    {
+      "from": "Meta/views",
+      "to": "系统/views"
+    }
+  ],
+  "files": [
+    {
+      "from": "00 Dashboards/Assistant.md",
+      "to": "00 仪表盘/AI 助手.md"
+    },
+    {
+      "from": "00 Dashboards/Boards.md",
+      "to": "00 仪表盘/看板总览.md"
+    },
+    {
+      "from": "00 Dashboards/Compass Dashboard.md",
+      "to": "00 仪表盘/人生仪表盘.md"
+    },
+    {
+      "from": "00 Dashboards/Daily Questions.md",
+      "to": "00 仪表盘/每日问题.md"
+    },
+    {
+      "from": "00 Dashboards/Habit Canvas.md",
+      "to": "00 仪表盘/习惯画布.md"
+    },
+    {
+      "from": "00 Dashboards/Projects Dashboard.md",
+      "to": "00 仪表盘/项目仪表盘.md"
+    },
+    {
+      "from": "00 Dashboards/Setup.md",
+      "to": "00 仪表盘/开始使用.md"
+    },
+    {
+      "from": "00 Dashboards/Task Dashboard.md",
+      "to": "00 仪表盘/任务仪表盘.md"
+    },
+    {
+      "from": "01 Journal/Daily/2025-08-26.md",
+      "to": "01 日记/每日/2025-08-26.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-13.md",
+      "to": "01 日记/每日/2026-08-13.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-14.md",
+      "to": "01 日记/每日/2026-08-14.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-15.md",
+      "to": "01 日记/每日/2026-08-15.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-16.md",
+      "to": "01 日记/每日/2026-08-16.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-17.md",
+      "to": "01 日记/每日/2026-08-17.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-18.md",
+      "to": "01 日记/每日/2026-08-18.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-19.md",
+      "to": "01 日记/每日/2026-08-19.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-20.md",
+      "to": "01 日记/每日/2026-08-20.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-21.md",
+      "to": "01 日记/每日/2026-08-21.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-22.md",
+      "to": "01 日记/每日/2026-08-22.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-23.md",
+      "to": "01 日记/每日/2026-08-23.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-24.md",
+      "to": "01 日记/每日/2026-08-24.md"
+    },
+    {
+      "from": "01 Journal/Daily/2026-08-25.md",
+      "to": "01 日记/每日/2026-08-25.md"
+    },
+    {
+      "from": "01 Journal/Quarterly/2026-Q3.md",
+      "to": "01 日记/每季/2026-Q3.md"
+    },
+    {
+      "from": "01 Journal/Weekly/2026-W33.md",
+      "to": "01 日记/每周/2026-W33.md"
+    },
+    {
+      "from": "01 Journal/Weekly/2026-W34.md",
+      "to": "01 日记/每周/2026-W34.md"
+    },
+    {
+      "from": "01 Journal/Weekly/2026-W35.md",
+      "to": "01 日记/每周/2026-W35.md"
+    },
+    {
+      "from": "02 Retreats/2026-Q3 Personal Retreat.md",
+      "to": "02 静修/2026-Q3 个人静修.md"
+    },
+    {
+      "from": "03 Planning/Core Values.md",
+      "to": "03 规划/核心价值观.md"
+    },
+    {
+      "from": "03 Planning/Ideal Week.md",
+      "to": "03 规划/理想一周.md"
+    },
+    {
+      "from": "03 Planning/Life Theme.md",
+      "to": "03 规划/人生主题.md"
+    },
+    {
+      "from": "04 Projects/Example Project - Compass Vault.md",
+      "to": "04 项目/示例项目 - 个人生活系统.md"
+    },
+    {
+      "from": "04 Projects/Projects Board.md",
+      "to": "04 项目/项目看板.md"
+    },
+    {
+      "from": "05 People/Example Person - Alex Rivera.md",
+      "to": "05 人物/示例人物 - 亚历克斯·里韦拉.md"
+    },
+    {
+      "from": "06 Writing/Articles/Article Board.md",
+      "to": "06 写作/文章/文章看板.md"
+    },
+    {
+      "from": "06 Writing/Course Content/Course Board.md",
+      "to": "06 写作/课程/课程看板.md"
+    },
+    {
+      "from": "06 Writing/Newsletters/Example Newsletter - Effort not results.md",
+      "to": "06 写作/通讯/示例通讯 - 关注努力而非结果.md"
+    },
+    {
+      "from": "06 Writing/Newsletters/Newsletter Board.md",
+      "to": "06 写作/通讯/通讯看板.md"
+    },
+    {
+      "from": "06 Writing/YouTube Scripts/YouTube Board.md",
+      "to": "06 写作/视频脚本/视频看板.md"
+    },
+    {
+      "from": "07 Library/Book Notes/Triggers (Marshall Goldsmith).md",
+      "to": "07 书库/读书笔记/触发器（马歇尔·戈德史密斯）.md"
+    },
+    {
+      "from": "08 Tasks/Tasks.md",
+      "to": "08 任务/任务总表.md"
+    },
+    {
+      "from": "09 Reading/Chapters/Genesis 1.md",
+      "to": "09 阅读/章节/创世记 1.md"
+    },
+    {
+      "from": "09 Reading/Reading Plan.md",
+      "to": "09 阅读/阅读计划.md"
+    },
+    {
+      "from": "09 Reading/Study Notes/Example Study Note - In the Beginning.md",
+      "to": "09 阅读/研读笔记/示例研读笔记 - 起初.md"
+    },
+    {
+      "from": "09 Reading/Topics/Creation.md",
+      "to": "09 阅读/主题/创造.md"
+    },
+    {
+      "from": "09 Reading/Verses/Genesis 1.1.md",
+      "to": "09 阅读/经文/创世记 1.1.md"
+    },
+    {
+      "from": "09 Reading/Verses/Genesis 1.2.md",
+      "to": "09 阅读/经文/创世记 1.2.md"
+    },
+    {
+      "from": "09 Reading/Verses/Genesis 1.3.md",
+      "to": "09 阅读/经文/创世记 1.3.md"
+    },
+    {
+      "from": "Guide/00 Start Here.md",
+      "to": "使用指南/00 从这里开始.md"
+    },
+    {
+      "from": "Guide/01 Principles.md",
+      "to": "使用指南/01 使用原则.md"
+    },
+    {
+      "from": "Guide/02 Plugins.md",
+      "to": "使用指南/02 插件说明.md"
+    },
+    {
+      "from": "Guide/03 Workflow - Journaling and Daily Questions.md",
+      "to": "使用指南/03 工作流 - 日记与每日问题.md"
+    },
+    {
+      "from": "Guide/04 Workflow - Personal Retreat.md",
+      "to": "使用指南/04 工作流 - 个人静修.md"
+    },
+    {
+      "from": "Guide/05 Workflow - Multi-Scale Planning.md",
+      "to": "使用指南/05 工作流 - 多尺度规划.md"
+    },
+    {
+      "from": "Guide/06 Workflow - Habit Tracking.md",
+      "to": "使用指南/06 工作流 - 习惯追踪.md"
+    },
+    {
+      "from": "Guide/07 Workflow - Daily Reading.md",
+      "to": "使用指南/07 工作流 - 每日阅读.md"
+    },
+    {
+      "from": "Guide/08 Workflow - Task Management.md",
+      "to": "使用指南/08 工作流 - 任务管理.md"
+    },
+    {
+      "from": "Guide/09 Workflow - Writing.md",
+      "to": "使用指南/09 工作流 - 写作.md"
+    },
+    {
+      "from": "Guide/10 Compass Dashboard.md",
+      "to": "使用指南/10 人生仪表盘.md"
+    },
+    {
+      "from": "Guide/11 Build Order.md",
+      "to": "使用指南/11 搭建顺序.md"
+    },
+    {
+      "from": "Guide/12 Resources and Links.md",
+      "to": "使用指南/12 资源与链接.md"
+    },
+    {
+      "from": "Guide/13 Kanban Boards.md",
+      "to": "使用指南/13 看板使用.md"
+    },
+    {
+      "from": "Guide/14 Agent Client and Claude Code.md",
+      "to": "使用指南/14 AI 助手与 Agent Client.md"
+    },
+    {
+      "from": "Guide/15 claude-obsidian.md",
+      "to": "使用指南/15 可选知识层.md"
+    },
+    {
+      "from": "Guide/16 SEO, Web Viewer, and Vault Lens.md",
+      "to": "使用指南/16 SEO、网页浏览与笔记库分析.md"
+    },
+    {
+      "from": "Guide/17 Search Providers.md",
+      "to": "使用指南/17 搜索服务.md"
+    },
+    {
+      "from": "Guide/19 Obsidian MCP Bridge.md",
+      "to": "使用指南/19 Obsidian MCP 桥接.md"
+    },
+    {
+      "from": "Guide/20 Prompt Library.md",
+      "to": "使用指南/20 提示词库.md"
+    },
+    {
+      "from": "Guide/21 Life OS Application.md",
+      "to": "使用指南/21 生活系统应用.md"
+    },
+    {
+      "from": "Guide/22 Data Definitions.md",
+      "to": "使用指南/22 数据定义.md"
+    },
+    {
+      "from": "Guide/23 Native Acceptance.md",
+      "to": "使用指南/23 原生应用验收.md"
+    },
+    {
+      "from": "Guide/Source - Video Analysis.md",
+      "to": "使用指南/来源 - 视频分析.md"
+    },
+    {
+      "from": "Meta/Compass Config.md",
+      "to": "系统/系统配置.md"
+    },
+    {
+      "from": "Meta/attachments/.gitkeep",
+      "to": "系统/附件/.gitkeep"
+    },
+    {
+      "from": "Meta/attachments/cover.png",
+      "to": "系统/附件/封面.png"
+    },
+    {
+      "from": "Meta/attachments/cover.svg",
+      "to": "系统/附件/封面.svg"
+    },
+    {
+      "from": "Meta/version.md",
+      "to": "系统/版本.md"
+    },
+    {
+      "from": "Prompts/01 Morning Start.md",
+      "to": "提示词/01 晨间开始.md"
+    },
+    {
+      "from": "Prompts/02 End of Day Coaching.md",
+      "to": "提示词/02 晚间回顾.md"
+    },
+    {
+      "from": "Prompts/03 Weekly Review.md",
+      "to": "提示词/03 每周回顾.md"
+    },
+    {
+      "from": "Prompts/04 Retreat Prep.md",
+      "to": "提示词/04 静修准备.md"
+    },
+    {
+      "from": "Prompts/05 Retreat Facilitation.md",
+      "to": "提示词/05 静修引导.md"
+    },
+    {
+      "from": "Prompts/06 Task Triage.md",
+      "to": "提示词/06 任务整理.md"
+    },
+    {
+      "from": "Prompts/07 Meeting Prep.md",
+      "to": "提示词/07 会面准备.md"
+    },
+    {
+      "from": "Prompts/08 Project Kickoff.md",
+      "to": "提示词/08 项目启动.md"
+    },
+    {
+      "from": "Prompts/09 Board Grooming.md",
+      "to": "提示词/09 看板整理.md"
+    },
+    {
+      "from": "Prompts/10 Writing Pipeline.md",
+      "to": "提示词/10 写作推进.md"
+    },
+    {
+      "from": "Prompts/11 SEO Pre-publish Audit.md",
+      "to": "提示词/11 发布前 SEO 检查.md"
+    },
+    {
+      "from": "Prompts/12 Research Capture.md",
+      "to": "提示词/12 资料收集.md"
+    },
+    {
+      "from": "Prompts/13 Trend Analysis.md",
+      "to": "提示词/13 趋势分析.md"
+    },
+    {
+      "from": "Prompts/14 What Matters Today.md",
+      "to": "提示词/14 今日重点.md"
+    },
+    {
+      "from": "Prompts/15 Vault Health Check.md",
+      "to": "提示词/15 笔记库健康检查.md"
+    },
+    {
+      "from": "Prompts/16 Onboarding Assistant.md",
+      "to": "提示词/16 入门助手.md"
+    },
+    {
+      "from": "Templates/Article.md",
+      "to": "模板/文章.md"
+    },
+    {
+      "from": "Templates/Book Note.md",
+      "to": "模板/读书笔记.md"
+    },
+    {
+      "from": "Templates/Course Lesson.md",
+      "to": "模板/课程.md"
+    },
+    {
+      "from": "Templates/Daily Note.md",
+      "to": "模板/每日日记.md"
+    },
+    {
+      "from": "Templates/Daily Questions Prompt.md",
+      "to": "模板/每日问题评分.md"
+    },
+    {
+      "from": "Templates/Newsletter.md",
+      "to": "模板/通讯.md"
+    },
+    {
+      "from": "Templates/Person.md",
+      "to": "模板/人物.md"
+    },
+    {
+      "from": "Templates/Personal Retreat.md",
+      "to": "模板/个人静修.md"
+    },
+    {
+      "from": "Templates/Project.md",
+      "to": "模板/项目.md"
+    },
+    {
+      "from": "Templates/Quarterly Note.md",
+      "to": "模板/季度笔记.md"
+    },
+    {
+      "from": "Templates/Study Note.md",
+      "to": "模板/研读笔记.md"
+    },
+    {
+      "from": "Templates/Weekly Note.md",
+      "to": "模板/每周笔记.md"
+    },
+    {
+      "from": "Templates/YouTube Script.md",
+      "to": "模板/视频脚本.md"
+    },
+    {
+      "from": "scripts/template/defaults/03 Planning/Core Values.md",
+      "to": "scripts/template/defaults/03 规划/核心价值观.md"
+    },
+    {
+      "from": "scripts/template/defaults/03 Planning/Ideal Week.md",
+      "to": "scripts/template/defaults/03 规划/理想一周.md"
+    },
+    {
+      "from": "scripts/template/defaults/03 Planning/Life Theme.md",
+      "to": "scripts/template/defaults/03 规划/人生主题.md"
+    },
+    {
+      "from": "scripts/template/defaults/08 Tasks/Tasks.md",
+      "to": "scripts/template/defaults/08 任务/任务总表.md"
+    },
+    {
+      "from": "scripts/template/defaults/09 Reading/Reading Plan.md",
+      "to": "scripts/template/defaults/09 阅读/阅读计划.md"
+    },
+    {
+      "from": "scripts/template/defaults/Meta/Compass Config.md",
+      "to": "scripts/template/defaults/系统/系统配置.md"
+    }
+  ]
+}
